@@ -12,4 +12,5 @@ const envConfig = {
   JWT_EXPIRATION: process.env.JWT_EXPIRATION,
 };
 
+
 export default envConfig;
