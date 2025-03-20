@@ -2,6 +2,7 @@ import "reflect-metadata";
 import express from "express";
 import envConfig from "./config/config";
 import AppDataSource from "./config/datasource.config";
+import { logger } from "./common/utils/logger";
 
 
 const { PORT } = envConfig;
@@ -14,12 +15,12 @@ app.get("/", (req, res) => {
 
 AppDataSource.initialize()
   .then(() => {
-    console.log("Database connected");
+    logger.info("Database connected");
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      logger.info(`Server is running on port ${PORT}`);
     });
     
   })
-  .catch((error) => console.log(error));
+  .catch((error) => logger.error(error));
 
 
