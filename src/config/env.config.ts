@@ -13,11 +13,14 @@ const envSchema = z.object({
   DB_PORT: z.string().refine((val) => !isNaN(Number(val)), {
     message: "DB_PORT must be a number",
   }),
+  DB_SYNCHRONIZE: z.boolean().optional().default(false),
   SECRET_KEY: z.string().min(10, "SECRET_KEY must be at least 10 characters long.").optional(),
   PORT: z.string().refine((val) => !isNaN(Number(val)), {
     message: "PORT must be a number",
   }),
   JWT_SECRET: z.string().optional(),
+  JWT_EXPIRATION: z.string().optional(),
+
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
