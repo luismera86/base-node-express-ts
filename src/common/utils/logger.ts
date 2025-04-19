@@ -5,22 +5,56 @@ import path from 'path';
 
 const logDir = path.join(__dirname, '..', 'logs');
 
-const nestFormat = format.printf(({ level, message, timestamp, context }) => {
-  const fullMessage = `${timestamp} ${level.toUpperCase()} [${context || 'Application'}] ${message}`;
+// Definir niveles personalizados
+const customLevels = {
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    debug: 3,
+    verbose: 4,
+    silly: 5
+  },
+  colors: {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    debug: 'blue',
+    verbose: 'magenta',
+    silily: 'cyan'
+  }
+};
 
+// Determinar el nivel de logging basado en el entorno
+const getLogLevel = () => {
+  const env = process.env.NODE_ENV || 'development';
+  return env === 'production' ? 'error' : 'debug';
+};
+
+const nestFormat = format.printf(({ level, message, timestamp, context }) => {
+  // Separar el mensaje principal y el secundario si existe
+  const [mainMessage, subMessage] = (message as string).split('\n');
+  
+  const mainLine = `${timestamp} ${level.toUpperCase()} [${context || 'Application'}] ${mainMessage}`;
+  
   const colorizer = {
     error: chalk.red,
     warn: chalk.yellow,
     info: chalk.green,
     debug: chalk.blue,
     verbose: chalk.magenta,
+    silly: chalk.cyan
   }[level] || chalk.white;
 
-  return colorizer(fullMessage);
+  // Si hay un mensaje secundario, agregarlo en blanco
+  return subMessage 
+    ? `${colorizer(mainLine)}\n${chalk.white(subMessage)}`
+    : colorizer(mainLine);
 });
 
 export const logger = createLogger({
-  level: 'debug',
+  levels: customLevels.levels,
+  level: getLogLevel(),
   format: format.combine(
     format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     nestFormat
@@ -35,23 +69,33 @@ export const logger = createLogger({
 export class LoggerService {
   constructor(private context = 'App') {}
 
-  log(message: string) {
-    logger.info({ message, context: this.context });
+  info(message: string, subMessage?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
+    logger.log('info', { message: fullMessage, context: this.context });
   }
 
-  error(message: string, trace?: string) {
-    logger.error({ message: `${message}${trace ? ' - ' + trace : ''}`, context: this.context });
+  error(message: string, subMessage?: string, trace?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}${trace ? '\n' + trace : ''}` : `${message}${trace ? ' - ' + trace : ''}`;
+    logger.error('error', { message: fullMessage, context: this.context });
   }
 
-  warn(message: string) {
-    logger.warn({ message, context: this.context });
+  warn(message: string, subMessage?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
+    logger.warn('warn', { message: fullMessage, context: this.context });
   }
 
-  debug(message: string) {
-    logger.debug({ message, context: this.context });
+  debug(message: string, subMessage?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
+    logger.debug('debug', { message: fullMessage, context: this.context });
   }
 
-  verbose(message: string) {
-    logger.verbose({ message, context: this.context });
+  verbose(message: string, subMessage?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
+    logger.verbose('verbose', { message: fullMessage, context: this.context });
+  }
+
+  silly(message: string, subMessage?: string) {
+    const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
+    logger.silly('silly', { message: fullMessage, context: this.context });
   }
 }

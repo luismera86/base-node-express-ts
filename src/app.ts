@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
 
 AppDataSource.initialize()
   .then(() => {
-    logger.log("Database connected");
+    logger.info("Database connected", "Probando");
     app.listen(PORT, () => {
       logger.debug(`Server is running on port ${PORT}`);
     });
