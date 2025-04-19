@@ -1,9 +1,9 @@
 import "reflect-metadata"; 
 import express from "express";
-import envConfig from "./config/config";
 import AppDataSource from "./config/datasource.config";
 import { LoggerService } from "./common/utils/logger";
 import { customExceptions } from "./exceptions/custom-exceptions";
+import envConfig from "./config/env.config";
 
 
 const { PORT } = envConfig;

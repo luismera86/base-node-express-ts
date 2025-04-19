@@ -76,7 +76,7 @@ export class LoggerService {
 
   error(message: string, subMessage?: string, trace?: string) {
     const fullMessage = subMessage ? `${message}\n${subMessage}${trace ? '\n' + trace : ''}` : `${message}${trace ? ' - ' + trace : ''}`;
-    logger.error('error', { message: fullMessage, context: this.context });
+    logger.error('error:', { message: fullMessage, context: this.context });
   }
 
   warn(message: string, subMessage?: string) {
