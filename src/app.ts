@@ -3,6 +3,7 @@ import express from "express";
 import envConfig from "./config/config";
 import AppDataSource from "./config/datasource.config";
 import { LoggerService } from "./common/utils/logger";
+import { customExceptions } from "./exceptions/custom-exceptions";
 
 
 const { PORT } = envConfig;
@@ -12,12 +13,12 @@ const app = express();
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-
+app.use(customExceptions);
 AppDataSource.initialize()
   .then(() => {
-    logger.info("Database connected", "Probando");
+    logger.info("Database connected");
     app.listen(PORT, () => {
-      logger.debug(`Server is running on port ${PORT}`);
+      logger.info(`Server is running on port ${PORT}`);
     });
     
   })
