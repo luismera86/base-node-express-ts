@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: base-node-express-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: base_node_express
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - base-node-express-network
+
+volumes:
+  postgres_data:
+    name: base-node-express-postgres-data
+
+networks:
+  base-node-express-network:
+    name: base-node-express-network 

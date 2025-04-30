@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsnd --respawn --clear src/app.ts",
+    "start:dev": "NODE_ENV=dev tsnd --respawn --clear src/app.ts",
+    "start:local": "NODE_ENV=local tsnd --respawn --clear src/app.ts",
+    "start:qa": "NODE_ENV=qa tsnd --respawn --clear src/app.ts",
+    "start:prod": "NODE_ENV=prod tsnd --respawn --clear src/app.ts",
     "build": "rimraf ./dist && tsc",
     "start": "npm run build && node dist/app.js",
     "test": "jest",
@@ -14,7 +17,7 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
     "typeorm": "npx typeorm",
-    "migration:generate": "npx ts-node ./node_modules/typeorm/cli.js migration:generate ./src/migrations/$npm_config_name -d ./src/config/datasource.config.ts",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d ./src/config/datasource.config.ts ./src/migrations/$npm_config_name",
     "migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run -d ./src/config/datasource.config.ts",
     "migration:revert": "npx ts-node ./node_modules/typeorm/cli.js migration:revert -d ./src/config/datasource.config.ts"
   },

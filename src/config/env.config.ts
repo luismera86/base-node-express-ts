@@ -2,10 +2,16 @@ import dotenv from "dotenv";
 import { z } from "zod";
 import { LoggerService } from "../common/utils/logger";
 
-dotenv.config();
+// Determinar el entorno actual
+const NODE_ENV = process.env.NODE_ENV || "local";
+
+// Cargar el archivo .env correspondiente al entorno
+dotenv.config({ path: `.env.${NODE_ENV}` });
+
 const logger = new LoggerService("EnvConfig");
 
 const envSchema = z.object({
+  NODE_ENV: z.enum(["local", "dev", "qa", "prod"]).default("local"),
   DB_HOST: z.string(),
   DB_NAME: z.string(),
   DB_USER: z.string(),
@@ -20,7 +26,6 @@ const envSchema = z.object({
   }),
   JWT_SECRET: z.string().optional(),
   JWT_EXPIRATION: z.string().optional(),
-
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
