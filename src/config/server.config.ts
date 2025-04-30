@@ -48,8 +48,8 @@ export class Server {
   }
 
   private listen() {
-    this.app.listen(envConfig.DB_PORT, () => {
-      this.logger.info(`Server is running on port ${envConfig.DB_PORT}`);
+    this.app.listen(envConfig.PORT, () => {
+      this.logger.info(`Server is running on port ${envConfig.PORT}`);
     });
   }
 }
