@@ -6,7 +6,7 @@ import {
   OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
 import { UserSchema } from "../modules/user/schemas/user.schema";
-import { registerUserPaths } from "./paths/users";
+import { UserPaths } from "./paths/users/user.paths";
 
 extendZodWithOpenApi(z); // Habilita `.openapi()` en esquemas de Zod
 
@@ -16,7 +16,7 @@ export const registry = new OpenAPIRegistry();
 registry.register("User", UserSchema);
 
 // Registrar paths
-registerUserPaths(registry);
+new UserPaths().register();
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
