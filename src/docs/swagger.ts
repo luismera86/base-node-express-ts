@@ -5,42 +5,19 @@ import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
+import { UserSchema } from "../modules/user/schemas/user.schema";
+import { registerUserPaths } from "./paths/users";
 
 extendZodWithOpenApi(z); // Habilita `.openapi()` en esquemas de Zod
 
-const registry = new OpenAPIRegistry();
+export const registry = new OpenAPIRegistry();
 
-const UserSchema = z
-  .object({
-    id: z.string().uuid().openapi({ description: "UUID del usuario" }),
-    name: z.string().openapi({ example: "Luis Mera" }),
-    email: z.string().email().openapi({ example: "luis@meram.com" }),
-    password: z.string().min(8).openapi({ example: "********" }),
-  })
-  .openapi("User");
-
+// Registrar schemas
 registry.register("User", UserSchema);
-registry.registerPath({
-  tags: ['users'],
-  method: 'post',
-  path: '/users',
-  summary: 'Crear usuario',
-  request: {
-    body: {
-      content: {
-        "application/json": { schema: UserSchema },
-      },
-    },
-  },
-  responses: {
-    201: {
-      description: 'Usuario creado',
-      content: {
-        'application/json': { schema: UserSchema },
-      },
-    },
-  },
-});
+
+// Registrar paths
+registerUserPaths(registry);
+
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
 export const openApiDoc = generator.generateDocument({
