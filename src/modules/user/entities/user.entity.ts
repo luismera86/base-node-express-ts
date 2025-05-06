@@ -6,12 +6,14 @@ import { UserSchema } from "../schemas/user.schema";
 @Entity()
 export class User extends BaseUUIDEntity implements UserSchema {
   @Column()
-  name: string;
+  firstName: string;
 
   @Column()
-  email: string;
+  lastName: string;
 
   @Column()
   password: string;
 
+  @Column()
+  email: string;
 }

@@ -24,8 +24,7 @@ const envSchema = z.object({
   PORT: z.string().refine((val) => !isNaN(Number(val)), {
     message: "PORT must be a number",
   }),
-  JWT_SECRET: z.string().optional(),
-  JWT_EXPIRATION: z.string().optional(),
+  JWT_SECRET: z.string(),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
