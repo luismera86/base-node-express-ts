@@ -4,20 +4,20 @@ import { BasePath } from "../base.path";
 export class GetAllUsersPath extends BasePath {
   register(): void {
     this.registry.registerPath({
-      tags: ['users'],
-      method: 'get',
-      path: '/users',
-      summary: 'Obtener todos los usuarios',
+      tags: ["users"],
+      method: "get",
+      path: "/users",
+      summary: "Obtener todos los usuarios",
       responses: {
         200: {
-          description: 'Lista de usuarios',
+          description: "Lista de usuarios",
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'array',
+                type: "array",
                 items: {
-                  $ref: '#/components/schemas/User'
-                }
+                  $ref: "#/components/schemas/User",
+                },
               },
             },
           },

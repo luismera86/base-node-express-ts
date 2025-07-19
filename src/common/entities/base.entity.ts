@@ -3,9 +3,8 @@ import {
   DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from "typeorm";
-
 
 export class BaseEntity {
   @PrimaryGeneratedColumn("increment")

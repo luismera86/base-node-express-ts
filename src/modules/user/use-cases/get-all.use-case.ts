@@ -16,11 +16,11 @@ export class GetAllUsersUseCase {
   async execute(): Promise<User[]> {
     const users = await this.userRepository.find();
     this.logger.info(`Found ${users.length} users`);
-    
+
     if (users.length === 0) {
       throw new NotFoundException("Users not found");
     }
-    
+
     return users;
   }
 }

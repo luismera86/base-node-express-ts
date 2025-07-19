@@ -19,4 +19,4 @@ export class UserPaths extends BasePath {
     new UpdateUserPath(this.registry).register();
     new DeleteUserPath(this.registry).register();
   }
-} 
+}

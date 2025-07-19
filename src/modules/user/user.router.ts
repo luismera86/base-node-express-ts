@@ -7,10 +7,9 @@ export class UserRouter {
   static router() {
     const userController = new UserController();
     const router = Router();
-    router.get('/', userController.getAllUsers);
-    router.get('/:id', userController.getOneUser);
-    router.post('/', SchemaValidator.validateSchema(CreateUserSchema), userController.createUser);
+    router.get("/", userController.getAllUsers);
+    router.get("/:id", userController.getOneUser);
+    router.post("/", SchemaValidator.validateSchema(CreateUserSchema), userController.createUser);
     return router;
   }
 }
-  

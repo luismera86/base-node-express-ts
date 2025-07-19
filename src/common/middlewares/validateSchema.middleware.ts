@@ -34,16 +34,16 @@ export class SchemaValidator {
       } catch (error) {
         if (error instanceof ZodError) {
           return res.status(400).json({
-            status: 'error',
-            message: 'Error de validación',
-            errors: error.errors.map(err => ({
-              path: err.path.join('.'),
-              message: err.message
-            }))
+            status: "error",
+            message: "Error de validación",
+            errors: error.errors.map((err) => ({
+              path: err.path.join("."),
+              message: err.message,
+            })),
           });
         }
         next(error);
       }
     };
   }
-} 
+}

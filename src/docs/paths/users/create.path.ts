@@ -5,10 +5,10 @@ import { BasePath } from "../base.path";
 export class CreateUserPath extends BasePath {
   register(): void {
     this.registry.registerPath({
-      tags: ['users'],
-      method: 'post',
-      path: '/users',
-      summary: 'Crear usuario',
+      tags: ["users"],
+      method: "post",
+      path: "/users",
+      summary: "Crear usuario",
       request: {
         body: {
           content: {
@@ -18,12 +18,12 @@ export class CreateUserPath extends BasePath {
       },
       responses: {
         201: {
-          description: 'Usuario creado',
+          description: "Usuario creado",
           content: {
-            'application/json': { 
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/User'
-              }
+                $ref: "#/components/schemas/User",
+              },
             },
           },
         },

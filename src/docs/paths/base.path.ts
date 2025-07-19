@@ -8,4 +8,4 @@ export abstract class BasePath {
   }
 
   abstract register(): void;
-} 
+}

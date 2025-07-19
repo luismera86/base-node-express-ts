@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { z } from "zod";
-import { LoggerService } from "../common/utils/logger";
+import { LoggerService } from "../common/utils/logger.util";
 
 // Determinar el entorno actual
 const NODE_ENV = process.env.NODE_ENV || "local";
@@ -19,12 +19,34 @@ const envSchema = z.object({
   DB_PORT: z.string().refine((val) => !isNaN(Number(val)), {
     message: "DB_PORT must be a number",
   }),
-  DB_SYNCHRONIZE: z.boolean().optional().default(false),
+  // DB_SYNCHRONIZE: z.boolean().optional().default(false),
   SECRET_KEY: z.string().min(10, "SECRET_KEY must be at least 10 characters long.").optional(),
   PORT: z.string().refine((val) => !isNaN(Number(val)), {
     message: "PORT must be a number",
   }),
   JWT_SECRET: z.string(),
+  FRONTEND_URL: z.string(),
+  API_URL: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  MICROSOFT_CLIENT_ID: z.string(),
+  MICROSOFT_CLIENT_SECRET: z.string(),
+  SESSION_SECRET: z.string(),
+  EMAIL_HOST: z.string(),
+  EMAIL_PORT: z.string(),
+  EMAIL_USER: z.string(),
+  EMAIL_PASSWORD: z.string(),
+  EMAIL_FROM: z.string(),
+  AWS_REGION: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_BUCKET_NAME: z.string(),
+  STRIPE_PUBLISHABLE_KEY: z.string(),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  MAX_MONTHS_FOR_EVENTS: z.coerce.number(),
+  JITSI_URL: z.string(),
+  JITSI_JWT_SECRET: z.string(),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;

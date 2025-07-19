@@ -5,19 +5,19 @@ import { BasePath } from "../base.path";
 export class UpdateUserPath extends BasePath {
   register(): void {
     this.registry.registerPath({
-      tags: ['users'],
-      method: 'put',
-      path: '/users/{id}',
-      summary: 'Actualizar usuario',
+      tags: ["users"],
+      method: "put",
+      path: "/users/{id}",
+      summary: "Actualizar usuario",
       parameters: [
         {
-          name: 'id',
-          in: 'path',
+          name: "id",
+          in: "path",
           required: true,
           schema: {
-            type: 'string',
+            type: "string",
           },
-          description: 'ID del usuario',
+          description: "ID del usuario",
         },
       ],
       request: {
@@ -29,17 +29,17 @@ export class UpdateUserPath extends BasePath {
       },
       responses: {
         200: {
-          description: 'Usuario actualizado',
+          description: "Usuario actualizado",
           content: {
-            'application/json': { 
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/User'
-              }
+                $ref: "#/components/schemas/User",
+              },
             },
           },
         },
         404: {
-          description: 'Usuario no encontrado',
+          description: "Usuario no encontrado",
         },
       },
     });
