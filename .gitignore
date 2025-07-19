@@ -1,0 +1,17 @@
+node_modules
+.env.local
+.env.dev
+.env.qa
+.env.prod
+.env
+logs
+dist
+/.vscode
+/docs-internal
+/dev-scripts
+
+# Archivos de scripts personalizados
+dev-my-scripts.bat
+dev-my-scripts.sh
+.npmrc
+tsconfig.tsbuildinfo
