@@ -15,12 +15,6 @@ export const authUser = async (req: Request, res: Response, next: NextFunction) 
         const decoded = Jwt.verifyToken(token);
         const user = await AppDataSource.getRepository(User).findOne({
             where: { id: decoded.id },
-            relations: {
-                userRoles: {
-                    permissions: true,
-                    role: true,
-                },
-            },
         });
         req.user = user as unknown as User;
         next();
