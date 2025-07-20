@@ -73,7 +73,6 @@ export class Server {
                 customSiteTitle: "API Emooti - Documentación",
                 customCss:
                     ".swagger-ui .topbar { display: none } .auth-wrapper { padding: 10px; border: 1px solid #49cc90; background: rgba(73, 204, 144, 0.1); }",
-                customfavIcon: "/favicon.ico",
             }),
         );
 
@@ -83,6 +82,11 @@ export class Server {
 
         this.app.use("/up", (req, res) => {
             res.status(200).json({ message: "OK" });
+        });
+
+        // Ruta para favicon.ico
+        this.app.get("/favicon.ico", (req, res) => {
+            res.status(204).send(); // Respuesta vacía para favicon
         });
 
         this.app.use((req, res, next) => {

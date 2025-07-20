@@ -8,6 +8,7 @@ import { UserSchema } from "../modules/user/schemas/user.schema";
 
 // Imports de paths
 import { AuthPaths } from "./paths/auth/auth.paths";
+import { UserPaths } from "./paths/user/user.paths";
 
 extendZodWithOpenApi(z); // Habilita `.openapi()` en esquemas de Zod
 
@@ -19,6 +20,7 @@ registry.register("User", UserSchema);
 
 // Registrar paths
 new AuthPaths().register();
+new UserPaths().register();
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 

@@ -23,8 +23,7 @@
     "seed": "npx ts-node ./src/seeds/drop-db.ts && npm run migration:run && npx ts-node ./src/seeds/seed.ts",
     "create:module": "chmod +x ./scripts/modules/create-module.sh && ./scripts/modules/create-module.sh",
     "create:use-case": "chmod +x ./scripts/modules/create-use-case.sh && ./scripts/modules/create-use-case.sh",
-    "create:swagger-docs": "chmod +x ./scripts/modules/create-swagger-docs.sh && ./scripts/modules/create-swagger-docs.sh",
-    "generate:doc": "chmod +x ./scripts/modules/generate-documentation.sh && ./scripts/modules/generate-documentation.sh $npm_config_module_name"
+    "create:swagger-docs": "chmod +x ./scripts/modules/create-swagger-docs.sh && ./scripts/modules/create-swagger-docs.sh"
   },
   "keywords": [],
   "author": "",
