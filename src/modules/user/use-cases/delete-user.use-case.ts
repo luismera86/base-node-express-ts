@@ -6,7 +6,7 @@ import AppDataSource from "../../../config/datasource.config";
 export class DeleteUserUseCase {
     private readonly logger: LoggerService = new LoggerService("DeleteUserUseCase");
 
-    async execute(id: number): Promise<void> {
+    async execute(id: string): Promise<void> {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();

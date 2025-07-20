@@ -1,5 +1,4 @@
-import { LoggerService } from "../../common/utils/logger.util";
-import { notificationsJob } from "./notifications.job";
+import { LoggerService } from "../common/utils/logger.util";
 
 export class CronJobManager {
     private static instance: CronJobManager;
@@ -14,7 +13,6 @@ export class CronJobManager {
     private initializeJobs() {
         // Registrar todos los jobs aquí
         // this.jobs.set('count', countJob);
-        this.jobs.set("notifications", notificationsJob);
     }
 
     public static getInstance(): CronJobManager {

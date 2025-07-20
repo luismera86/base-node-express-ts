@@ -18,12 +18,6 @@ const loginStrategy = new Strategy(
 
             const userWithRelations = await userRepository.findOne({
                 where: { id: user.id },
-                relations: {
-                    userRoles: {
-                        permissions: true,
-                        role: true,
-                    },
-                },
             });
 
             return done(null, userWithRelations);

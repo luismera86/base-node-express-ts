@@ -12,7 +12,7 @@ export class CreateUserUseCase {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-            const existingUser = await queryRunner.manager.findOne(User, { where: { name: data.name } });
+            const existingUser = await queryRunner.manager.findOne(User, { where: { email: data.email } });
             if (existingUser) throw new BadRequestException("User already exists");
 
             const createdUser = queryRunner.manager.create(User, data);

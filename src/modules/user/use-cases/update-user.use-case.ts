@@ -7,7 +7,7 @@ import AppDataSource from "../../../config/datasource.config";
 export class UpdateUserUseCase {
     private readonly logger: LoggerService = new LoggerService("UpdateUserUseCase");
 
-    async execute(id: number, data: UpdateUserDto): Promise<User> {
+    async execute(id: string, data: UpdateUserDto): Promise<User> {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();

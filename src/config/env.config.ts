@@ -25,6 +25,8 @@ const envSchema = z.object({
         message: "PORT must be a number",
     }),
     JWT_SECRET: z.string(),
+    SESSION_SECRET: z.string().min(10, "SESSION_SECRET must be at least 10 characters long."),
+    API_URL: z.string(),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
