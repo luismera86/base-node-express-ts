@@ -7,8 +7,8 @@ export class BaseRouter {
         const router = Router();
 
         router.use("/auth", AuthRouter.router);
-        router.use(authUser);
         router.use("/user", UserRouter.router);
+        router.use(authUser);
         return router;
     }
 }
