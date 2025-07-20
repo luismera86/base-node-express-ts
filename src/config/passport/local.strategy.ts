@@ -2,7 +2,7 @@ import { Strategy } from "passport-local";
 import passport from "passport";
 import { User } from "../../modules/user/entities/user.entity";
 import AppDataSource from "../datasource.config";
-import { Hash } from "../../common/utils/hash.util";
+import { compareHash } from "../../common/utils/hash.util";
 
 const loginStrategy = new Strategy(
     {
@@ -13,7 +13,7 @@ const loginStrategy = new Strategy(
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.findOne({ where: { email } });
 
-            if (!user || !Hash.compare(password, user.password))
+            if (!user || !compareHash(password, user.password))
                 return done(null, false, { message: "Invalid credentials" });
 
             const userWithRelations = await userRepository.findOne({
