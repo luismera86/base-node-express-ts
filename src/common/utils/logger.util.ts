@@ -1,8 +1,8 @@
-import { createLogger, format, transports } from "winston";
 import { Temporal } from "@js-temporal/polyfill";
 import path from "path";
+import { createLogger, format, transports } from "winston";
 
-const { combine, timestamp, printf, colorize } = format;
+const { combine, printf, colorize } = format;
 
 const logDir = path.join(__dirname, "../../../", "logs");
 

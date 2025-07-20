@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Jwt } from "../utils/jwt.util";
+import { verifyToken } from "../utils/jwt.util";
 import { UnauthorizedException } from "../../exceptions/exceptions";
 import { User } from "../../modules/user/entities/user.entity";
 import AppDataSource from "../../config/datasource.config";
@@ -12,7 +12,7 @@ export const authUser = async (req: Request, res: Response, next: NextFunction) 
 
         const token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
 
-        const decoded = Jwt.verifyToken(token);
+        const decoded = verifyToken(token);
         const user = await AppDataSource.getRepository(User).findOne({
             where: { id: decoded.id },
         });
