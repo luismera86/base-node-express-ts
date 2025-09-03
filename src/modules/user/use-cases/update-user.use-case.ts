@@ -7,7 +7,7 @@ import AppDataSource from "../../../config/datasource.config";
 export class UpdateUserUseCase {
     private readonly logger: LoggerService = new LoggerService("UpdateUserUseCase");
 
-    async execute(id: string, data: UpdateUserDto): Promise<User> {
+    async execute(id: number, data: UpdateUserDto): Promise<User> {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -18,8 +18,8 @@ export class UpdateUserUseCase {
 
             await queryRunner.commitTransaction();
             return updatedUser;
-        } catch (error: any) {
-            this.logger.error("Error updating user", error.message);
+        } catch (error: unknown) {
+            this.logger.error("Error updating user", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {

@@ -44,7 +44,7 @@ export class UserController {
         const { id } = req.params;
         try {
             const updateUserUseCase = new UpdateUserUseCase();
-            const user = await updateUserUseCase.execute(id, req.body as UpdateUserDto);
+            const user = await updateUserUseCase.execute(+id, req.body as UpdateUserDto);
             res.status(200).json(user);
         } catch (error) {
             next(error);
@@ -55,7 +55,7 @@ export class UserController {
         const { id } = req.params;
         try {
             const deleteUserUseCase = new DeleteUserUseCase();
-            await deleteUserUseCase.execute(id);
+            await deleteUserUseCase.execute(+id);
             res.status(200).json({ status: "ok", message: "Successfully deleted User" });
         } catch (error) {
             next(error);

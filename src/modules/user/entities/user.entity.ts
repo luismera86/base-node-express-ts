@@ -1,17 +1,14 @@
 import { Column } from "typeorm";
 import { Entity } from "typeorm";
+import { BaseEntity } from "../../../common/entities/base.entity";
 import { UserSchema } from "../schemas/user.schema";
-import { BaseUUIDEntity } from "../../../common/entities/baseUUID.entity";
 
 @Entity()
-export class User extends BaseUUIDEntity implements Partial<UserSchema> {
+export class User extends BaseEntity implements Partial<UserSchema> {
     @Column()
-    firstName: string;
+    name: string;
 
-    @Column()
-    lastName: string;
-
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()

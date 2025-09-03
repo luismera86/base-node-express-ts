@@ -6,34 +6,38 @@ extendZodWithOpenApi(z);
 export const CreateUserSchema = {
     body: z
         .object({
-            firstName: z.string().openapi({ example: "Example Name", description: "Name of user" }),
-            lastName: z.string().openapi({ example: "Example Name", description: "Name of user" }),
-            email: z.string().email().openapi({ example: "example@example.com", description: "Email of user" }),
-            password: z.string().min(8).openapi({ example: "Password123", description: "Password of user" }),
+            name: z.string().openapi({ example: "Example Name", description: "Name of user" }),
         })
         .openapi("User"),
 };
 
 export const UpdateUserSchema = {
     params: z.object({
-        id: z.string().openapi({ example: "123e4567-e89b-12d3-a456-426614174000", description: "User id" }),
+        id: z
+            .string()
+            .transform((val) => parseInt(val, 10))
+            .pipe(z.number().int().positive().openapi({ example: 1, description: "User id" })),
     }),
     body: CreateUserSchema.body.partial(),
 };
 
 export const UserSchema = CreateUserSchema.body.extend({
-    id: z.string(),
+    id: z.number(),
 });
 
 export const DeleteUserSchema = {
-    params: z.object({
-        id: z.string().openapi({ example: "123e4567-e89b-12d3-a456-426614174000", description: "User id" }),
-    }),
+    params: z
+        .string()
+        .transform((val) => parseInt(val, 10))
+        .pipe(z.number().int().positive().openapi({ example: 1, description: "User id" })),
 };
 
 export const GetOneUserSchema = {
     params: z.object({
-        id: z.string(),
+        id: z
+            .string()
+            .transform((val) => parseInt(val, 10))
+            .pipe(z.number().int().positive().openapi({ example: 1, description: "User id" })),
     }),
 };
 

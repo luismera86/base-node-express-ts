@@ -88,6 +88,37 @@ mkdir -p "src/modules/$MODULE_NAME/use-cases" || error "No se pudo crear el dire
 mkdir -p "src/modules/$MODULE_NAME/entities" || error "No se pudo crear el directorio entities"
 mkdir -p "src/modules/$MODULE_NAME/schemas" || error "No se pudo crear el directorio schemas"
 
+# Asegurar carpeta de repositorios comunes
+mkdir -p "src/common/repositories" || error "No se pudo crear el directorio src/common/repositories"
+
+# Archivo unificado de repositorios: inicializar y calcular nombre camel del módulo
+REPO_INDEX_FILE="src/common/repositories/repositories.ts"
+MODULE_CAMEL=$(kebab_to_camel "$MODULE_NAME")
+if [ ! -f "$REPO_INDEX_FILE" ]; then
+    cat > "$REPO_INDEX_FILE" << EOF
+import AppDataSource from "../../config/datasource.config";
+
+EOF
+fi
+
+IMPORT_LINE="import { ${CLASS_NAME} } from \"../../modules/$MODULE_NAME/entities/$MODULE_NAME.entity\";"
+EXPORT_LINE="export const ${MODULE_CAMEL}Repository = AppDataSource.getRepository(${CLASS_NAME});"
+
+if ! grep -qF "$IMPORT_LINE" "$REPO_INDEX_FILE"; then
+    # Insert import line before the first export entry if any, otherwise append at end
+    if grep -qE '^export ' "$REPO_INDEX_FILE"; then
+        awk -v imp="$IMPORT_LINE" 'BEGIN{inserted=0} /^export / && !inserted{print imp; inserted=1} {print}' "$REPO_INDEX_FILE" > "${REPO_INDEX_FILE}.tmp" && mv "${REPO_INDEX_FILE}.tmp" "$REPO_INDEX_FILE"
+    else
+        echo "$IMPORT_LINE" >> "$REPO_INDEX_FILE"
+    fi
+fi
+
+if ! grep -qF "$EXPORT_LINE" "$REPO_INDEX_FILE"; then
+    # Ensure a blank line separates imports and exports, and one blank line after each export
+    # Append export at end with a preceding blank line
+    printf "\n%s\n\n" "$EXPORT_LINE" >> "$REPO_INDEX_FILE"
+fi
+
 # Crear el archivo de entidad
 cat > "src/modules/$MODULE_NAME/entities/$MODULE_NAME.entity.ts" << EOF
 import { Column } from "typeorm";
@@ -175,8 +206,8 @@ export class Create${CLASS_NAME}UseCase {
             await queryRunner.manager.save(created${CLASS_NAME});
             await queryRunner.commitTransaction();
             return created${CLASS_NAME};
-        } catch (error: any) {
-            this.logger.error("Error creating ${MODULE_NAME}", error.message);
+        } catch (error: unknown) {
+            this.logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {
@@ -190,60 +221,66 @@ cat > "src/modules/$MODULE_NAME/use-cases/get-all-$MODULE_NAME.use-case.ts" << E
 
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
+import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 
 export class GetAll${CLASS_NAME}UseCase {
     private readonly logger: LoggerService = new LoggerService("GetAll${CLASS_NAME}UseCase");
 
     async execute(): Promise<${CLASS_NAME}[]> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
         try {
-            const $(kebab_to_camel "$MODULE_NAME")s = await queryRunner.manager.find(${CLASS_NAME});
-            await queryRunner.commitTransaction();
+            const $(kebab_to_camel "$MODULE_NAME")s = await ${MODULE_CAMEL}Repository.find();
             return $(kebab_to_camel "$MODULE_NAME")s;
-        } catch (error: any) {
-            this.logger.error("Error getting all ${MODULE_NAME}s", error.message);
-            await queryRunner.rollbackTransaction();
+        } catch (error: unknown) {
+            this.logger.error("Error getting all ${MODULE_NAME}s", (error as Error).message);
             throw error;
-        } finally {
-            await queryRunner.release();
         }
     }
 }
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/get-one-$MODULE_NAME.use-case.ts" << EOF
+import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
+import { LoggerService } from "../../../common/utils/logger.util";
 import { NotFoundException } from "../../../exceptions/exceptions";
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
-import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
 
 export class GetOne${CLASS_NAME}UseCase {
     private readonly logger: LoggerService = new LoggerService("GetOne${CLASS_NAME}UseCase");
 
 
     async execute(param: string, getBy:string = "id"): Promise<${CLASS_NAME}> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
         try {
-            const $(kebab_to_camel "$MODULE_NAME") = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { [getBy]:param } });
+            const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { [getBy]: param } });
             if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
-            
-            await queryRunner.commitTransaction();
             return $(kebab_to_camel "$MODULE_NAME");
-        } catch (error: any) {
-            this.logger.error("Error getting ${MODULE_NAME}", error.message);
-            await queryRunner.rollbackTransaction();
+        } catch (error: unknown) {
+            this.logger.error("Error getting ${MODULE_NAME}", (error as Error).message);
             throw error;
-        } finally {
-            await queryRunner.release();
         }
     }
 }
 EOF
+
+# Crear archivo de repositorio común para este módulo
+# Agregar entrada en un archivo unificado de repositorios
+REPO_INDEX_FILE="src/common/repositories/repositories.ts"
+MODULE_CAMEL=$(kebab_to_camel "$MODULE_NAME")
+if [ ! -f "$REPO_INDEX_FILE" ]; then
+    cat > "$REPO_INDEX_FILE" << EOF
+import AppDataSource from "../../config/datasource.config";
+
+EOF
+fi
+
+IMPORT_LINE="import { ${CLASS_NAME} } from \"../../modules/$MODULE_NAME/entities/$MODULE_NAME.entity\";"
+EXPORT_LINE="export const ${MODULE_CAMEL}Repository = AppDataSource.getRepository(${CLASS_NAME});"
+
+if ! grep -qF "$IMPORT_LINE" "$REPO_INDEX_FILE"; then
+    echo "$IMPORT_LINE" >> "$REPO_INDEX_FILE"
+fi
+if ! grep -qF "$EXPORT_LINE" "$REPO_INDEX_FILE"; then
+    echo "$EXPORT_LINE" >> "$REPO_INDEX_FILE"
+fi
 
 cat > "src/modules/$MODULE_NAME/use-cases/update-$MODULE_NAME.use-case.ts" << EOF
 
@@ -268,8 +305,8 @@ export class Update${CLASS_NAME}UseCase {
             
             await queryRunner.commitTransaction();
             return updated${CLASS_NAME};
-        } catch (error: any) {
-            this.logger.error("Error updating ${MODULE_NAME}", error.message);
+        } catch (error: unknown) {
+            this.logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {
@@ -299,8 +336,8 @@ export class Delete${CLASS_NAME}UseCase {
 
             await queryRunner.manager.remove($(kebab_to_camel "$MODULE_NAME"));
             await queryRunner.commitTransaction();
-        } catch (error: any) {
-            this.logger.error("Error deleting ${MODULE_NAME}", error.message);
+        } catch (error: unknown) {
+            this.logger.error("Error deleting ${MODULE_NAME}", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {

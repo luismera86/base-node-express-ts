@@ -25,9 +25,9 @@ npm install
 
 - Crear un archivo `.env.local` basado en el `.env.example`
 - Asegurarse de configurar las siguientes variables:
-  - Variables de base de datos (PostgreSQL)
-  - Variables de autenticación (JWT)
-  - Variables de entorno de la aplicación
+    - Variables de base de datos (PostgreSQL)
+    - Variables de autenticación (JWT)
+    - Variables de entorno de la aplicación
 
 4. **Levantar la base de datos**
 
@@ -113,41 +113,37 @@ src/modules/user/
 #### Descripción de cada componente:
 
 1. **entities/**
-
-   - Contiene las definiciones de las entidades usando TypeORM
-   - Define la estructura de la tabla en la base de datos
-   - Incluye decoradores para mapeo objeto-relacional
-   - Se puede extender desde dos entidades base que ya incluyen por defecto id, createdAt, updatedAt, deletedAt.
-   - BaseEntity con ID tipo Int auto incremental.
-   - BaseUUIDEntity con ID tipo UUID string. (Recomendado para usuarios)
+    - Contiene las definiciones de las entidades usando TypeORM
+    - Define la estructura de la tabla en la base de datos
+    - Incluye decoradores para mapeo objeto-relacional
+    - Se puede extender desde dos entidades base que ya incluyen por defecto id, createdAt, updatedAt, deletedAt.
+    - BaseEntity con ID tipo Int auto incremental.
+    - BaseUUIDEntity con ID tipo UUID string. (Recomendado para usuarios)
 
 2. **schemas/**
-
-   - Contiene los esquemas de validación usando Zod
-   - Define la estructura y validaciones de los datos de entrada
-   - Asegura la integridad de los datos antes de procesarlos
+    - Contiene los esquemas de validación usando Zod
+    - Define la estructura y validaciones de los datos de entrada
+    - Asegura la integridad de los datos antes de procesarlos
 
 3. **use-cases/**
-
-   - Implementa la lógica de negocio específica del módulo
-   - Cada caso de uso es una clase independiente
-   - Sigue el principio de responsabilidad única
-   - Maneja la interacción con la base de datos y otras dependencias
-   - Instancia directamente los repository de TypeORM.
+    - Implementa la lógica de negocio específica del módulo
+    - Cada caso de uso es una clase independiente
+    - Sigue el principio de responsabilidad única
+    - Maneja la interacción con la base de datos y otras dependencias
+    - Instancia directamente los repository de TypeORM.
 
 4. **controller.ts**
-
-   - Maneja las peticiones HTTP
-   - Coordina los casos de uso
-   - Formatea las respuestas
-   - Maneja los errores a nivel de API
-   - Los métodos sole en esta clase escriben como funciones flecha para evitar errores de build.
+    - Maneja las peticiones HTTP
+    - Coordina los casos de uso
+    - Formatea las respuestas
+    - Maneja los errores a nivel de API
+    - Los métodos sole en esta clase escriben como funciones flecha para evitar errores de build.
 
 5. **router.ts**
-   - Define las rutas del módulo
-   - Se conecta con BaseRouter que esta en common para designar los path globales.
-   - Configura los middlewares necesarios
-   - Conecta las rutas con los controladores
+    - Define las rutas del módulo
+    - Se conecta con BaseRouter que esta en common para designar los path globales.
+    - Configura los middlewares necesarios
+    - Conecta las rutas con los controladores
 
 Esta estructura modular permite:
 
@@ -203,47 +199,43 @@ Las migraciones se almacenan en `src/migrations/` y siguen este formato:
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class NombreDeLaMigracion1234567890123 implements MigrationInterface {
-  name = "NombreDeLaMigracion1234567890123";
+    name = "NombreDeLaMigracion1234567890123";
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    // Código para aplicar los cambios
-    await queryRunner.query(`CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), ...)`);
-  }
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        // Código para aplicar los cambios
+        await queryRunner.query(`CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), ...)`);
+    }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Código para revertir los cambios
-    await queryRunner.query(`DROP TABLE "user"`);
-  }
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        // Código para revertir los cambios
+        await queryRunner.query(`DROP TABLE "user"`);
+    }
 }
 ```
 
 #### Buenas prácticas para migraciones
 
 1. **Nombres descriptivos**
-
-   - Usar nombres que describan claramente el propósito de la migración
-   - Ejemplo: `add-user-role`, `create-posts-table`
+    - Usar nombres que describan claramente el propósito de la migración
+    - Ejemplo: `add-user-role`, `create-posts-table`
 
 2. **Métodos up y down**
-
-   - El método `up` debe implementar los cambios
-   - El método `down` debe revertir los cambios
-   - Asegurarse de que `down` revierta exactamente lo que hace `up`
+    - El método `up` debe implementar los cambios
+    - El método `down` debe revertir los cambios
+    - Asegurarse de que `down` revierta exactamente lo que hace `up`
 
 3. **Orden de ejecución**
-
-   - Las migraciones se ejecutan en orden cronológico
-   - Nunca modificar una migración ya ejecutada
-   - Crear una nueva migración para cambios adicionales
+    - Las migraciones se ejecutan en orden cronológico
+    - Nunca modificar una migración ya ejecutada
+    - Crear una nueva migración para cambios adicionales
 
 4. **Validación**
-
-   - Probar las migraciones en un entorno de desarrollo antes de aplicarlas en producción
-   - Verificar que el método `down` funcione correctamente
+    - Probar las migraciones en un entorno de desarrollo antes de aplicarlas en producción
+    - Verificar que el método `down` funcione correctamente
 
 5. **Backup**
-   - Realizar backup de la base de datos antes de ejecutar migraciones en producción
-   - Tener un plan de rollback en caso de problemas
+    - Realizar backup de la base de datos antes de ejecutar migraciones en producción
+    - Tener un plan de rollback en caso de problemas
 
 #### Comandos adicionales de TypeORM
 
@@ -383,34 +375,34 @@ src/docs/paths/nombre-del-modulo/
 #### Archivos generados
 
 1. **nombre-del-modulo.paths.ts**
-   - Clase principal que extiende `BasePath`
-   - Registra todos los paths del módulo
-   - Importa y ejecuta cada path individual
+    - Clase principal que extiende `BasePath`
+    - Registra todos los paths del módulo
+    - Importa y ejecuta cada path individual
 
 2. **create.path.ts**
-   - Endpoint POST para crear nuevos registros
-   - Incluye validación del schema
-   - Respuestas para 201, 400, 401
+    - Endpoint POST para crear nuevos registros
+    - Incluye validación del schema
+    - Respuestas para 201, 400, 401
 
 3. **get-all.path.ts**
-   - Endpoint GET para obtener todos los registros
-   - Retorna array de objetos
-   - Respuestas para 200, 401
+    - Endpoint GET para obtener todos los registros
+    - Retorna array de objetos
+    - Respuestas para 200, 401
 
 4. **get-by-id.path.ts**
-   - Endpoint GET para obtener un registro por ID
-   - Parámetro de ruta `{id}`
-   - Respuestas para 200, 404, 401
+    - Endpoint GET para obtener un registro por ID
+    - Parámetro de ruta `{id}`
+    - Respuestas para 200, 404, 401
 
 5. **update.path.ts**
-   - Endpoint PUT para actualizar registros
-   - Parámetro de ruta `{id}` y body
-   - Respuestas para 200, 400, 404, 401
+    - Endpoint PUT para actualizar registros
+    - Parámetro de ruta `{id}` y body
+    - Respuestas para 200, 400, 404, 401
 
 6. **delete.path.ts**
-   - Endpoint DELETE para eliminar registros
-   - Parámetro de ruta `{id}`
-   - Respuestas para 200, 404, 401
+    - Endpoint DELETE para eliminar registros
+    - Parámetro de ruta `{id}`
+    - Respuestas para 200, 404, 401
 
 #### Actualización automática del archivo swagger.ts
 
@@ -436,38 +428,42 @@ Después de generar la documentación, puedes personalizar:
 Para crear un módulo completo con documentación:
 
 1. **Crear el módulo:**
-   ```bash
-   npm run create:module nombre-modulo
-   ```
+
+    ```bash
+    npm run create:module nombre-modulo
+    ```
 
 2. **Crear casos de uso adicionales (opcional):**
-   ```bash
-   npm run create:use-case nombre-modulo nombre-caso-uso
-   ```
+
+    ```bash
+    npm run create:use-case nombre-modulo nombre-caso-uso
+    ```
 
 3. **Crear documentación de Swagger:**
-   ```bash
-   npm run create:swagger-docs nombre-modulo
-   ```
+
+    ```bash
+    npm run create:swagger-docs nombre-modulo
+    ```
 
 4. **Personalizar según necesidades:**
-   - Modificar entidades y schemas
-   - Ajustar casos de uso
-   - Personalizar documentación
+    - Modificar entidades y schemas
+    - Ajustar casos de uso
+    - Personalizar documentación
 
 #### Verificar la documentación
 
 Una vez creada la documentación, puedes verificar que funcione correctamente:
 
 1. **Iniciar el servidor:**
-   ```bash
-   npm run start:dev
-   ```
+
+    ```bash
+    npm run start:dev
+    ```
 
 2. **Acceder a la documentación:**
-   - Abrir `http://localhost:3000/docs` en tu navegador
-   - Verificar que aparezca tu nuevo módulo en la lista
-   - Probar los endpoints desde la interfaz de Swagger
+    - Abrir `http://localhost:3000/docs` en tu navegador
+    - Verificar que aparezca tu nuevo módulo en la lista
+    - Probar los endpoints desde la interfaz de Swagger
 
 #### Estructura de paths generados
 

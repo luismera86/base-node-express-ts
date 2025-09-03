@@ -6,7 +6,7 @@ import AppDataSource from "../../../config/datasource.config";
 export class DeleteUserUseCase {
     private readonly logger: LoggerService = new LoggerService("DeleteUserUseCase");
 
-    async execute(id: string): Promise<void> {
+    async execute(id: number): Promise<void> {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -16,8 +16,8 @@ export class DeleteUserUseCase {
 
             await queryRunner.manager.remove(user);
             await queryRunner.commitTransaction();
-        } catch (error: any) {
-            this.logger.error("Error deleting user", error.message);
+        } catch (error: unknown) {
+            this.logger.error("Error deleting user", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {

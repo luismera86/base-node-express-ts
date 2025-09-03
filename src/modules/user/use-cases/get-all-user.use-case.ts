@@ -1,24 +1,17 @@
 import { User } from "../entities/user.entity";
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
+import { userRepository } from "../../../common/repositories/repositories";
 
 export class GetAllUserUseCase {
     private readonly logger: LoggerService = new LoggerService("GetAllUserUseCase");
 
     async execute(): Promise<User[]> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
         try {
-            const users = await queryRunner.manager.find(User);
-            await queryRunner.commitTransaction();
+            const users = await userRepository.find();
             return users;
-        } catch (error: any) {
-            this.logger.error("Error getting all users", error.message);
-            await queryRunner.rollbackTransaction();
+        } catch (error: unknown) {
+            this.logger.error("Error getting all users", (error as Error).message);
             throw error;
-        } finally {
-            await queryRunner.release();
         }
     }
 }
