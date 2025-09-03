@@ -2,11 +2,8 @@ import dotenv from "dotenv";
 import { z } from "zod";
 import { LoggerService } from "../common/utils/logger.util";
 
-// Determinar el entorno actual
-const NODE_ENV = process.env.NODE_ENV || "local";
-
-// Cargar el archivo .env correspondiente al entorno
-dotenv.config({ path: `.env.${NODE_ENV}` });
+// Cargar siempre el archivo .env en la raíz del proyecto
+dotenv.config();
 
 const logger = new LoggerService("EnvConfig");
 

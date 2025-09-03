@@ -23,11 +23,11 @@ npm install
 
 3. **Configuración de variables de entorno**
 
-- Crear un archivo `.env.local` basado en el `.env.example`
-- Asegurarse de configurar las siguientes variables:
-    - Variables de base de datos (PostgreSQL)
-    - Variables de autenticación (JWT)
-    - Variables de entorno de la aplicación
+- Crear un archivo `.env` en la raíz del proyecto (puedes basarlo en `.env.example`).
+- Asegurarse de configurar las siguientes variables mínimas:
+    - DB_HOST, DB_NAME, DB_USER, DB_PASSWORD, DB_PORT
+    - JWT_SECRET, SESSION_SECRET
+    - PORT, API_URL
 
 4. **Levantar la base de datos**
 
@@ -43,36 +43,22 @@ npm run migration:run
 
 ### Ejecutar el proyecto
 
-#### Local
-
-```bash
-npm run start:local
-```
-
 #### Desarrollo
 
 ```bash
-npm run start:dev
-```
-
-#### QA
-
-```bash
-npm run start:qa
+npm run dev
 ```
 
 #### Producción
 
 ```bash
-npm run start:prod
+npm run start
 ```
 
 ### Scripts disponibles
 
-- `npm run start:dev` - Inicia el servidor en modo desarrollo
-- `npm run start:local` - Inicia el servidor en modo local
-- `npm run start:qa` - Inicia el servidor en modo QA
-- `npm run start:prod` - Inicia el servidor en modo producción
+- `npm run dev` - Inicia el servidor en modo desarrollo con recarga (tsnd)
+- `npm run start` - Compila y ejecuta la aplicación para producción
 - `npm run build` - Compila el proyecto
 - `npm run test` - Ejecuta las pruebas
 - `npm run lint` - Ejecuta el linter
@@ -305,6 +291,49 @@ Una vez creado el módulo, necesitas:
 1. Registrar el módulo en tu aplicación
 2. Ejecutar las migraciones si has modificado la entidad
 3. Personalizar los campos y validaciones según tus necesidades
+
+### Repositorios unificados 
+
+Desde la versión actual el proyecto mantiene un archivo unificado de repositories en:
+
+```
+src/common/repositories/repositories.ts
+```
+
+Qué contiene
+- Importaciones de las entidades (todas agrupadas al inicio del archivo).
+- Exportaciones de variables `const` que exponen el repository de TypeORM para cada entidad, por ejemplo:
+
+```ts
+import AppDataSource from "../../config/datasource.config";
+import { Test } from "../../modules/test/entities/test.entity";
+
+export const testRepository = AppDataSource.getRepository(Test);
+
+export const test2Repository = AppDataSource.getRepository(Test2);
+```
+
+Por qué existe
+- Evita generar un archivo de repositorio por cada módulo (menos archivos sueltos).
+- Facilita reusar los repositories en los casos de uso importando una única fuente.
+
+Cómo se actualiza
+- El script `npm run create:module <name>` añade automáticamente la importación de la entidad y la exportación del repository en `src/common/repositories/repositories.ts`.
+- Las importaciones siempre se agrupan arriba; las exportaciones se agregan debajo, separadas por una línea en blanco.
+
+Cómo usarlo en los use-cases
+- En los casos de uso generados, se importa la variable del repository correspondiente, por ejemplo para el módulo `test`:
+
+```ts
+import { testRepository } from "../../../common/repositories/repositories";
+
+const tests = await testRepository.find();
+```
+
+Notas y buenas prácticas
+- Si necesitas un comportamiento transaccional usa explícitamente `createQueryRunner()` en el caso de uso (solo cuando sea necesario).
+- Mantén las entidades exportadas con nombres coherentes para que el script pueda añadir correctamente las importaciones.
+- Si migras repositorios individuales antiguos a este archivo, asegúrate de eliminar los archivos anteriores para evitar duplicados.
 
 ### Creación de Casos de Uso
 
