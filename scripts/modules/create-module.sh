@@ -183,21 +183,18 @@ EOF
 
 # Crear los archivos de casos de uso
 cat > "src/modules/$MODULE_NAME/use-cases/create-$MODULE_NAME.use-case.ts" << EOF
-
 import { BadRequestException } from "../../../exceptions/exceptions";
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { Create${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
 
-export class Create${CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("Create${CLASS_NAME}UseCase");
+const logger = new LoggerService("Create${CLASS_NAME}UseCase");
 
-
-    async execute(data: Create${CLASS_NAME}Dto): Promise<${CLASS_NAME}> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+export const create${CLASS_NAME} = async (data: Create${CLASS_NAME}Dto): Promise<${CLASS_NAME}> => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
         try {
             const existing${CLASS_NAME} = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { name: data.name } });
             if (existing${CLASS_NAME}) throw new BadRequestException("${CLASS_NAME} already exists");
@@ -207,35 +204,31 @@ export class Create${CLASS_NAME}UseCase {
             await queryRunner.commitTransaction();
             return created${CLASS_NAME};
         } catch (error: unknown) {
-            this.logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
+            logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {
             await queryRunner.release();
         }
-    }
-}
+};
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/get-all-$MODULE_NAME.use-case.ts" << EOF
-
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 
-export class GetAll${CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("GetAll${CLASS_NAME}UseCase");
+const logger = new LoggerService("GetAll${CLASS_NAME}UseCase");
 
-    async execute(): Promise<${CLASS_NAME}[]> {
-        try {
-            const $(kebab_to_camel "$MODULE_NAME")s = await ${MODULE_CAMEL}Repository.find();
-            return $(kebab_to_camel "$MODULE_NAME")s;
-        } catch (error: unknown) {
-            this.logger.error("Error getting all ${MODULE_NAME}s", (error as Error).message);
-            throw error;
-        }
+export const getAll${CLASS_NAME}s = async (): Promise<${CLASS_NAME}[]> => {
+    try {
+        const $(kebab_to_camel "$MODULE_NAME")s = await ${MODULE_CAMEL}Repository.find();
+        return $(kebab_to_camel "$MODULE_NAME")s;
+    } catch (error: unknown) {
+        logger.error("Error getting all ${MODULE_NAME}s", (error as Error).message);
+        throw error;
     }
-}
+};
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/get-one-$MODULE_NAME.use-case.ts" << EOF
@@ -244,21 +237,18 @@ import { LoggerService } from "../../../common/utils/logger.util";
 import { NotFoundException } from "../../../exceptions/exceptions";
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 
-export class GetOne${CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("GetOne${CLASS_NAME}UseCase");
+const logger = new LoggerService("GetOne${CLASS_NAME}UseCase");
 
-
-    async execute(param: string, getBy:string = "id"): Promise<${CLASS_NAME}> {
-        try {
-            const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { [getBy]: param } });
-            if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
-            return $(kebab_to_camel "$MODULE_NAME");
-        } catch (error: unknown) {
-            this.logger.error("Error getting ${MODULE_NAME}", (error as Error).message);
-            throw error;
-        }
+export const getOne${CLASS_NAME} = async (param: string, getBy: string = "id"): Promise<${CLASS_NAME}> => {
+    try {
+        const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { [getBy]: param } });
+        if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
+        return $(kebab_to_camel "$MODULE_NAME");
+    } catch (error: unknown) {
+        logger.error("Error getting ${MODULE_NAME}", (error as Error).message);
+        throw error;
     }
-}
+};
 EOF
 
 # Crear archivo de repositorio común para este módulo
@@ -283,21 +273,18 @@ if ! grep -qF "$EXPORT_LINE" "$REPO_INDEX_FILE"; then
 fi
 
 cat > "src/modules/$MODULE_NAME/use-cases/update-$MODULE_NAME.use-case.ts" << EOF
-
 import { NotFoundException } from "../../../exceptions/exceptions";
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { Update${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
 
-export class Update${CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("Update${CLASS_NAME}UseCase");
+const logger = new LoggerService("Update${CLASS_NAME}UseCase");
 
-
-    async execute(id: number, data: Update${CLASS_NAME}Dto): Promise<${CLASS_NAME}> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+export const update${CLASS_NAME} = async (id: number, data: Update${CLASS_NAME}Dto): Promise<${CLASS_NAME}> => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
         try {
             await queryRunner.manager.update(${CLASS_NAME}, id, data);
             const updated${CLASS_NAME} = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { id } });
@@ -306,14 +293,13 @@ export class Update${CLASS_NAME}UseCase {
             await queryRunner.commitTransaction();
             return updated${CLASS_NAME};
         } catch (error: unknown) {
-            this.logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
+            logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
             await queryRunner.rollbackTransaction();
             throw error;
         } finally {
             await queryRunner.release();
         }
-    }
-}
+};
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/delete-$MODULE_NAME.use-case.ts" << EOF
@@ -322,128 +308,117 @@ import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
 
-export class Delete${CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("Delete${CLASS_NAME}UseCase");
+const logger = new LoggerService("Delete${CLASS_NAME}UseCase");
 
+export const delete${CLASS_NAME} = async (id: number): Promise<void> => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+        const $(kebab_to_camel "$MODULE_NAME") = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { id } });
+        if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
 
-    async execute(id: number): Promise<void> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        try {
-            const $(kebab_to_camel "$MODULE_NAME") = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { id } });
-            if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
-
-            await queryRunner.manager.remove($(kebab_to_camel "$MODULE_NAME"));
-            await queryRunner.commitTransaction();
-        } catch (error: unknown) {
-            this.logger.error("Error deleting ${MODULE_NAME}", (error as Error).message);
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        await queryRunner.manager.remove($(kebab_to_camel "$MODULE_NAME"));
+        await queryRunner.commitTransaction();
+    } catch (error: unknown) {
+        logger.error("Error deleting ${MODULE_NAME}", (error as Error).message);
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
     }
-}
+};
 EOF
 
 # Crear el archivo del controlador
 cat > "src/modules/$MODULE_NAME/$MODULE_NAME.controller.ts" << EOF
 import { Request, Response, NextFunction } from "express";
-import { GetAll${CLASS_NAME}UseCase } from "./use-cases/get-all-$MODULE_NAME.use-case";
-import { GetOne${CLASS_NAME}UseCase } from "./use-cases/get-one-$MODULE_NAME.use-case";
-import { Create${CLASS_NAME}UseCase } from "./use-cases/create-$MODULE_NAME.use-case";
-import { Update${CLASS_NAME}UseCase } from "./use-cases/update-$MODULE_NAME.use-case";
-import { Delete${CLASS_NAME}UseCase } from "./use-cases/delete-$MODULE_NAME.use-case";
+import { getAll${CLASS_NAME}s } from "./use-cases/get-all-$MODULE_NAME.use-case";
+import { getOne${CLASS_NAME} } from "./use-cases/get-one-$MODULE_NAME.use-case";
+import { create${CLASS_NAME} } from "./use-cases/create-$MODULE_NAME.use-case";
+import { update${CLASS_NAME} } from "./use-cases/update-$MODULE_NAME.use-case";
+import { delete${CLASS_NAME} } from "./use-cases/delete-$MODULE_NAME.use-case";
 import { Update${CLASS_NAME}Dto } from "./schemas/$MODULE_NAME.schema";
 
-export class ${CLASS_NAME}Controller {
-    constructor(
-       
-    ) {}
-
-    getAll${CLASS_NAME}s = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const getAll${CLASS_NAME}UseCase = new GetAll${CLASS_NAME}UseCase();
-            const $(kebab_to_camel "$MODULE_NAME")s = await getAll${CLASS_NAME}UseCase.execute();
-            res.json($(kebab_to_camel "$MODULE_NAME")s);
-        } catch (error) {
-            next(error);
-        }
+export const getAll${CLASS_NAME}sController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const $(kebab_to_camel "$MODULE_NAME")s = await getAll${CLASS_NAME}s();
+        res.json($(kebab_to_camel "$MODULE_NAME")s);
+    } catch (error) {
+        next(error);
     }
+};
 
-    getOne${CLASS_NAME} = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
-        try {
-            const getOne${CLASS_NAME}UseCase = new GetOne${CLASS_NAME}UseCase();
-            const $(kebab_to_camel "$MODULE_NAME") = await getOne${CLASS_NAME}UseCase.execute(id);
-            res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
-        } catch (error) {
-            next(error);
-        }
+export const getOne${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+        const $(kebab_to_camel "$MODULE_NAME") = await getOne${CLASS_NAME}(id);
+        res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
+    } catch (error) {
+        next(error);
     }
+};
 
-    create${CLASS_NAME} = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const create${CLASS_NAME}UseCase = new Create${CLASS_NAME}UseCase();
-            const $(kebab_to_camel "$MODULE_NAME") = await create${CLASS_NAME}UseCase.execute(req.body);
-            res.status(201).json($(kebab_to_camel "$MODULE_NAME"));
-        } catch (error) {
-            next(error);
-        }
+export const create${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const $(kebab_to_camel "$MODULE_NAME") = await create${CLASS_NAME}(req.body);
+        res.status(201).json($(kebab_to_camel "$MODULE_NAME"));
+    } catch (error) {
+        next(error);
     }
+};
 
-    update${CLASS_NAME} = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
-        try {
-            const update${CLASS_NAME}UseCase = new Update${CLASS_NAME}UseCase();
-            const $(kebab_to_camel "$MODULE_NAME") = await update${CLASS_NAME}UseCase.execute(+id, req.body as Update${CLASS_NAME}Dto);
-            res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
-        } catch (error) {
-            next(error);
-        }
+export const update${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+        const $(kebab_to_camel "$MODULE_NAME") = await update${CLASS_NAME}(+id, req.body as Update${CLASS_NAME}Dto);
+        res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
+    } catch (error) {
+        next(error);
     }
+};
 
-    delete${CLASS_NAME} = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
-        try {
-            const delete${CLASS_NAME}UseCase = new Delete${CLASS_NAME}UseCase();
-            await delete${CLASS_NAME}UseCase.execute(+id);
-            res.status(200).json({ status: "ok", message: "Successfully deleted ${CLASS_NAME}" });
-        } catch (error) {
-            next(error);
-        }
+export const delete${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+        await delete${CLASS_NAME}(+id);
+        res.status(200).json({ status: "ok", message: "Successfully deleted ${CLASS_NAME}" });
+    } catch (error) {
+        next(error);
     }
-}
+};
 EOF
 
 # Crear el archivo del router
 cat > "src/modules/$MODULE_NAME/$MODULE_NAME.router.ts" << EOF
 import { Router } from "express";
-import { ${CLASS_NAME}Controller } from "./$MODULE_NAME.controller";
+import {
+    getAll${CLASS_NAME}sController,
+    getOne${CLASS_NAME}Controller,
+    create${CLASS_NAME}Controller,
+    update${CLASS_NAME}Controller,
+    delete${CLASS_NAME}Controller
+} from "./$MODULE_NAME.controller";
 
-export class ${CLASS_NAME}Router {
-    static get router() {
-        const router = Router();
-        const controller = new ${CLASS_NAME}Controller();
+export const create${CLASS_NAME}Router = (): Router => {
+    const router = Router();
 
-        router.get("/", controller.getAll${CLASS_NAME}s);
-        router.get("/:id", controller.getOne${CLASS_NAME});
-        router.post("/", controller.create${CLASS_NAME});
-        router.patch("/:id", controller.update${CLASS_NAME});
-        router.delete("/:id", controller.delete${CLASS_NAME});
+    router.get("/", getAll${CLASS_NAME}sController);
+    router.get("/:id", getOne${CLASS_NAME}Controller);
+    router.post("/", create${CLASS_NAME}Controller);
+    router.patch("/:id", update${CLASS_NAME}Controller);
+    router.delete("/:id", delete${CLASS_NAME}Controller);
 
-        return router;
-    }
-}
+    return router;
+};
 EOF
 
 success "Módulo '$MODULE_NAME' creado exitosamente!"
 
 # Insertar la nueva ruta en router.ts
 ROUTER_FILE="src/common/router/router.ts"
-IMPORT_LINE="import { ${CLASS_NAME}Router } from \"../../modules/$MODULE_NAME/$MODULE_NAME.router\";"
-ROUTE_LINE="    router.use(\"/$MODULE_NAME\", ${CLASS_NAME}Router.router);"
+IMPORT_LINE="import { create${CLASS_NAME}Router } from \"../../modules/$MODULE_NAME/$MODULE_NAME.router\";"
+ROUTE_LINE="    router.use(\"/$MODULE_NAME\", create${CLASS_NAME}Router());"
 
 # Crear un archivo temporal
 TEMP_FILE=$(mktemp)
@@ -461,7 +436,7 @@ awk -v import="$IMPORT_LINE" -v route="$ROUTE_LINE" '
         }
     }
     # Detectar el fin de las importaciones
-    /^export class/ {
+    /^export const/ {
         in_imports = 0
         # Imprimir todas las importaciones ordenadas
         for (i in imports) {

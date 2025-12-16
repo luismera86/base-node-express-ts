@@ -1,12 +1,22 @@
+import { createUserRouter } from "../../modules/user/user.router";
 import { authUser } from "../middlewares/authUser.middleware";
+import { createTestRouter } from "../../modules/test/test.router";
+import { createAuthRouter } from "../../modules/auth/auth.router";
 import { Router } from "express";
-import { UserRouter } from "../../modules/user/user.router";
-export class BaseRouter {
-    static get router() {
-        const router = Router();
+import { createPruebaRouter } from "../../modules/prueba/prueba.router";
+export const createBaseRouter = (): Router => {
+    const router = Router();
 
-        router.use(authUser);
-        router.use("/user", UserRouter.router);
-        return router;
-    }
-}
+    // Rutas públicas (sin autenticación)
+
+    // Middleware de autenticación para rutas protegidas
+
+    // Rutas protegidas
+
+    router.use("/auth", createAuthRouter());
+    router.use(authUser);
+    router.use("/user", createUserRouter());
+    router.use("/test", createTestRouter());
+    router.use("/prueba", createPruebaRouter());
+    return router;
+};

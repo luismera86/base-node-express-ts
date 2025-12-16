@@ -1,17 +1,20 @@
 import { Router } from "express";
-import { UserController } from "./user.controller";
+import {
+    getAllUsersController,
+    getOneUserController,
+    createUserController,
+    updateUserController,
+    deleteUserController,
+} from "./user.controller";
 
-export class UserRouter {
-    static get router() {
-        const router = Router();
-        const controller = new UserController();
+export const createUserRouter = (): Router => {
+    const router = Router();
 
-        router.get("/", controller.getAllUsers);
-        router.get("/:id", controller.getOneUser);
-        router.post("/", controller.createUser);
-        router.patch("/:id", controller.updateUser);
-        router.delete("/:id", controller.deleteUser);
+    router.get("/", getAllUsersController);
+    router.get("/:id", getOneUserController);
+    router.post("/", createUserController);
+    router.patch("/:id", updateUserController);
+    router.delete("/:id", deleteUserController);
 
-        return router;
-    }
-}
+    return router;
+};

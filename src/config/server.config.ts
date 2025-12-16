@@ -1,5 +1,5 @@
 import express from "express";
-import { BaseRouter } from "../common/router/router";
+import { createBaseRouter } from "../common/router/router";
 import { customExceptions } from "../exceptions/custom-exceptions";
 import { NotFoundException } from "../exceptions/exceptions";
 import { LoggerService } from "../common/utils/logger.util";
@@ -54,7 +54,7 @@ export class Server {
     }
 
     private router() {
-        this.app.use("/api", BaseRouter.router);
+        this.app.use("/api", createBaseRouter());
         this.app.use(
             "/docs",
             swaggerUi.serve,

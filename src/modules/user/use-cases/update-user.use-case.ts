@@ -4,26 +4,24 @@ import { UpdateUserDto } from "../schemas/user.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
 
-export class UpdateUserUseCase {
-    private readonly logger: LoggerService = new LoggerService("UpdateUserUseCase");
+const logger = new LoggerService("UpdateUserUseCase");
 
-    async execute(id: number, data: UpdateUserDto): Promise<User> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        try {
-            await queryRunner.manager.update(User, id, data);
-            const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
-            if (!updatedUser) throw new NotFoundException("User not found");
+export const updateUser = async (id: number, data: UpdateUserDto): Promise<User> => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+        await queryRunner.manager.update(User, id, data);
+        const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
+        if (!updatedUser) throw new NotFoundException("User not found");
 
-            await queryRunner.commitTransaction();
-            return updatedUser;
-        } catch (error: unknown) {
-            this.logger.error("Error updating user", (error as Error).message);
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        await queryRunner.commitTransaction();
+        return updatedUser;
+    } catch (error: unknown) {
+        logger.error("Error updating user", (error as Error).message);
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
     }
-}
+};
