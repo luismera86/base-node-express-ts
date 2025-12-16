@@ -183,11 +183,12 @@ EOF
 
 # Crear los archivos de casos de uso
 cat > "src/modules/$MODULE_NAME/use-cases/create-$MODULE_NAME.use-case.ts" << EOF
+import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
+import { LoggerService } from "../../../common/utils/logger.util";
+import AppDataSource from "../../../config/datasource.config";
 import { BadRequestException } from "../../../exceptions/exceptions";
 import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { Create${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
-import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
 
 const logger = new LoggerService("Create${CLASS_NAME}UseCase");
 
@@ -195,21 +196,21 @@ export const create${CLASS_NAME} = async (data: Create${CLASS_NAME}Dto): Promise
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-        try {
-            const existing${CLASS_NAME} = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { name: data.name } });
-            if (existing${CLASS_NAME}) throw new BadRequestException("${CLASS_NAME} already exists");
+    try {
+        const existing${CLASS_NAME} = await ${MODULE_CAMEL}Repository.findOne({ where: { name: data.name } });
+        if (existing${CLASS_NAME}) throw new BadRequestException("${CLASS_NAME} already exists");
 
-            const created${CLASS_NAME} = queryRunner.manager.create(${CLASS_NAME}, data);
-            await queryRunner.manager.save(created${CLASS_NAME});
-            await queryRunner.commitTransaction();
-            return created${CLASS_NAME};
-        } catch (error: unknown) {
-            logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        const created${CLASS_NAME} = ${MODULE_CAMEL}Repository.create(data);
+        await ${MODULE_CAMEL}Repository.save(created${CLASS_NAME});
+        await queryRunner.commitTransaction();
+        return created${CLASS_NAME};
+    } catch (error: unknown) {
+        logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
+    }
 };
 EOF
 
@@ -278,6 +279,7 @@ import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { Update${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
+import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 
 const logger = new LoggerService("Update${CLASS_NAME}UseCase");
 
@@ -285,28 +287,29 @@ export const update${CLASS_NAME} = async (id: number, data: Update${CLASS_NAME}D
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-        try {
-            await queryRunner.manager.update(${CLASS_NAME}, id, data);
-            const updated${CLASS_NAME} = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { id } });
-            if (!updated${CLASS_NAME}) throw new NotFoundException("${CLASS_NAME} not found");
-            
-            await queryRunner.commitTransaction();
-            return updated${CLASS_NAME};
-        } catch (error: unknown) {
-            logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+    try {
+        const updated${CLASS_NAME} = await ${MODULE_CAMEL}Repository.findOne({ where: { id } });
+        if (!updated${CLASS_NAME}) throw new NotFoundException("${CLASS_NAME} not found");
+        ${MODULE_CAMEL}Repository.merge(updated${CLASS_NAME}, data);
+        await ${MODULE_CAMEL}Repository.save(updated${CLASS_NAME});
+
+        await queryRunner.commitTransaction();
+        return updated${CLASS_NAME};
+    } catch (error: unknown) {
+        logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
+    }
 };
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/delete-$MODULE_NAME.use-case.ts" << EOF
-import { NotFoundException } from "../../../exceptions/exceptions";
-import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
+import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
+import { NotFoundException } from "../../../exceptions/exceptions";
 
 const logger = new LoggerService("Delete${CLASS_NAME}UseCase");
 
@@ -315,10 +318,10 @@ export const delete${CLASS_NAME} = async (id: number): Promise<void> => {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await queryRunner.manager.findOne(${CLASS_NAME}, { where: { id } });
+        const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { id } });
         if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
 
-        await queryRunner.manager.remove($(kebab_to_camel "$MODULE_NAME"));
+        await ${MODULE_CAMEL}Repository.remove($(kebab_to_camel "$MODULE_NAME"));
         await queryRunner.commitTransaction();
     } catch (error: unknown) {
         logger.error("Error deleting ${MODULE_NAME}", (error as Error).message);

@@ -3,6 +3,7 @@ import { User } from "../entities/user.entity";
 import { UpdateUserDto } from "../schemas/user.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
 import AppDataSource from "../../../config/datasource.config";
+import { userRepository } from "../../../common/repositories/repositories";
 
 const logger = new LoggerService("UpdateUserUseCase");
 
@@ -11,9 +12,10 @@ export const updateUser = async (id: number, data: UpdateUserDto): Promise<User>
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-        await queryRunner.manager.update(User, id, data);
-        const updatedUser = await queryRunner.manager.findOne(User, { where: { id } });
+        const updatedUser = await userRepository.findOne({ where: { id } });
         if (!updatedUser) throw new NotFoundException("User not found");
+        userRepository.merge(updatedUser, data);
+        await userRepository.save(updatedUser);
 
         await queryRunner.commitTransaction();
         return updatedUser;

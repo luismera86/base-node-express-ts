@@ -1,8 +1,9 @@
+import { userRepository } from "../../../common/repositories/repositories";
+import { LoggerService } from "../../../common/utils/logger.util";
+import AppDataSource from "../../../config/datasource.config";
 import { BadRequestException } from "../../../exceptions/exceptions";
 import { User } from "../entities/user.entity";
 import { CreateUserDto } from "../schemas/user.schema";
-import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
 
 const logger = new LoggerService("CreateUserUseCase");
 
@@ -11,11 +12,11 @@ export const createUser = async (data: CreateUserDto): Promise<User> => {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-        const existingUser = await queryRunner.manager.findOne(User, { where: { name: data.name } });
+        const existingUser = await userRepository.findOne({ where: { name: data.name } });
         if (existingUser) throw new BadRequestException("User already exists");
 
-        const createdUser = queryRunner.manager.create(User, data);
-        await queryRunner.manager.save(createdUser);
+        const createdUser = userRepository.create(data);
+        await userRepository.save(createdUser);
         await queryRunner.commitTransaction();
         return createdUser;
     } catch (error: unknown) {
