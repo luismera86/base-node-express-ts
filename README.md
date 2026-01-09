@@ -113,31 +113,34 @@ src/modules/user/
 
 3. **use-cases/**
     - Implementa la lógica de negocio específica del módulo
-    - Cada caso de uso es una clase independiente
+    - Cada caso de uso es una función pura independiente
     - Sigue el principio de responsabilidad única
-    - Maneja la interacción con la base de datos y otras dependencias
-    - Instancia directamente los repository de TypeORM.
+    - Maneja la interacción con la base de datos a través de repositories
+    - Utiliza los repositories importados desde `src/common/repositories/repositories.ts`
 
 4. **controller.ts**
-    - Maneja las peticiones HTTP
-    - Coordina los casos de uso
+    - Contiene funciones controladoras (no clases)
+    - Cada función maneja una petición HTTP específica
+    - Coordina los casos de uso (funciones)
     - Formatea las respuestas
     - Maneja los errores a nivel de API
-    - Los métodos sole en esta clase escriben como funciones flecha para evitar errores de build.
+    - Las funciones se exportan individualmente para facilitar el testing
 
 5. **router.ts**
+    - Exporta una función que crea y retorna un Router de Express
     - Define las rutas del módulo
-    - Se conecta con BaseRouter que esta en common para designar los path globales.
+    - Se conecta con la función `createBaseRouter()` que está en common para designar los path globales
     - Configura los middlewares necesarios
-    - Conecta las rutas con los controladores
+    - Conecta las rutas con las funciones controladoras
 
 Esta estructura modular permite:
 
 - Separación clara de responsabilidades
 - Código mantenible y escalable
-- Fácil testing de componentes individuales
-- Reutilización de código
+- Fácil testing de componentes individuales (funciones puras)
+- Reutilización de código mediante composición de funciones
 - Organización consistente en toda la aplicación
+- Menor acoplamiento gracias a la programación funcional
 
 ### Documentación de la API
 
@@ -322,12 +325,50 @@ Cómo se actualiza
 - Las importaciones siempre se agrupan arriba; las exportaciones se agregan debajo, separadas por una línea en blanco.
 
 Cómo usarlo en los use-cases
-- En los casos de uso generados, se importa la variable del repository correspondiente, por ejemplo para el módulo `test`:
+- En los casos de uso generados (que son funciones puras), se importa la variable del repository correspondiente, por ejemplo para el módulo `test`:
 
 ```ts
 import { testRepository } from "../../../common/repositories/repositories";
+import { LoggerService } from "../../../common/utils/logger.util";
 
-const tests = await testRepository.find();
+const logger = new LoggerService("GetAllTestUseCase");
+
+export const getAllTests = async (): Promise<Test[]> => {
+    try {
+        const tests = await testRepository.find();
+        return tests;
+    } catch (error: unknown) {
+        logger.error("Error getting all tests", (error as Error).message);
+        throw error;
+    }
+};
+```
+
+- Para operaciones de creación y actualización con transacciones:
+
+```ts
+import { testRepository } from "../../../common/repositories/repositories";
+import AppDataSource from "../../../config/datasource.config";
+
+export const createTest = async (data: CreateTestDto): Promise<Test> => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+        const existingTest = await testRepository.findOne({ where: { name: data.name } });
+        if (existingTest) throw new BadRequestException("Test already exists");
+
+        const createdTest = testRepository.create(data);
+        await testRepository.save(createdTest);
+        await queryRunner.commitTransaction();
+        return createdTest;
+    } catch (error: unknown) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
+    }
+};
 ```
 
 Notas y buenas prácticas
@@ -337,7 +378,7 @@ Notas y buenas prácticas
 
 ### Creación de Casos de Uso
 
-El proyecto incluye un script automatizado para crear nuevos casos de uso dentro de un módulo existente. Este script genera el archivo del caso de uso con la estructura básica necesaria.
+El proyecto incluye un script automatizado para crear nuevos casos de uso dentro de un módulo existente. Este script genera el archivo del caso de uso con la estructura básica necesaria siguiendo el paradigma de programación funcional.
 
 #### Crear un nuevo caso de uso
 
@@ -355,11 +396,12 @@ npm run create:use-case product create-product
 
 El script generará un nuevo archivo en la ruta `src/modules/product/use-cases/create-product.use-case.ts` con la estructura básica necesaria, incluyendo:
 
-- Importaciones necesarias
-- Clase del caso de uso con el nombre en PascalCase
-- Configuración básica del QueryRunner
+- Importaciones necesarias (repository, logger, tipos)
+- Función pura exportada con el nombre en camelCase
+- Configuración básica del QueryRunner (cuando sea necesario)
 - Estructura try-catch para manejo de transacciones
 - Logger configurado
+- Uso del repository del módulo correspondiente
 
 ### Creación de Documentación de Swagger
 
