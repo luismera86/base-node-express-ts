@@ -7,14 +7,10 @@ import {
     deleteTestController,
 } from "./test.controller";
 
-export const createTestRouter = (): Router => {
-    const router = Router();
+export const testRouter = Router();
 
-    router.get("/", getAllTestsController);
-    router.get("/:id", getOneTestController);
-    router.post("/", createTestController);
-    router.patch("/:id", updateTestController);
-    router.delete("/:id", deleteTestController);
-
-    return router;
-};
+testRouter.get("/", getAllTestsController);
+testRouter.get("/:id", getOneTestController);
+testRouter.post("/", createTestController);
+testRouter.patch("/:id", updateTestController);
+testRouter.delete("/:id", deleteTestController);

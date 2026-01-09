@@ -10,6 +10,7 @@ import cors from "cors";
 import session from "express-session";
 import passport from "./passport/passport.config";
 import { instanceToPlain } from "class-transformer";
+import { prisma } from "./prisma.config";
 
 export class Server {
     private app: express.Application;
@@ -20,10 +21,21 @@ export class Server {
         this.logger = new LoggerService("Server");
     }
 
-    public start() {
+    public async start() {
+        await this.connectDatabase();
         this.middleware();
         this.router();
         this.listen();
+    }
+
+    private async connectDatabase() {
+        try {
+            await prisma.$connect();
+            this.logger.info("Database connected successfully");
+        } catch (error: unknown) {
+            this.logger.error("Failed to connect to database", (error as Error).message);
+            process.exit(1);
+        }
     }
     private middleware() {
         this.app.use(express.json());

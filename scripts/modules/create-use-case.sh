@@ -27,6 +27,19 @@ kebab_to_pascal() {
     echo "$result"
 }
 
+# Función para convertir kebab-case a camelCase
+kebab_to_camel() {
+    echo "$1" | awk '{
+        for(i=1; i<=NF; i++) {
+            if(i==1) {
+                printf("%s", tolower($i))
+            } else {
+                printf("%s", toupper(substr($i,1,1)) tolower(substr($i,2)))
+            }
+        }
+    }' FS=-
+}
+
 # Función para mostrar mensajes de error
 error() {
     echo -e "${RED}Error: $1${NC}" >&2
@@ -54,9 +67,11 @@ fi
 MODULE_NAME=$(camel_to_kebab "$1")
 USE_CASE_NAME=$(camel_to_kebab "$2")
 
-# Convertir nombres a PascalCase
+# Convertir nombres a PascalCase y camelCase
 MODULE_CLASS_NAME=$(kebab_to_pascal "$MODULE_NAME")
 USE_CASE_CLASS_NAME=$(kebab_to_pascal "$USE_CASE_NAME")
+USE_CASE_CAMEL_NAME=$(kebab_to_camel "$USE_CASE_NAME")
+MODULE_CAMEL_NAME=$(kebab_to_camel "$MODULE_NAME")
 
 # Verificar si el módulo existe
 if [ ! -d "src/modules/$MODULE_NAME" ]; then
@@ -71,29 +86,27 @@ fi
 # Crear el archivo del caso de uso
 cat > "src/modules/$MODULE_NAME/use-cases/$USE_CASE_NAME.use-case.ts" << EOF
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
-import { ${MODULE_CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
+import { prisma } from "../../../config/prisma.config";
 
-export class ${USE_CASE_CLASS_NAME}UseCase {
-    private readonly logger: LoggerService = new LoggerService("${USE_CASE_CLASS_NAME}UseCase");
+const logger = new LoggerService("${USE_CASE_CLASS_NAME}UseCase");
 
-
-    async execute(): Promise<${MODULE_CLASS_NAME} | ${MODULE_CLASS_NAME}[] | void> {
-        const queryRunner = AppDataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        try {
-            // TODO: Implementar la lógica del caso de uso
-            await queryRunner.commitTransaction();
-        } catch (error: any) {
-            this.logger.error("Error in ${USE_CASE_NAME}", error.message);
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+export const ${USE_CASE_CAMEL_NAME} = async (): Promise<any> => {
+    try {
+        // TODO: Implementar la lógica del caso de uso
+        // Ejemplo: const result = await prisma.${MODULE_CAMEL_NAME}.findMany();
+        
+        // Transacción de ejemplo:
+        // const result = await prisma.\$transaction(async (tx) => {
+        //     const item = await tx.${MODULE_CAMEL_NAME}.create({ data: {} });
+        //     return item;
+        // });
+        
+        throw new Error("Use case not implemented");
+    } catch (error: unknown) {
+        logger.error("Error in ${USE_CASE_CAMEL_NAME}", (error as Error).message);
+        throw error;
     }
-}
+};
 EOF
 
 success "Caso de uso '$USE_CASE_NAME' creado exitosamente en el módulo '$MODULE_NAME'"

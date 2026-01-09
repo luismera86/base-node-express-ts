@@ -15,3 +15,5 @@ dev-my-scripts.bat
 dev-my-scripts.sh
 .npmrc
 tsconfig.tsbuildinfo
+
+/generated/prisma

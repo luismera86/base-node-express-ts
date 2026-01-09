@@ -1,13 +1,12 @@
-import { testRepository } from "../../../common/repositories/repositories";
 import { LoggerService } from "../../../common/utils/logger.util";
+import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
-import { Test } from "../entities/test.entity";
 
 const logger = new LoggerService("GetOneTestUseCase");
 
-export const getOneTest = async (param: string, getBy: string = "id"): Promise<Test> => {
+export const getOneTest = async (id: number): Promise<any> => {
     try {
-        const test = await testRepository.findOne({ where: { [getBy]: param } });
+        const test = await prisma.test.findFirst({ where: { id } });
         if (!test) throw new NotFoundException("Test not found");
         return test;
     } catch (error: unknown) {

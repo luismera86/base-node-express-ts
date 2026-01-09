@@ -67,11 +67,14 @@ fi
 MODULE_NAME=$(camel_to_kebab "$1")
 # Convertir a PascalCase para el nombre de la clase
 CLASS_NAME=$(kebab_to_pascal "$MODULE_NAME")
+# Convertir a camelCase para variables
+MODULE_CAMEL=$(kebab_to_camel "$MODULE_NAME")
 
 # Mostrar los nombres generados para depuración
 echo "Input: $1"
 echo "Module Name: $MODULE_NAME"
 echo "Class Name: $CLASS_NAME"
+echo "Module Camel: $MODULE_CAMEL"
 
 # Verificar si el módulo ya existe
 if [ -d "src/modules/$MODULE_NAME" ]; then
@@ -85,53 +88,13 @@ fi
 
 # Crear la estructura de directorios
 mkdir -p "src/modules/$MODULE_NAME/use-cases" || error "No se pudo crear el directorio use-cases"
-mkdir -p "src/modules/$MODULE_NAME/entities" || error "No se pudo crear el directorio entities"
 mkdir -p "src/modules/$MODULE_NAME/schemas" || error "No se pudo crear el directorio schemas"
 
-# Asegurar carpeta de repositorios comunes
-mkdir -p "src/common/repositories" || error "No se pudo crear el directorio src/common/repositories"
+# Prisma no necesita entidades ni repositorios separados
+# Los modelos se definen en prisma/schema.prisma
+# Recuerda agregar el modelo ${CLASS_NAME} en prisma/schema.prisma
 
-# Archivo unificado de repositorios: inicializar y calcular nombre camel del módulo
-REPO_INDEX_FILE="src/common/repositories/repositories.ts"
-MODULE_CAMEL=$(kebab_to_camel "$MODULE_NAME")
-if [ ! -f "$REPO_INDEX_FILE" ]; then
-    cat > "$REPO_INDEX_FILE" << EOF
-import AppDataSource from "../../config/datasource.config";
-
-EOF
-fi
-
-IMPORT_LINE="import { ${CLASS_NAME} } from \"../../modules/$MODULE_NAME/entities/$MODULE_NAME.entity\";"
-EXPORT_LINE="export const ${MODULE_CAMEL}Repository = AppDataSource.getRepository(${CLASS_NAME});"
-
-if ! grep -qF "$IMPORT_LINE" "$REPO_INDEX_FILE"; then
-    # Insert import line before the first export entry if any, otherwise append at end
-    if grep -qE '^export ' "$REPO_INDEX_FILE"; then
-        awk -v imp="$IMPORT_LINE" 'BEGIN{inserted=0} /^export / && !inserted{print imp; inserted=1} {print}' "$REPO_INDEX_FILE" > "${REPO_INDEX_FILE}.tmp" && mv "${REPO_INDEX_FILE}.tmp" "$REPO_INDEX_FILE"
-    else
-        echo "$IMPORT_LINE" >> "$REPO_INDEX_FILE"
-    fi
-fi
-
-if ! grep -qF "$EXPORT_LINE" "$REPO_INDEX_FILE"; then
-    # Ensure a blank line separates imports and exports, and one blank line after each export
-    # Append export at end with a preceding blank line
-    printf "\n%s\n\n" "$EXPORT_LINE" >> "$REPO_INDEX_FILE"
-fi
-
-# Crear el archivo de entidad
-cat > "src/modules/$MODULE_NAME/entities/$MODULE_NAME.entity.ts" << EOF
-import { Column } from "typeorm";
-import { Entity } from "typeorm";
-import { BaseEntity } from "../../../common/entities/base.entity";
-import { ${CLASS_NAME}Schema } from "../schemas/$MODULE_NAME.schema";
-
-@Entity()
-export class ${CLASS_NAME} extends BaseEntity implements Partial<${CLASS_NAME}Schema> {
-    @Column()
-    name: string;
-}
-EOF
+warning "Recuerda agregar el modelo ${CLASS_NAME} en prisma/schema.prisma"
 
 # Crear el archivo de esquema
 cat > "src/modules/$MODULE_NAME/schemas/$MODULE_NAME.schema.ts" << EOF
@@ -183,48 +146,37 @@ EOF
 
 # Crear los archivos de casos de uso
 cat > "src/modules/$MODULE_NAME/use-cases/create-$MODULE_NAME.use-case.ts" << EOF
-import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
+import { prisma } from "../../../config/prisma.config";
 import { BadRequestException } from "../../../exceptions/exceptions";
-import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { Create${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 
 const logger = new LoggerService("Create${CLASS_NAME}UseCase");
 
-export const create${CLASS_NAME} = async (data: Create${CLASS_NAME}Dto): Promise<${CLASS_NAME}> => {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+export const create${CLASS_NAME} = async (data: Create${CLASS_NAME}Dto): Promise<any> => {
     try {
-        const existing${CLASS_NAME} = await ${MODULE_CAMEL}Repository.findOne({ where: { name: data.name } });
+        const existing${CLASS_NAME} = await prisma.${MODULE_CAMEL}.findFirst({ where: { name: data.name } });
         if (existing${CLASS_NAME}) throw new BadRequestException("${CLASS_NAME} already exists");
 
-        const created${CLASS_NAME} = ${MODULE_CAMEL}Repository.create(data);
-        await ${MODULE_CAMEL}Repository.save(created${CLASS_NAME});
-        await queryRunner.commitTransaction();
+        const created${CLASS_NAME} = await prisma.${MODULE_CAMEL}.create({ data });
         return created${CLASS_NAME};
     } catch (error: unknown) {
         logger.error("Error creating ${MODULE_NAME}", (error as Error).message);
-        await queryRunner.rollbackTransaction();
         throw error;
-    } finally {
-        await queryRunner.release();
     }
 };
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/get-all-$MODULE_NAME.use-case.ts" << EOF
-import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 import { LoggerService } from "../../../common/utils/logger.util";
-import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
+import { prisma } from "../../../config/prisma.config";
 
 const logger = new LoggerService("GetAll${CLASS_NAME}UseCase");
 
-export const getAll${CLASS_NAME}s = async (): Promise<${CLASS_NAME}[]> => {
+export const getAll${CLASS_NAME}s = async (): Promise<any[]> => {
     try {
-        const $(kebab_to_camel "$MODULE_NAME")s = await ${MODULE_CAMEL}Repository.find();
-        return $(kebab_to_camel "$MODULE_NAME")s;
+        const ${MODULE_CAMEL}s = await prisma.${MODULE_CAMEL}.findMany();
+        return ${MODULE_CAMEL}s;
     } catch (error: unknown) {
         logger.error("Error getting all ${MODULE_NAME}s", (error as Error).message);
         throw error;
@@ -233,18 +185,17 @@ export const getAll${CLASS_NAME}s = async (): Promise<${CLASS_NAME}[]> => {
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/get-one-$MODULE_NAME.use-case.ts" << EOF
-import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 import { LoggerService } from "../../../common/utils/logger.util";
+import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
-import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
 
 const logger = new LoggerService("GetOne${CLASS_NAME}UseCase");
 
-export const getOne${CLASS_NAME} = async (param: string, getBy: string = "id"): Promise<${CLASS_NAME}> => {
+export const getOne${CLASS_NAME} = async (id: number): Promise<any> => {
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { [getBy]: param } });
-        if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
-        return $(kebab_to_camel "$MODULE_NAME");
+        const ${MODULE_CAMEL} = await prisma.${MODULE_CAMEL}.findFirst({ where: { id } });
+        if (!${MODULE_CAMEL}) throw new NotFoundException("${CLASS_NAME} not found");
+        return ${MODULE_CAMEL};
     } catch (error: unknown) {
         logger.error("Error getting ${MODULE_NAME}", (error as Error).message);
         throw error;
@@ -252,83 +203,49 @@ export const getOne${CLASS_NAME} = async (param: string, getBy: string = "id"): 
 };
 EOF
 
-# Crear archivo de repositorio común para este módulo
-# Agregar entrada en un archivo unificado de repositorios
-REPO_INDEX_FILE="src/common/repositories/repositories.ts"
-MODULE_CAMEL=$(kebab_to_camel "$MODULE_NAME")
-if [ ! -f "$REPO_INDEX_FILE" ]; then
-    cat > "$REPO_INDEX_FILE" << EOF
-import AppDataSource from "../../config/datasource.config";
-
-EOF
-fi
-
-IMPORT_LINE="import { ${CLASS_NAME} } from \"../../modules/$MODULE_NAME/entities/$MODULE_NAME.entity\";"
-EXPORT_LINE="export const ${MODULE_CAMEL}Repository = AppDataSource.getRepository(${CLASS_NAME});"
-
-if ! grep -qF "$IMPORT_LINE" "$REPO_INDEX_FILE"; then
-    echo "$IMPORT_LINE" >> "$REPO_INDEX_FILE"
-fi
-if ! grep -qF "$EXPORT_LINE" "$REPO_INDEX_FILE"; then
-    echo "$EXPORT_LINE" >> "$REPO_INDEX_FILE"
-fi
+# Con Prisma no necesitamos archivos de repositorio
 
 cat > "src/modules/$MODULE_NAME/use-cases/update-$MODULE_NAME.use-case.ts" << EOF
-import { NotFoundException } from "../../../exceptions/exceptions";
-import { ${CLASS_NAME} } from "../entities/$MODULE_NAME.entity";
-import { Update${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
-import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
+import { prisma } from "../../../config/prisma.config";
+import { NotFoundException } from "../../../exceptions/exceptions";
+import { Update${CLASS_NAME}Dto } from "../schemas/$MODULE_NAME.schema";
 
 const logger = new LoggerService("Update${CLASS_NAME}UseCase");
 
-export const update${CLASS_NAME} = async (id: number, data: Update${CLASS_NAME}Dto): Promise<${CLASS_NAME}> => {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+export const update${CLASS_NAME} = async (id: number, data: Update${CLASS_NAME}Dto): Promise<any> => {
     try {
-        const updated${CLASS_NAME} = await ${MODULE_CAMEL}Repository.findOne({ where: { id } });
-        if (!updated${CLASS_NAME}) throw new NotFoundException("${CLASS_NAME} not found");
-        ${MODULE_CAMEL}Repository.merge(updated${CLASS_NAME}, data);
-        await ${MODULE_CAMEL}Repository.save(updated${CLASS_NAME});
+        const existing${CLASS_NAME} = await prisma.${MODULE_CAMEL}.findFirst({ where: { id } });
+        if (!existing${CLASS_NAME}) throw new NotFoundException("${CLASS_NAME} not found");
 
-        await queryRunner.commitTransaction();
+        const updated${CLASS_NAME} = await prisma.${MODULE_CAMEL}.update({
+            where: { id },
+            data
+        });
         return updated${CLASS_NAME};
     } catch (error: unknown) {
         logger.error("Error updating ${MODULE_NAME}", (error as Error).message);
-        await queryRunner.rollbackTransaction();
         throw error;
-    } finally {
-        await queryRunner.release();
     }
 };
 EOF
 
 cat > "src/modules/$MODULE_NAME/use-cases/delete-$MODULE_NAME.use-case.ts" << EOF
-import { ${MODULE_CAMEL}Repository } from "../../../common/repositories/repositories";
 import { LoggerService } from "../../../common/utils/logger.util";
-import AppDataSource from "../../../config/datasource.config";
+import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
 
 const logger = new LoggerService("Delete${CLASS_NAME}UseCase");
 
 export const delete${CLASS_NAME} = async (id: number): Promise<void> => {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await ${MODULE_CAMEL}Repository.findOne({ where: { id } });
-        if (!$(kebab_to_camel "$MODULE_NAME")) throw new NotFoundException("${CLASS_NAME} not found");
+        const ${MODULE_CAMEL} = await prisma.${MODULE_CAMEL}.findFirst({ where: { id } });
+        if (!${MODULE_CAMEL}) throw new NotFoundException("${CLASS_NAME} not found");
 
-        await ${MODULE_CAMEL}Repository.remove($(kebab_to_camel "$MODULE_NAME"));
-        await queryRunner.commitTransaction();
+        await prisma.${MODULE_CAMEL}.delete({ where: { id } });
     } catch (error: unknown) {
         logger.error("Error deleting ${MODULE_NAME}", (error as Error).message);
-        await queryRunner.rollbackTransaction();
         throw error;
-    } finally {
-        await queryRunner.release();
     }
 };
 EOF
@@ -345,8 +262,8 @@ import { Update${CLASS_NAME}Dto } from "./schemas/$MODULE_NAME.schema";
 
 export const getAll${CLASS_NAME}sController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const $(kebab_to_camel "$MODULE_NAME")s = await getAll${CLASS_NAME}s();
-        res.json($(kebab_to_camel "$MODULE_NAME")s);
+        const ${MODULE_CAMEL}s = await getAll${CLASS_NAME}s();
+        res.json(${MODULE_CAMEL}s);
     } catch (error) {
         next(error);
     }
@@ -355,8 +272,8 @@ export const getAll${CLASS_NAME}sController = async (req: Request, res: Response
 export const getOne${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await getOne${CLASS_NAME}(id);
-        res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
+        const ${MODULE_CAMEL} = await getOne${CLASS_NAME}(+id);
+        res.status(200).json(${MODULE_CAMEL});
     } catch (error) {
         next(error);
     }
@@ -364,8 +281,8 @@ export const getOne${CLASS_NAME}Controller = async (req: Request, res: Response,
 
 export const create${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await create${CLASS_NAME}(req.body);
-        res.status(201).json($(kebab_to_camel "$MODULE_NAME"));
+        const ${MODULE_CAMEL} = await create${CLASS_NAME}(req.body);
+        res.status(201).json(${MODULE_CAMEL});
     } catch (error) {
         next(error);
     }
@@ -374,8 +291,8 @@ export const create${CLASS_NAME}Controller = async (req: Request, res: Response,
 export const update${CLASS_NAME}Controller = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-        const $(kebab_to_camel "$MODULE_NAME") = await update${CLASS_NAME}(+id, req.body as Update${CLASS_NAME}Dto);
-        res.status(200).json($(kebab_to_camel "$MODULE_NAME"));
+        const ${MODULE_CAMEL} = await update${CLASS_NAME}(+id, req.body as Update${CLASS_NAME}Dto);
+        res.status(200).json(${MODULE_CAMEL});
     } catch (error) {
         next(error);
     }
@@ -403,25 +320,21 @@ import {
     delete${CLASS_NAME}Controller
 } from "./$MODULE_NAME.controller";
 
-export const create${CLASS_NAME}Router = (): Router => {
-    const router = Router();
+export const ${MODULE_CAMEL}Router = Router();
 
-    router.get("/", getAll${CLASS_NAME}sController);
-    router.get("/:id", getOne${CLASS_NAME}Controller);
-    router.post("/", create${CLASS_NAME}Controller);
-    router.patch("/:id", update${CLASS_NAME}Controller);
-    router.delete("/:id", delete${CLASS_NAME}Controller);
-
-    return router;
-};
+${MODULE_CAMEL}Router.get("/", getAll${CLASS_NAME}sController);
+${MODULE_CAMEL}Router.get("/:id", getOne${CLASS_NAME}Controller);
+${MODULE_CAMEL}Router.post("/", create${CLASS_NAME}Controller);
+${MODULE_CAMEL}Router.patch("/:id", update${CLASS_NAME}Controller);
+${MODULE_CAMEL}Router.delete("/:id", delete${CLASS_NAME}Controller);
 EOF
 
 success "Módulo '$MODULE_NAME' creado exitosamente!"
 
 # Insertar la nueva ruta en router.ts
 ROUTER_FILE="src/common/router/router.ts"
-IMPORT_LINE="import { create${CLASS_NAME}Router } from \"../../modules/$MODULE_NAME/$MODULE_NAME.router\";"
-ROUTE_LINE="    router.use(\"/$MODULE_NAME\", create${CLASS_NAME}Router());"
+IMPORT_LINE="import { ${MODULE_CAMEL}Router } from \"../../modules/$MODULE_NAME/$MODULE_NAME.router\";"
+ROUTE_LINE="    router.use(\"/$MODULE_NAME\", ${MODULE_CAMEL}Router);"
 
 # Crear un archivo temporal
 TEMP_FILE=$(mktemp)

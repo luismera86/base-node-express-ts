@@ -18,7 +18,7 @@ export const getAllTestsController = async (req: Request, res: Response, next: N
 export const getOneTestController = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
-        const test = await getOneTest(id);
+        const test = await getOneTest(+id);
         res.status(200).json(test);
     } catch (error) {
         next(error);
