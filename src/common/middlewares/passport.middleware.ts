@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import passport from "../../config/passport.config";
+import passport from "../../config/passport/passport.config";
 import { UnauthorizedException } from "../../exceptions/exceptions";
 
 export const passportCall = (strategy: string) => {

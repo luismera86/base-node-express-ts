@@ -1,21 +1,25 @@
-import AppDataSource from "../config/datasource.config";
+import { prisma } from "../config/prisma.config";
+import { LoggerService } from "../common/utils/logger.util";
+
+const logger = new LoggerService("Seed");
 
 const runSeeds = async () => {
-    const dataSource = await AppDataSource.initialize();
-    console.log("📦 Base de datos conectada para seeding");
+    await prisma.$connect();
+    logger.info("Database connected for seeding");
 
     try {
-        console.log("🎉 Todas las semillas se ejecutaron correctamente");
-    } catch (err) {
-        console.error("❌ Error durante el seeding:", err);
-        throw err;
+        // TODO: add seed logic here
+        logger.info("All seeds executed successfully");
+    } catch (error) {
+        logger.error("Error during seeding", (error as Error).message);
+        throw error;
     } finally {
-        await dataSource.destroy();
-        console.log("🔌 Conexión a la base de datos cerrada");
+        await prisma.$disconnect();
+        logger.info("Database connection closed");
     }
 };
 
 runSeeds().catch((error) => {
-    console.error("❌ Error fatal durante el proceso de seeding:", error);
+    logger.error("Fatal error during seeding", error.message);
     process.exit(1);
 });

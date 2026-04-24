@@ -1,8 +1,7 @@
 import { Strategy, ExtractJwt } from "passport-jwt";
-import AppDataSource from "../datasource.config";
-import envConfig from "../../config/env.config";
-import { User } from "../../modules/user/entities/user.entity";
 import passport from "passport";
+import envConfig from "../../config/env.config";
+import { prisma } from "../prisma.config";
 
 const jwtStrategy = new Strategy(
     {
@@ -11,16 +10,11 @@ const jwtStrategy = new Strategy(
     },
     async (payload, done) => {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({
-                where: { id: payload.id },
-                relations: {
-                    userRoles: {
-                        permissions: true,
-                        role: true,
-                    },
-                },
-            });
-            return done(null, user);
+            // TODO: replace with your user model once created
+            // const user = await prisma.<model>.findUnique({ where: { id: payload.id } });
+            // if (!user) return done(null, false);
+            // return done(null, user);
+            return done(null, payload);
         } catch (error) {
             return done(error);
         }
