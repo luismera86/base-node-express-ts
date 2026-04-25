@@ -1,5 +1,5 @@
 import { LoggerService } from "./common/utils/logger.util";
-import { Server } from "./config/server.config";
+import { startServer } from "./config/server.config";
 import { cronJobManager } from "./cron-jobs";
 import { prisma } from "./config/prisma.config";
 
@@ -7,8 +7,7 @@ const logger = new LoggerService("App");
 
 const main = async () => {
     try {
-        const app = new Server();
-        await app.start();
+        await startServer();
 
         // Iniciar todos los cron jobs
         cronJobManager.startAllJobs();
