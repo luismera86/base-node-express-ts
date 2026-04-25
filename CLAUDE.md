@@ -40,7 +40,7 @@ npm run create:swagger-docs <modulo>       # Genera docs OpenAPI del módulo
 
 ## Prisma / Migraciones
 
-- El schema es la única fuente de verdad: `prisma/schema.prisma`.
+- **Multi-file schema**: cada modelo tiene su propio archivo en `prisma/schema/<modelo>.prisma`. La configuración base (generator + datasource) está en `prisma/schema/base.prisma`.
 - Crear migración **sin aplicar**: `npx prisma migrate dev --name <nombre> --create-only`
 - Las migraciones se verifican en local antes de cualquier deploy.
 - Nunca editar una migración ya comiteada — crear una nueva.
