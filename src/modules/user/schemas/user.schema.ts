@@ -31,6 +31,8 @@ export const UpdateUserSchema = {
 export const UserSchema = CreateUserSchema.body.extend({
     id: z.string().uuid(),
     is_active: z.boolean(),
+    reset_token: z.string().nullable(),
+    reset_token_expires_at: z.date().nullable(),
     created_at: z.date(),
     updated_at: z.date(),
     deleted_at: z.date().nullable(),

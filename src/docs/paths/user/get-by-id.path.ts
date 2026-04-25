@@ -13,7 +13,8 @@ export class GetUserByIdPath extends BasePath {
                     in: "path",
                     required: true,
                     schema: {
-                        type: "number",
+                        type: "string",
+                        format: "uuid",
                         description: "ID del user",
                     },
                 },

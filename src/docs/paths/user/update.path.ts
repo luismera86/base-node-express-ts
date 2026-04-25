@@ -1,4 +1,4 @@
-import { UserSchema } from "../../../modules/user/schemas/user.schema";
+import { UpdateUserSchema } from "../../../modules/user/schemas/user.schema";
 import { BasePath } from "../base.path";
 
 export class UpdateUserPath extends BasePath {
@@ -14,7 +14,8 @@ export class UpdateUserPath extends BasePath {
                     in: "path",
                     required: true,
                     schema: {
-                        type: "number",
+                        type: "string",
+                        format: "uuid",
                         description: "ID del user",
                     },
                 },
@@ -22,7 +23,7 @@ export class UpdateUserPath extends BasePath {
             request: {
                 body: {
                     content: {
-                        "application/json": { schema: UserSchema },
+                        "application/json": { schema: UpdateUserSchema.body },
                     },
                 },
             },
