@@ -39,6 +39,20 @@ Crea un módulo completo siguiendo las convenciones del proyecto. Recibe el nomb
     npm run create:swagger-docs $ARGUMENTS
     ```
 
+    Luego abrir `src/docs/swagger.ts` y **descomentar** (o agregar si no existen) las líneas del módulo:
+
+    ```typescript
+    import { <Nombre>Schema } from "../modules/$ARGUMENTS/schemas/$ARGUMENTS.schema";
+    import { <Nombre>Paths } from "./paths/$ARGUMENTS/$ARGUMENTS.paths";
+    // ...
+    registry.register("<Nombre>", <Nombre>Schema);
+    new <Nombre>Paths().register();
+    ```
+
+    El script las genera comentadas — hay que activarlas manualmente en `swagger.ts`.
+
+    **Importante**: si el módulo no es CRUD estándar (ej: auth, payments), crear los archivos de docs manualmente en `src/docs/paths/<modulo>/` con un path por endpoint, siguiendo la misma estructura que los módulos CRUD existentes.
+
 5. **Crear los tests** en `src/modules/<modulo>/` con el sufijo `.spec.ts`.
 
 6. **Opcional — carpeta de utilidades del módulo**: si el módulo necesita lógica auxiliar propia (helpers, transformadores, etc.), crear `src/modules/<modulo>/utils/` o `src/modules/<modulo>/helpers/`. Solo si es necesario; si la utilidad puede ser reutilizada en otros módulos, moverla a `src/common/utils/` en su lugar.

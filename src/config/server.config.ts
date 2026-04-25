@@ -66,7 +66,7 @@ export class Server {
     }
 
     private router() {
-        this.app.use("/api", createBaseRouter());
+        this.app.use("/api/v1", createBaseRouter());
         this.app.use(
             "/docs",
             swaggerUi.serve,
@@ -117,7 +117,10 @@ export class Server {
 
     private listen() {
         this.app.listen(envConfig.PORT, () => {
-            this.logger.info(`Server is running on port ${envConfig.PORT}`);
+            const base = envConfig.API_URL.replace(/\/api$/, "");
+            this.logger.info(`Server running at ${base}`);
+            this.logger.info(`API       → ${base}/api/v1`);
+            this.logger.info(`Docs      → ${base}/docs`);
         });
     }
 }

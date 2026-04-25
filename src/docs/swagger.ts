@@ -1,40 +1,34 @@
-// src/docs/swagger.ts
 import { z } from "zod";
 import { extendZodWithOpenApi, OpenAPIRegistry, OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
 import envConfig from "../config/env.config";
+import { UserSchema } from "../modules/user/schemas/user.schema";
+import { UserPaths } from "./paths/user/user.paths";
+import { AuthPaths } from "./paths/auth/auth.paths";
 
-// Imports de schemas
-// import { UserSchema } from "../modules/user/schemas/user.schema";
-
-// Imports de paths
-// import { AuthPaths } from "./paths/auth/auth.paths";
-// import { UserPaths } from "./paths/user/user.paths";
-
-extendZodWithOpenApi(z); // Habilita `.openapi()` en esquemas de Zod
+extendZodWithOpenApi(z);
 
 export const registry = new OpenAPIRegistry();
 
-// Registrar schemas
-// registry.register("User", UserSchema);
-// registry.register("User", UserSchema);
+registry.register("User", UserSchema);
 
-// Registrar paths
-// new AuthPaths().register();
-// new UserPaths().register();
+new UserPaths().register();
+new AuthPaths().register();
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
+
+const apiUrl = (envConfig.API_URL || "http://localhost:3000/api").replace(/\/api$/, "/api/v1");
 
 const baseDoc = generator.generateDocument({
     openapi: "3.0.0",
     info: {
-        title: "API Emooti",
+        title: "API",
         version: "1.0.0",
-        description: "API de Emooti con autenticación JWT",
+        description: "API con autenticación JWT",
     },
     servers: [
         {
-            url: envConfig.API_URL || "http://localhost:3000/api",
-            description: "API Server Emooti",
+            url: apiUrl,
+            description: "API Server",
         },
     ],
     security: [

@@ -1,22 +1,60 @@
-# Crear migración de Prisma
+# Crear y ejecutar migración de Prisma
 
-Crea una migración sin aplicarla. Recibe el nombre descriptivo como argumento: $ARGUMENTS
+Crea una migración, muestra el SQL generado y opcionalmente la ejecuta. Recibe el nombre descriptivo como argumento: $ARGUMENTS
 
-## Pasos a seguir
+## Pasos a seguir en orden
 
-1. **Verificar** que el `prisma/schema.prisma` tiene los cambios deseados antes de continuar.
+### 1. Verificar el estado del schema
 
-2. **Crear la migración** (solo genera el SQL, no la aplica):
+Ejecutar:
 
-    ```bash
-    npx prisma migrate dev --name $ARGUMENTS --create-only
-    ```
+```bash
+npx prisma validate
+```
 
-3. **Mostrar el contenido del SQL generado** en `prisma/migrations/` para que el usuario lo revise.
+Si falla, mostrar el error y detener — el schema tiene errores que corregir primero.
 
-4. Recordar al usuario las reglas estrictas:
-    - Revisar el SQL generado antes de aplicar en cualquier entorno
-    - Nunca editar una migración ya comiteada — crear una nueva en su lugar
-    - Aplicar con `npx prisma migrate dev` solo en local tras verificar
+### 2. Crear la migración sin aplicarla
 
-5. Preguntar si el usuario quiere aplicar la migración en local ahora.
+```bash
+npx prisma migrate dev --name $ARGUMENTS --create-only
+```
+
+### 3. Mostrar el SQL generado
+
+Leer y mostrar el contenido del archivo `migration.sql` de la migración recién creada en `prisma/migrations/`.
+
+Verificar que el SQL tiene sentido según los cambios del schema:
+- ¿Crea las tablas/columnas esperadas?
+- ¿Hay operaciones destructivas (`DROP`, `ALTER ... DROP COLUMN`) que puedan borrar datos?
+- ¿Los tipos de datos son correctos?
+
+Si hay operaciones destructivas, advertirlo explícitamente al usuario antes de continuar.
+
+### 4. Preguntar si aplicar en local
+
+> **¿Deseas aplicar esta migración en local ahora? (s/n)**
+
+- Si responde **no**: recordar que puede aplicarla después con `npx prisma migrate dev` y terminar.
+- Si responde **sí**: continuar al paso 5.
+
+### 5. Aplicar la migración
+
+```bash
+npx prisma migrate dev
+```
+
+Si falla, mostrar el error completo. No intentar rollback automático — explicar al usuario qué salió mal.
+
+### 6. Regenerar el Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 7. Confirmar al usuario
+
+Mostrar:
+- Nombre de la migración aplicada
+- Tablas/columnas afectadas (resumen del SQL)
+- Recordar que nunca se debe editar una migración ya aplicada — crear una nueva en su lugar
