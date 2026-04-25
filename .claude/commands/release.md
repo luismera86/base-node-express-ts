@@ -17,11 +17,11 @@ git diff HEAD
 
 Revisar el diff completo (`git diff HEAD` y `git diff --cached`) y clasificar:
 
-| Tipo | Cuándo aplicar |
-|------|---------------|
+| Tipo      | Cuándo aplicar                                                                                                                      |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | **major** | Cambios que rompen compatibilidad: eliminación de endpoints, cambio de contrato de API, renombrado de campos en respuestas públicas |
-| **minor** | Features nuevas sin romper lo existente: nuevos endpoints, nuevos módulos, nuevos campos opcionales |
-| **patch** | Fixes, refactors internos, ajustes de config, docs, dependencias |
+| **minor** | Features nuevas sin romper lo existente: nuevos endpoints, nuevos módulos, nuevos campos opcionales                                 |
+| **patch** | Fixes, refactors internos, ajustes de config, docs, dependencias                                                                    |
 
 Informar al usuario qué tipo detectaste y el motivo **antes de continuar**. Pedir confirmación o corrección.
 
@@ -44,8 +44,8 @@ find . -name "*.spec.ts" -o -name "*.test.ts" -o -name "*.spec.js" -o -name "*.t
 
 - Si **no se encuentran archivos de test**, omitir este paso por completo y continuar.
 - Si **sí existen tests**, preguntar al usuario: _"Se encontraron tests en el proyecto. ¿Deseas ejecutarlos antes del release? (s/n)"_
-  - Si responde **sí**: ejecutar `npm test`. Si fallan, mostrar el error, detener y **no continuar** con el release.
-  - Si responde **no**: omitir y continuar.
+    - Si responde **sí**: ejecutar `npm test`. Si fallan, mostrar el error, detener y **no continuar** con el release.
+    - Si responde **no**: omitir y continuar.
 
 ### 5. Hacer commit de los cambios pendientes
 
@@ -56,6 +56,7 @@ git add <archivos-relevantes>
 ```
 
 Redactar un mensaje de commit que resuma los cambios. Usar el formato:
+
 ```
 <tipo>: <descripción corta>
 
@@ -85,6 +86,7 @@ git push && git push --tags
 ### 8. Confirmar al usuario
 
 Mostrar:
+
 - Versión anterior → versión nueva
 - Nombre del tag creado (e.g. `v1.2.3`)
 - URL del tag en GitHub si el remote es GitHub (extraer de `git remote get-url origin`)

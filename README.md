@@ -295,7 +295,7 @@ Una vez creado el módulo, necesitas:
 2. Ejecutar las migraciones si has modificado la entidad
 3. Personalizar los campos y validaciones según tus necesidades
 
-### Repositorios unificados 
+### Repositorios unificados
 
 Desde la versión actual el proyecto mantiene un archivo unificado de repositories en:
 
@@ -304,6 +304,7 @@ src/common/repositories/repositories.ts
 ```
 
 Qué contiene
+
 - Importaciones de las entidades (todas agrupadas al inicio del archivo).
 - Exportaciones de variables `const` que exponen el repository de TypeORM para cada entidad, por ejemplo:
 
@@ -317,14 +318,17 @@ export const test2Repository = AppDataSource.getRepository(Test2);
 ```
 
 Por qué existe
+
 - Evita generar un archivo de repositorio por cada módulo (menos archivos sueltos).
 - Facilita reusar los repositories en los casos de uso importando una única fuente.
 
 Cómo se actualiza
+
 - El script `npm run create:module <name>` añade automáticamente la importación de la entidad y la exportación del repository en `src/common/repositories/repositories.ts`.
 - Las importaciones siempre se agrupan arriba; las exportaciones se agregan debajo, separadas por una línea en blanco.
 
 Cómo usarlo en los use-cases
+
 - En los casos de uso generados (que son funciones puras), se importa la variable del repository correspondiente, por ejemplo para el módulo `test`:
 
 ```ts
@@ -372,6 +376,7 @@ export const createTest = async (data: CreateTestDto): Promise<Test> => {
 ```
 
 Notas y buenas prácticas
+
 - Si necesitas un comportamiento transaccional usa explícitamente `createQueryRunner()` en el caso de uso (solo cuando sea necesario).
 - Mantén las entidades exportadas con nombres coherentes para que el script pueda añadir correctamente las importaciones.
 - Si migras repositorios individuales antiguos a este archivo, asegúrate de eliminar los archivos anteriores para evitar duplicados.
