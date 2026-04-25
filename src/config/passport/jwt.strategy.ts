@@ -1,7 +1,6 @@
 import { Strategy, ExtractJwt } from "passport-jwt";
 import passport from "passport";
 import envConfig from "../../config/env.config";
-import { prisma } from "../prisma.config";
 
 const jwtStrategy = new Strategy(
     {
