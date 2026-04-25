@@ -83,10 +83,27 @@ Esto actualiza `package.json`, crea el commit de versión y el tag automáticame
 git push && git push --tags
 ```
 
-### 8. Confirmar al usuario
+### 8. Crear GitHub Release con notas de cambios
+
+Redactar las notas del release a partir de los commits incluidos desde el tag anterior:
+
+```bash
+git log <tag-anterior>..HEAD --pretty=format:"- %s" --no-merges
+```
+
+Usar esos commits para armar las notas agrupadas por tipo (`feat`, `fix`, `chore`, etc.) y crear el release. **Las notas siempre deben estar escritas en español.**
+
+```bash
+gh release create <tag> --title "<tag>" --notes "<notas-de-cambios>"
+```
+
+- Si el remote no es GitHub o `gh` no está disponible, omitir este paso e informar al usuario.
+- Para releases `major`, agregar `--latest` explícitamente.
+
+### 9. Confirmar al usuario
 
 Mostrar:
 
 - Versión anterior → versión nueva
 - Nombre del tag creado (e.g. `v1.2.3`)
-- URL del tag en GitHub si el remote es GitHub (extraer de `git remote get-url origin`)
+- URL del GitHub Release creado
