@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.config";
 import { LoggerService } from "../common/utils/logger.util";
+import { seedUser } from "./user.seed";
 
 const logger = new LoggerService("Seed");
 
@@ -8,7 +9,9 @@ const runSeeds = async () => {
     logger.info("Database connected for seeding");
 
     try {
-        // TODO: add seed logic here
+        await seedUser(prisma);
+        logger.info("Seed de user ejecutado");
+
         logger.info("All seeds executed successfully");
     } catch (error) {
         logger.error("Error during seeding", (error as Error).message);
