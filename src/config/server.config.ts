@@ -7,8 +7,6 @@ import envConfig from "./env.config";
 import swaggerUi from "swagger-ui-express";
 import { openApiDoc } from "../docs/swagger";
 import cors from "cors";
-import session from "express-session";
-import passport from "./passport/passport.config";
 import { instanceToPlain } from "class-transformer";
 import { prisma } from "./prisma.config";
 
@@ -37,12 +35,12 @@ export class Server {
             process.exit(1);
         }
     }
+
     private middleware() {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cors());
 
-        // Middleware para transformar todas las respuestas y excluir campos sensibles
         this.app.use((req, res, next) => {
             const originalJson = res.json;
             res.json = function (body) {
@@ -50,19 +48,6 @@ export class Server {
             };
             next();
         });
-
-        // Configuración de sesión
-        this.app.use(
-            session({
-                secret: envConfig.SESSION_SECRET || "your-secret-key",
-                resave: false,
-                saveUninitialized: false,
-            }),
-        );
-
-        // Inicializar Passport
-        this.app.use(passport.initialize());
-        this.app.use(passport.session());
     }
 
     private router() {
@@ -78,11 +63,8 @@ export class Server {
                     filter: true,
                     showCommonExtensions: true,
                     tagsSorter: "alpha",
-                    onComplete: function () {
-                        // Mostrar los headers en cada petición para depuración
-                    },
                 },
-                customSiteTitle: "API Emooti - Documentación",
+                customSiteTitle: "API - Documentación",
                 customCss:
                     ".swagger-ui .topbar { display: none } .auth-wrapper { padding: 10px; border: 1px solid #49cc90; background: rgba(73, 204, 144, 0.1); }",
             }),
@@ -96,14 +78,13 @@ export class Server {
             res.status(200).json({ message: "OK" });
         });
 
-        // Ruta para favicon.ico
         this.app.get("/favicon.ico", (req, res) => {
-            res.status(204).send(); // Respuesta vacía para favicon
+            res.status(204).send();
         });
 
         this.app.use((req, res, next) => {
             if (req.path.startsWith("/.well-known")) {
-                return res.status(204).send(); // Silenciar sin log
+                return res.status(204).send();
             }
             next();
         });

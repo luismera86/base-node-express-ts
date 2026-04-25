@@ -1,17 +1,22 @@
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify } from "jose";
 import envConfig from "../../config/env.config";
 import { UnauthorizedException } from "../../exceptions/exceptions";
 
-export const createToken = (payload: any) => {
-    return jwt.sign(payload, envConfig.JWT_SECRET, {
-        expiresIn: "365d",
-    });
+const secret = new TextEncoder().encode(envConfig.JWT_SECRET);
+
+export const createToken = async (payload: Record<string, unknown>): Promise<string> => {
+    return new SignJWT(payload)
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime("365d")
+        .sign(secret);
 };
 
-export const verifyToken = (token: string) => {
+export const verifyToken = async (token: string): Promise<{ id: string; email: string; role: string }> => {
     try {
-        return jwt.verify(token, envConfig.JWT_SECRET) as { id: string; email: string };
-    } catch (error) {
-        throw new UnauthorizedException("Invalid token");
+        const { payload } = await jwtVerify(token, secret);
+        return payload as { id: string; email: string; role: string };
+    } catch {
+        throw new UnauthorizedException("Token inválido o expirado");
     }
 };

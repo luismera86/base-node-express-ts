@@ -15,7 +15,7 @@ export const login = async (data: LoginDto): Promise<{ token: string }> => {
         const valid = await argon2.verify(user.password, data.password);
         if (!valid) throw new UnauthorizedException("Invalid credentials");
 
-        const token = createToken({ id: user.id, email: user.email, role: user.role });
+        const token = await createToken({ id: user.id, email: user.email, role: user.role });
         return { token };
     } catch (error: unknown) {
         logger.error("Error logging in", (error as Error).message);

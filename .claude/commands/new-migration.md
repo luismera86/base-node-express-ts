@@ -25,6 +25,7 @@ npx prisma migrate dev --name $ARGUMENTS --create-only
 Leer y mostrar el contenido del archivo `migration.sql` de la migración recién creada en `prisma/migrations/`.
 
 Verificar que el SQL tiene sentido según los cambios del schema:
+
 - ¿Crea las tablas/columnas esperadas?
 - ¿Hay operaciones destructivas (`DROP`, `ALTER ... DROP COLUMN`) que puedan borrar datos?
 - ¿Los tipos de datos son correctos?
@@ -55,6 +56,7 @@ npx prisma generate
 ### 7. Confirmar al usuario
 
 Mostrar:
+
 - Nombre de la migración aplicada
 - Tablas/columnas afectadas (resumen del SQL)
 - Recordar que nunca se debe editar una migración ya aplicada — crear una nueva en su lugar
