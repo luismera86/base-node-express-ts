@@ -27,6 +27,7 @@
     "license": "ISC",
     "devDependencies": {
         "@eslint/js": "^9.22.0",
+        "@types/argon2": "^0.14.1",
         "@types/aws-sdk": "^0.0.42",
         "@types/bcrypt": "^5.0.2",
         "@types/cors": "^2.8.17",
@@ -72,6 +73,7 @@
         "@types/express-session": "^1.18.1",
         "@types/passport-google-oauth20": "^2.0.16",
         "@types/passport-microsoft": "^1.0.3",
+        "argon2": "^0.44.0",
         "aws-sdk": "^2.1692.0",
         "bcrypt": "^5.1.1",
         "chalk": "4.1.2",
