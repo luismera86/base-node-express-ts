@@ -1,5 +1,27 @@
 # CLAUDE.md — base-node-express-ts
 
+## Prioridad antes de ejecutar cualquier tarea
+
+Antes de crear archivos manualmente o ejecutar cualquier comando, **revisar si existe una skill que cubra la tarea**. Las skills automatizan la generación de código siguiendo las convenciones del proyecto y evitan errores de estructura.
+
+| Skill | Cuándo usarla |
+|-------|---------------|
+| `/new-module <nombre>` | Crear un módulo nuevo (schemas, use cases, controller, router, docs, test) |
+| `/delete-module <nombre>` | Eliminar un módulo y limpiar todas sus referencias |
+| `/new-use-case <modulo> <nombre>` | Agregar un caso de uso a un módulo existente |
+| `/new-prisma-model <nombre>` | Crear un modelo Prisma nuevo |
+| `/new-migration <nombre>` | Crear y opcionalmente aplicar una migración |
+| `/new-middleware <nombre>` | Crear un middleware en `src/common/middlewares/` |
+| `/new-enum <nombre>` | Crear un enum en `src/common/enums/` |
+| `/new-seed <modulo>` | Crear seed con datos mock para un módulo |
+| `/update-seed` | Sincronizar todos los seeds con los schemas actuales |
+| `/sync-docs` | Revisar y corregir la documentación OpenAPI de todos los módulos |
+| `/new-unit-test <modulo> <use-case>` | Crear test unitario para un use case |
+| `/new-integration-test <modulo>` | Crear test de integración para un módulo |
+| `/release` | Lint → build → versión semántica → tag → push → GitHub Release |
+
+---
+
 ## Stack
 
 - **Runtime**: Node.js v20+, TypeScript, Express
