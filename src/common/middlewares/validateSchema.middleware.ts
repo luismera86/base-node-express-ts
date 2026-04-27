@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { AnyZodObject, ZodError } from "zod";
+import { ZodError, ZodTypeAny } from "zod";
 
 interface ValidationSchema {
-    body?: AnyZodObject;
-    params?: AnyZodObject;
-    query?: AnyZodObject;
+    body?: ZodTypeAny;
+    params?: ZodTypeAny;
+    query?: ZodTypeAny;
 }
 
 export const validateSchema = (schema: ValidationSchema) => {
@@ -14,10 +14,10 @@ export const validateSchema = (schema: ValidationSchema) => {
                 req.body = await schema.body.parseAsync(req.body);
             }
             if (schema.params) {
-                req.params = await schema.params.parseAsync(req.params);
+                req.params = await schema.params.parseAsync(req.params) as typeof req.params;
             }
             if (schema.query) {
-                req.query = await schema.query.parseAsync(req.query);
+                req.query = await schema.query.parseAsync(req.query) as typeof req.query;
             }
             next();
         } catch (error) {
@@ -25,7 +25,7 @@ export const validateSchema = (schema: ValidationSchema) => {
                 return res.status(400).json({
                     status: "error",
                     message: "Validation error",
-                    errors: error.errors.map((err) => ({
+                    errors: error.issues.map((err) => ({
                         path: err.path.join("."),
                         message: err.message,
                     })),
