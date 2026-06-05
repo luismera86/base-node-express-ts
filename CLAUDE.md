@@ -27,7 +27,7 @@ Antes de crear archivos manualmente o ejecutar cualquier comando, **revisar si e
 - **Runtime**: Node.js v20+, TypeScript, Express
 - **ORM**: Prisma (PostgreSQL) — instancia centralizada en `src/config/prisma.config.ts`
 - **Validación**: Zod + `@asteasolutions/zod-to-openapi` (approach code-first)
-- **Testing**: Jest + ts-jest
+- **Testing**: Vitest
 - **Logger**: `LoggerService` importado de `common/utils/logger.util`
 
 ## Estructura de un módulo

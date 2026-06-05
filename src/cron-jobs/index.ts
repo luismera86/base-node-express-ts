@@ -11,8 +11,9 @@ export class CronJobManager {
     }
 
     private initializeJobs() {
-        // Registrar todos los jobs aquí
-        // this.jobs.set('count', countJob);
+        // Registrar todos los jobs aquí.
+        // Ejemplo (importar exampleJob desde "./example.job" y descomentar):
+        // this.jobs.set("example", exampleJob);
     }
 
     public static getInstance(): CronJobManager {
@@ -43,8 +44,8 @@ export class CronJobManager {
     }
 }
 
-// Exportar una instancia única del manager
+// Instancia única del manager.
 export const cronJobManager = CronJobManager.getInstance();
 
-// Exportar los jobs individuales por si se necesitan usar por separado
-export * from "./count.job";
+// Exportar los jobs individuales por si se necesitan usar por separado.
+export * from "./example.job";

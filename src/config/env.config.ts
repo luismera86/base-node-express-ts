@@ -10,12 +10,10 @@ const logger = new LoggerService("EnvConfig");
 const envSchema = z.object({
     NODE_ENV: z.enum(["local", "dev", "qa", "prod"]).default("local"),
     DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL connection string"),
-    SECRET_KEY: z.string().min(10, "SECRET_KEY must be at least 10 characters long.").optional(),
     PORT: z.string().refine((val) => !isNaN(Number(val)), {
         message: "PORT must be a number",
     }),
     JWT_SECRET: z.string(),
-    SESSION_SECRET: z.string().min(10, "SESSION_SECRET must be at least 10 characters long."),
     API_URL: z.string(),
 });
 

@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { fakerES as faker } from "@faker-js/faker";
-import * as argon2 from "argon2";
+import { hashPassword } from "../common/utils/hash.util";
 
 const TOTAL = 10;
 
 export const seedUser = async (prisma: PrismaClient): Promise<void> => {
-    const hashed_password = await argon2.hash("Password123!", { type: argon2.argon2id });
+    const hashed_password = await hashPassword("Password123!");
 
     const users = await Promise.all(
         Array.from({ length: TOTAL }, async (_, i) => ({

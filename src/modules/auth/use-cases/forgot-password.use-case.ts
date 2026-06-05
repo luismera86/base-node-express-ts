@@ -1,7 +1,7 @@
-import * as argon2 from "argon2";
 import { randomUUID } from "crypto";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
+import { hashPassword } from "../../../common/utils/hash.util";
 import { ForgotPasswordDto } from "../schemas/auth.schema";
 
 const logger = new LoggerService("ForgotPasswordUseCase");
@@ -15,7 +15,7 @@ export const forgotPassword = async (data: ForgotPasswordDto): Promise<{ message
         if (!user) return { message: "If the email exists, a reset link has been sent" };
 
         const raw_token = randomUUID();
-        const hashed_token = await argon2.hash(raw_token, { type: argon2.argon2id });
+        const hashed_token = await hashPassword(raw_token);
         const expires_at = new Date(Date.now() + TOKEN_TTL_MINUTES * 60 * 1000);
 
         await prisma.user.update({

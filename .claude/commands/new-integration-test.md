@@ -31,20 +31,21 @@ Ruta: `test/$ARGUMENTS.test.ts`
 **Plantilla base:**
 
 ```typescript
+import { describe, it, expect, beforeAll, beforeEach, vi, type Mock } from "vitest";
 import request from "supertest";
 import express from "express";
 import { createBaseRouter } from "../src/common/router/router";
 import { customExceptions } from "../src/exceptions/custom-exceptions";
 import { prisma } from "../src/config/prisma.config";
 
-jest.mock("../src/config/prisma.config", () => ({
+vi.mock("../src/config/prisma.config", () => ({
     prisma: {
         <model>: {
-            create: jest.fn(),
-            findUnique: jest.fn(),
-            findMany: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
+            create: vi.fn(),
+            findUnique: vi.fn(),
+            findMany: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
         },
     },
 }));
@@ -65,12 +66,12 @@ describe("$ARGUMENTS endpoints", () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe("GET /api/$ARGUMENTS", () => {
         it("should return 200 with list", async () => {
-            (prisma.<model>.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.<model>.findMany as Mock).mockResolvedValue([]);
 
             const res = await request(app).get("/api/$ARGUMENTS");
 
@@ -83,7 +84,7 @@ describe("$ARGUMENTS endpoints", () => {
         it("should return 201 when data is valid", async () => {
             const payload = { /* campos requeridos */ };
             const created = { id: "uuid-fake", ...payload };
-            (prisma.<model>.create as jest.Mock).mockResolvedValue(created);
+            (prisma.<model>.create as Mock).mockResolvedValue(created);
 
             const res = await request(app)
                 .post("/api/$ARGUMENTS")
@@ -110,7 +111,7 @@ describe("$ARGUMENTS endpoints", () => {
 - Montar solo las capas necesarias (no levantar el servidor completo ni conectar a BD real).
 - Si hay rutas protegidas con `passportCall` u otro middleware de auth, mockearlos:
     ```typescript
-    jest.mock("../src/common/middlewares/passport.middleware", () => ({
+    vi.mock("../src/common/middlewares/passport.middleware", () => ({
         passportCall: () => (req: any, res: any, next: any) => {
             req.user = { id: "user-fake-id" };
             next();
@@ -122,7 +123,7 @@ describe("$ARGUMENTS endpoints", () => {
 ### 4. Verificar que los tests corren
 
 ```bash
-npx jest test/$ARGUMENTS.test.ts --no-coverage
+npx vitest run test/$ARGUMENTS.test.ts
 ```
 
 Si fallan, corregir antes de terminar.

@@ -1,6 +1,6 @@
-import * as argon2 from "argon2";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
+import { compareHash, hashPassword } from "../../../common/utils/hash.util";
 import { BadRequestException, NotFoundException } from "../../../exceptions/exceptions";
 import { ResetPasswordDto } from "../schemas/auth.schema";
 
@@ -17,10 +17,10 @@ export const resetPassword = async (data: ResetPasswordDto): Promise<{ message: 
             throw new BadRequestException("Reset token has expired");
         }
 
-        const valid = await argon2.verify(user.reset_token, data.token);
+        const valid = await compareHash(data.token, user.reset_token);
         if (!valid) throw new BadRequestException("Invalid reset token");
 
-        const hashed_password = await argon2.hash(data.new_password, { type: argon2.argon2id });
+        const hashed_password = await hashPassword(data.new_password);
 
         await prisma.user.update({
             where: { id: user.id },

@@ -1,6 +1,6 @@
-import * as argon2 from "argon2";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
+import { hashPassword } from "../../../common/utils/hash.util";
 import { ConflictException } from "../../../exceptions/exceptions";
 import { RegisterDto } from "../schemas/auth.schema";
 
@@ -11,7 +11,7 @@ export const register = async (data: RegisterDto): Promise<{ id: string; email: 
         const existing = await prisma.user.findFirst({ where: { email: data.email } });
         if (existing) throw new ConflictException("Email already in use");
 
-        const hashed_password = await argon2.hash(data.password, { type: argon2.argon2id });
+        const hashed_password = await hashPassword(data.password);
 
         const user = await prisma.user.create({
             data: {

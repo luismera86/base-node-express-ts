@@ -9,7 +9,7 @@ Base de proyecto Node.js + TypeScript + Express con Prisma, autenticación JWT y
 - **Autenticación**: JWT con [jose](https://github.com/panva/jose), passwords con argon2id
 - **Validación**: Zod + `@asteasolutions/zod-to-openapi`
 - **Documentación**: Swagger UI (`/docs`)
-- **Testing**: Jest + ts-jest
+- **Testing**: Vitest
 - **Logger**: Winston
 
 ---

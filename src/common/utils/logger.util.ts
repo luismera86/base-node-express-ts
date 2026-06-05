@@ -26,7 +26,7 @@ export const logger = createLogger({
 });
 
 // Si el entorno es de producción, no usamos la consola para los logs
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "prod") {
     logger.remove(new transports.Console());
 }
 
@@ -35,33 +35,33 @@ export class LoggerService {
 
     info(message: string, subMessage?: string) {
         const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.log("info", { message: fullMessage, context: this.context });
+        logger.info(fullMessage, { context: this.context });
     }
 
     error(message: string, subMessage?: string, trace?: string) {
         const fullMessage = subMessage
             ? `${message}\n${subMessage}${trace ? "\n" + trace : ""}`
             : `${message}${trace ? " - " + trace : ""}`;
-        logger.error("error:", { message: fullMessage, context: this.context });
+        logger.error(fullMessage, { context: this.context });
     }
 
     warn(message: string, subMessage?: string) {
         const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.warn("warn", { message: fullMessage, context: this.context });
+        logger.warn(fullMessage, { context: this.context });
     }
 
     debug(message: string, subMessage?: string) {
         const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.debug("debug", { message: fullMessage, context: this.context });
+        logger.debug(fullMessage, { context: this.context });
     }
 
     verbose(message: string, subMessage?: string) {
         const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.verbose("verbose", { message: fullMessage, context: this.context });
+        logger.verbose(fullMessage, { context: this.context });
     }
 
     silly(message: string, subMessage?: string) {
         const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.silly("silly", { message: fullMessage, context: this.context });
+        logger.silly(fullMessage, { context: this.context });
     }
 }

@@ -24,45 +24,44 @@ Si ya existe el archivo (el módulo tiene tests), agregar el nuevo `describe` al
 **Plantilla base:**
 
 ```typescript
+import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
 import { <useCaseFn> } from "./use-cases/<use-case>.use-case";
 import { prisma } from "../../config/prisma.config";
 
-jest.mock("../../config/prisma.config", () => ({
+vi.mock("../../config/prisma.config", () => ({
     prisma: {
         <model>: {
-            create: jest.fn(),
-            findUnique: jest.fn(),
-            findMany: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
+            create: vi.fn(),
+            findUnique: vi.fn(),
+            findMany: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
         },
     },
 }));
 
-const prismaMock = prisma as jest.Mocked<typeof prisma>;
-
 describe("<useCaseFn>", () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it("should <descripción del caso feliz>", async () => {
         // Arrange
         const input = { /* datos de prueba */ };
         const expected = { /* resultado esperado */ };
-        (prismaMock.<model>.<method> as jest.Mock).mockResolvedValue(expected);
+        (prisma.<model>.<method> as Mock).mockResolvedValue(expected);
 
         // Act
         const result = await <useCaseFn>(input);
 
         // Assert
-        expect(prismaMock.<model>.<method>).toHaveBeenCalledWith(/* args esperados */);
+        expect(prisma.<model>.<method>).toHaveBeenCalledWith(/* args esperados */);
         expect(result).toEqual(expected);
     });
 
     it("should throw <ExceptionName> when <condición de error>", async () => {
         // Arrange
-        (prismaMock.<model>.<method> as jest.Mock).mockResolvedValue(null);
+        (prisma.<model>.<method> as Mock).mockResolvedValue(null);
 
         // Act & Assert
         await expect(<useCaseFn>(/* input */)).rejects.toThrow(<ExceptionName>);
@@ -78,7 +77,7 @@ describe("<useCaseFn>", () => {
 ### 3. Verificar que los tests corren
 
 ```bash
-npx jest src/modules/<modulo>/<modulo>.spec.ts --no-coverage
+npx vitest run src/modules/<modulo>/<modulo>.spec.ts
 ```
 
 Si fallan, corregir antes de terminar.

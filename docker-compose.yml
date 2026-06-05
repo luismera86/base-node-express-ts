@@ -3,21 +3,21 @@ version: "3.8"
 services:
     postgres:
         image: postgres:16-alpine
-        container_name: test-base
+        container_name: base-postgres
         restart: always
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: test2
+            POSTGRES_DB: mydb
         ports:
             - "5433:5432"
         volumes:
             - postgres_data:/var/lib/postgresql/data
         networks:
-            - test-test
+            - base-network
     cloudbeaver:
         image: dbeaver/cloudbeaver:latest
-        container_name: test-cloudbeaver
+        container_name: base-cloudbeaver
         restart: always
         ports:
             - "8978:8978"
@@ -26,14 +26,14 @@ services:
         depends_on:
             - postgres
         networks:
-            - test-test
+            - base-network
 
 volumes:
     postgres_data:
-        name: test-postgres-data
+        name: base-postgres-data
     cloudbeaver_data:
-        name: test-cloudbeaver-data
+        name: base-cloudbeaver-data
 
 networks:
-    test-test:
-        name: test-test
+    base-network:
+        name: base-network
