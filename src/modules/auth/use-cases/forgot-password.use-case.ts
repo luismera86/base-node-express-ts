@@ -23,8 +23,7 @@ export const forgotPassword = async (data: ForgotPasswordDto): Promise<{ message
             data: { reset_token: hashed_token, reset_token_expires_at: expires_at },
         });
 
-        // TODO: enviar raw_token por email al usuario
-        logger.info(`Reset token for ${user.email}: ${raw_token}`);
+        // TODO: enviar raw_token por email al usuario (NUNCA loguear el token en claro).
 
         return { message: "If the email exists, a reset link has been sent" };
     } catch (error: unknown) {

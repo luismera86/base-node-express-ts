@@ -4,14 +4,11 @@ import { authRouter } from "../../modules/auth/auth.router";
 export const createBaseRouter = (): Router => {
     const router = Router();
 
-    // Rutas públicas (sin autenticación)
-
-    // Middleware de autenticación para rutas protegidas
-
-    // Rutas protegidas
-
-    // router.use(authUser);
-    router.use("/user", userRouter);
+    // Rutas públicas
     router.use("/auth", authRouter);
+
+    // Rutas protegidas (la autenticación/autorización se aplica dentro de cada router)
+    router.use("/user", userRouter);
+
     return router;
 };

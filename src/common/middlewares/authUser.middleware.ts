@@ -11,10 +11,17 @@ export const authUser = async (req: Request, res: Response, next: NextFunction) 
         const token = authHeader.substring(7);
         const decoded = await verifyToken(token);
 
-        const user = await prisma.user.findFirst({ where: { id: decoded.id, is_active: true } });
+        const user = await prisma.user.findFirst({
+            where: { id: decoded.id, is_active: true, deleted_at: null },
+        });
         if (!user) throw new UnauthorizedException("Usuario no encontrado o inactivo");
 
-        req.user = user as any;
+        req.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            is_active: user.is_active,
+        };
         next();
     } catch (error) {
         next(error);

@@ -5,7 +5,7 @@ const logger = new LoggerService("GetAllUserUseCase");
 
 export const getAllUsers = async (): Promise<any[]> => {
     try {
-        const users = await prisma.user.findMany();
+        const users = await prisma.user.findMany({ where: { deleted_at: null } });
         return users;
     } catch (error: unknown) {
         logger.error("Error getting all users", (error as Error).message);

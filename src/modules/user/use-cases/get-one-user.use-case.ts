@@ -6,7 +6,7 @@ const logger = new LoggerService("GetOneUserUseCase");
 
 export const getOneUser = async (id: string): Promise<any> => {
     try {
-        const user = await prisma.user.findFirst({ where: { id } });
+        const user = await prisma.user.findFirst({ where: { id, deleted_at: null } });
         if (!user) throw new NotFoundException("User not found");
         return user;
     } catch (error: unknown) {

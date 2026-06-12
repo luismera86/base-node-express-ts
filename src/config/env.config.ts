@@ -13,8 +13,14 @@ const envSchema = z.object({
     PORT: z.string().refine((val) => !isNaN(Number(val)), {
         message: "PORT must be a number",
     }),
-    JWT_SECRET: z.string(),
+    JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters long"),
+    JWT_ACCESS_EXPIRES: z.string().default("15m"),
+    JWT_REFRESH_EXPIRES_DAYS: z
+        .string()
+        .default("7")
+        .refine((val) => !isNaN(Number(val)), { message: "JWT_REFRESH_EXPIRES_DAYS must be a number" }),
     API_URL: z.string(),
+    CORS_ORIGINS: z.string().default("*"),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;

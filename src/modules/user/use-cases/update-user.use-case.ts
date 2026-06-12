@@ -7,7 +7,7 @@ const logger = new LoggerService("UpdateUserUseCase");
 
 export const updateUser = async (id: string, data: UpdateUserDto): Promise<any> => {
     try {
-        const existing = await prisma.user.findFirst({ where: { id } });
+        const existing = await prisma.user.findFirst({ where: { id, deleted_at: null } });
         if (!existing) throw new NotFoundException("User not found");
 
         const updated = await prisma.user.update({ where: { id }, data });

@@ -41,7 +41,16 @@ export const ResetPasswordSchema = {
         .openapi("ResetPassword"),
 };
 
+export const RefreshTokenSchema = {
+    body: z
+        .object({
+            refresh_token: z.string().min(1).openapi({ example: "550e8400-...:uuid.uuid" }),
+        })
+        .openapi("RefreshToken"),
+};
+
 export type RegisterDto = z.infer<typeof RegisterSchema.body>;
+export type RefreshTokenDto = z.infer<typeof RefreshTokenSchema.body>;
 export type LoginDto = z.infer<typeof LoginSchema.body>;
 export type ForgotPasswordDto = z.infer<typeof ForgotPasswordSchema.body>;
 export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema.body>;

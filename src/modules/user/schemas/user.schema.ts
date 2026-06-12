@@ -18,6 +18,7 @@ export const CreateUserSchema = {
         .openapi("User"),
 };
 
+// Update por admin: permite cambiar role.
 export const UpdateUserSchema = {
     params: z.object({
         id: z
@@ -28,11 +29,17 @@ export const UpdateUserSchema = {
     body: CreateUserSchema.body.omit({ password: true }).partial(),
 };
 
-export const UserSchema = CreateUserSchema.body.extend({
+// Update propio (no-admin): NO permite cambiar role.
+export const UpdateUserSelfSchema = {
+    params: UpdateUserSchema.params,
+    body: CreateUserSchema.body.omit({ password: true, role: true }).partial(),
+};
+
+// Schema de salida: NO incluye campos sensibles (password, reset_token,
+// reset_token_expires_at, refresh_token) — coherente con el `omit` global de Prisma.
+export const UserSchema = CreateUserSchema.body.omit({ password: true }).extend({
     id: z.string().uuid(),
     is_active: z.boolean(),
-    reset_token: z.string().nullable(),
-    reset_token_expires_at: z.date().nullable(),
     created_at: z.date(),
     updated_at: z.date(),
     deleted_at: z.date().nullable(),
@@ -58,4 +65,5 @@ export const GetOneUserSchema = {
 
 export type CreateUserDto = z.infer<typeof CreateUserSchema.body>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema.body>;
+export type UpdateUserSelfDto = z.infer<typeof UpdateUserSelfSchema.body>;
 export type UserDto = z.infer<typeof UserSchema>;

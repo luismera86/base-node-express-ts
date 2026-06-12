@@ -8,7 +8,10 @@ const logger = new LoggerService("ResetPasswordUseCase");
 
 export const resetPassword = async (data: ResetPasswordDto): Promise<{ message: string }> => {
     try {
-        const user = await prisma.user.findFirst({ where: { email: data.email, is_active: true } });
+        const user = await prisma.user.findFirst({
+            where: { email: data.email, is_active: true, deleted_at: null },
+            omit: { reset_token: false, reset_token_expires_at: false },
+        });
         if (!user || !user.reset_token || !user.reset_token_expires_at) {
             throw new NotFoundException("Invalid or expired reset token");
         }
@@ -24,7 +27,14 @@ export const resetPassword = async (data: ResetPasswordDto): Promise<{ message: 
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { password: hashed_password, reset_token: null, reset_token_expires_at: null },
+            // Al resetear la contraseña se invalidan también las sesiones activas.
+            data: {
+                password: hashed_password,
+                reset_token: null,
+                reset_token_expires_at: null,
+                refresh_token: null,
+                refresh_token_expires_at: null,
+            },
         });
 
         return { message: "Password updated successfully" };

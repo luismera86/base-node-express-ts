@@ -6,7 +6,7 @@ const logger = new LoggerService("Custom Exceptions");
  * Middleware para manejo global de excepciones
  * Proporciona respuestas de error consistentes y registra información de depuración
  */
-export const customExceptions = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const customExceptions = (err: any, req: Request, res: Response, _next: NextFunction) => {
     // Determinar código de estado HTTP y mensaje
     const statusCode = err.statusCode || 500;
     const message = statusCode === 500 ? "Internal server error" : err.message;
@@ -20,16 +20,8 @@ export const customExceptions = (err: any, req: Request, res: Response, next: Ne
     };
 
     if (statusCode === 500) {
+        // El detalle/stack solo se registra; NUNCA se devuelve al cliente (independiente del entorno).
         logger.error(`Error 500: ${JSON.stringify(errorDetails, null, 2)}`);
-
-        // En producción, ocultar detalles específicos del error
-        if (process.env.NODE_ENV === "prod") {
-            return res.status(statusCode).json({
-                status: "error",
-                statusCode,
-                message: "Internal server error",
-            });
-        }
     } else {
         logger.debug(`Error ${statusCode}: ${JSON.stringify(errorDetails, null, 2)}`);
     }

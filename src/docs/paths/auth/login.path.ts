@@ -24,7 +24,7 @@ export class LoginPath extends BasePath {
                     description: "Login exitoso",
                     content: {
                         "application/json": {
-                            schema: z.object({ token: z.string() }).openapi("LoginResponse"),
+                            schema: z.object({ token: z.string(), refresh_token: z.string() }).openapi("LoginResponse"),
                         },
                     },
                 },

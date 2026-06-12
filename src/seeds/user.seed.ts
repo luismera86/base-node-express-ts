@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import { fakerES as faker } from "@faker-js/faker";
 import { hashPassword } from "../common/utils/hash.util";
+import type { AppPrismaClient } from "../config/prisma.config";
 
 const TOTAL = 10;
 
-export const seedUser = async (prisma: PrismaClient): Promise<void> => {
+export const seedUser = async (prisma: AppPrismaClient): Promise<void> => {
     const hashed_password = await hashPassword("Password123!");
 
     const users = await Promise.all(

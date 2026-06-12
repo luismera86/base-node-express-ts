@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { instanceToPlain } from "class-transformer";
 import { createBaseRouter } from "../common/router/router";
@@ -24,9 +25,15 @@ const connectDatabase = async () => {
 };
 
 const applyMiddlewares = () => {
+    app.use(helmet());
+
+    // CORS restringido por configuración. `CORS_ORIGINS="*"` permite todos los orígenes
+    // (útil en local); en otros entornos usar una lista separada por comas.
+    const origins = envConfig.CORS_ORIGINS.split(",").map((o) => o.trim());
+    app.use(cors(origins.includes("*") ? undefined : { origin: origins, credentials: true }));
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    app.use(cors());
 
     app.use((req, res, next) => {
         const originalJson = res.json;
@@ -57,14 +64,10 @@ const applyRoutes = () => {
         }),
     );
 
-    app.use((req, res, next) => {
+    app.use("*", (req, res, next) => {
         if (req.path.startsWith("/.well-known")) {
             return res.status(204).send();
         }
-        next();
-    });
-
-    app.use("*", (req, res, next) => {
         next(new NotFoundException("Path not found"));
     });
 
