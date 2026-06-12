@@ -16,6 +16,6 @@ export const exampleJob = () => {
 
     // Cada minuto (cambiar/eliminar según necesidad).
     cron.schedule("* * * * *", () => {
-        logger.info("Example cron job ejecutado");
+        logger.info("Cron job de ejemplo ejecutado");
     });
 };

@@ -4,7 +4,7 @@ import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { instanceToPlain } from "class-transformer";
 import { createBaseRouter } from "../common/router/router";
-import { customExceptions } from "../exceptions/custom-exceptions";
+import { manejadorExcepciones } from "../exceptions/custom-exceptions";
 import { NotFoundException } from "../exceptions/exceptions";
 import { LoggerService } from "../common/utils/logger.util";
 import { openApiDoc } from "../docs/swagger";
@@ -12,39 +12,39 @@ import { prisma } from "./prisma.config";
 import envConfig from "./env.config";
 
 const app = express();
-const logger = new LoggerService("Server");
+const logger = new LoggerService("Servidor");
 
-const connectDatabase = async () => {
+const conectarBaseDatos = async () => {
     try {
         await prisma.$connect();
-        logger.info("Database connected successfully");
+        logger.info("Base de datos conectada correctamente");
     } catch (error: unknown) {
-        logger.error("Failed to connect to database", (error as Error).message);
+        logger.error("No se pudo conectar a la base de datos", (error as Error).message);
         process.exit(1);
     }
 };
 
-const applyMiddlewares = () => {
+const aplicarMiddlewares = () => {
     app.use(helmet());
 
     // CORS restringido por configuración. `CORS_ORIGINS="*"` permite todos los orígenes
     // (útil en local); en otros entornos usar una lista separada por comas.
-    const origins = envConfig.CORS_ORIGINS.split(",").map((o) => o.trim());
-    app.use(cors(origins.includes("*") ? undefined : { origin: origins, credentials: true }));
+    const origenes = envConfig.CORS_ORIGINS.split(",").map((o) => o.trim());
+    app.use(cors(origenes.includes("*") ? undefined : { origin: origenes, credentials: true }));
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
     app.use((req, res, next) => {
-        const originalJson = res.json;
+        const jsonOriginal = res.json;
         res.json = function (body) {
-            return originalJson.call(this, instanceToPlain(body));
+            return jsonOriginal.call(this, instanceToPlain(body));
         };
         next();
     });
 };
 
-const applyRoutes = () => {
+const aplicarRutas = () => {
     app.use("/api/v1", createBaseRouter());
     app.use(
         "/docs",
@@ -68,24 +68,24 @@ const applyRoutes = () => {
         if (req.path.startsWith("/.well-known")) {
             return res.status(204).send();
         }
-        next(new NotFoundException("Path not found"));
+        next(new NotFoundException("Ruta no encontrada"));
     });
 
-    app.use(customExceptions);
+    app.use(manejadorExcepciones);
 };
 
-const listen = () => {
+const escuchar = () => {
     app.listen(envConfig.PORT, () => {
         const base = envConfig.API_URL.replace(/\/api$/, "");
-        logger.info(`Server running at ${base}`);
+        logger.info(`Servidor ejecutándose en ${base}`);
         logger.info(`API       → ${base}/api/v1`);
         logger.info(`Docs      → ${base}/docs`);
     });
 };
 
-export const startServer = async () => {
-    await connectDatabase();
-    applyMiddlewares();
-    applyRoutes();
-    listen();
+export const iniciarServidor = async () => {
+    await conectarBaseDatos();
+    aplicarMiddlewares();
+    aplicarRutas();
+    escuchar();
 };

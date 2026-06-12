@@ -1,12 +1,12 @@
 import { BasePath } from "../base.path";
 
-export class GetUserByIdPath extends BasePath {
+export class ObtenerUsuarioPorIdPath extends BasePath {
     register(): void {
         this.registry.registerPath({
-            tags: ["user"],
+            tags: ["usuarios"],
             method: "get",
-            path: "/user/{id}",
-            summary: "Obtener user por ID",
+            path: "/usuarios/{id}",
+            summary: "Obtener usuario por ID",
             parameters: [
                 {
                     name: "id",
@@ -15,23 +15,23 @@ export class GetUserByIdPath extends BasePath {
                     schema: {
                         type: "string",
                         format: "uuid",
-                        description: "ID del user",
+                        description: "ID del usuario",
                     },
                 },
             ],
             responses: {
                 200: {
-                    description: "User encontrado",
+                    description: "Usuario encontrado",
                     content: {
                         "application/json": {
                             schema: {
-                                $ref: "#/components/schemas/User",
+                                $ref: "#/components/schemas/Usuario",
                             },
                         },
                     },
                 },
                 404: {
-                    description: "User no encontrado",
+                    description: "Usuario no encontrado",
                 },
                 401: {
                     description: "No autorizado",

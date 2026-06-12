@@ -6,18 +6,19 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 /**
  * `omit` global: estos campos sensibles NUNCA se serializan en respuestas.
- * Los use cases que necesitan el hash (login, reset/forgot-password, authUser,
- * refresh/logout) lo reactivan por consulta con `omit: { <campo>: false }`.
+ * Los casos de uso que necesitan el hash (iniciar-sesion, recuperar/restablecer
+ * contraseña, autenticar-usuario, refrescar/cerrar-sesion) lo reactivan por
+ * consulta con `omit: { <campo>: false }`.
  */
 export const prisma = new PrismaClient({
     adapter,
     omit: {
-        user: {
-            password: true,
-            reset_token: true,
-            reset_token_expires_at: true,
-            refresh_token: true,
-            refresh_token_expires_at: true,
+        usuario: {
+            contrasena: true,
+            token_recuperacion: true,
+            token_recuperacion_expira_en: true,
+            token_refresco: true,
+            token_refresco_expira_en: true,
         },
     },
 });

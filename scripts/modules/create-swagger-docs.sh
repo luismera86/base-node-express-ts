@@ -71,10 +71,10 @@ CLASS_NAME=$(kebab_to_pascal "$MODULE_NAME")
 CAMEL_NAME=$(kebab_to_camel "$MODULE_NAME")
 
 # Mostrar los nombres generados para depuración
-echo "Input: $1"
-echo "Module Name: $MODULE_NAME"
-echo "Class Name: $CLASS_NAME"
-echo "Camel Name: $CAMEL_NAME"
+echo "Entrada: $1"
+echo "Nombre del módulo: $MODULE_NAME"
+echo "Nombre de la clase: $CLASS_NAME"
+echo "Nombre camelCase: $CAMEL_NAME"
 
 # Verificar si el módulo existe
 if [ ! -d "src/modules/$MODULE_NAME" ]; then
@@ -99,11 +99,11 @@ mkdir -p "src/docs/paths/$MODULE_NAME" || error "No se pudo crear el directorio 
 cat > "src/docs/paths/$MODULE_NAME/$MODULE_NAME.paths.ts" << EOF
 
 import { BasePath } from "../base.path";
-import { Create${CLASS_NAME}Path } from "./create.path";
-import { GetAll${CLASS_NAME}sPath } from "./get-all.path";
-import { Get${CLASS_NAME}ByIdPath } from "./get-by-id.path";
-import { Update${CLASS_NAME}Path } from "./update.path";
-import { Delete${CLASS_NAME}Path } from "./delete.path";
+import { Crear${CLASS_NAME}Path } from "./crear.path";
+import { ObtenerTodos${CLASS_NAME}Path } from "./obtener-todos.path";
+import { Obtener${CLASS_NAME}PorIdPath } from "./obtener-por-id.path";
+import { Actualizar${CLASS_NAME}Path } from "./actualizar.path";
+import { Eliminar${CLASS_NAME}Path } from "./eliminar.path";
 import { registry } from "../../swagger";
 
 export class ${CLASS_NAME}Paths extends BasePath {
@@ -112,22 +112,22 @@ export class ${CLASS_NAME}Paths extends BasePath {
   }
 
   register(): void {
-    new Create${CLASS_NAME}Path(this.registry).register();
-    new GetAll${CLASS_NAME}sPath(this.registry).register();
-    new Get${CLASS_NAME}ByIdPath(this.registry).register();
-    new Update${CLASS_NAME}Path(this.registry).register();
-    new Delete${CLASS_NAME}Path(this.registry).register();
+    new Crear${CLASS_NAME}Path(this.registry).register();
+    new ObtenerTodos${CLASS_NAME}Path(this.registry).register();
+    new Obtener${CLASS_NAME}PorIdPath(this.registry).register();
+    new Actualizar${CLASS_NAME}Path(this.registry).register();
+    new Eliminar${CLASS_NAME}Path(this.registry).register();
   }
 }
 EOF
 
-# Crear el archivo create.path.ts
-cat > "src/docs/paths/$MODULE_NAME/create.path.ts" << EOF
+# Crear el archivo crear.path.ts
+cat > "src/docs/paths/$MODULE_NAME/crear.path.ts" << EOF
 
-import { Create${CLASS_NAME}Schema } from "../../../modules/$MODULE_NAME/schemas/$MODULE_NAME.schema";
+import { Crear${CLASS_NAME}Schema } from "../../../modules/$MODULE_NAME/schemas/$MODULE_NAME.schema";
 import { BasePath } from "../base.path";
 
-export class Create${CLASS_NAME}Path extends BasePath {
+export class Crear${CLASS_NAME}Path extends BasePath {
   register(): void {
     this.registry.registerPath({
       tags: ["$MODULE_NAME"],
@@ -137,7 +137,7 @@ export class Create${CLASS_NAME}Path extends BasePath {
       request: {
         body: {
           content: {
-            "application/json": { schema: Create${CLASS_NAME}Schema.body },
+            "application/json": { schema: Crear${CLASS_NAME}Schema.body },
           },
         },
       },
@@ -164,12 +164,12 @@ export class Create${CLASS_NAME}Path extends BasePath {
 }
 EOF
 
-# Crear el archivo get-all.path.ts
-cat > "src/docs/paths/$MODULE_NAME/get-all.path.ts" << EOF
+# Crear el archivo obtener-todos.path.ts
+cat > "src/docs/paths/$MODULE_NAME/obtener-todos.path.ts" << EOF
 
 import { BasePath } from "../base.path";
 
-export class GetAll${CLASS_NAME}sPath extends BasePath {
+export class ObtenerTodos${CLASS_NAME}Path extends BasePath {
   register(): void {
     this.registry.registerPath({
       tags: ["$MODULE_NAME"],
@@ -199,12 +199,12 @@ export class GetAll${CLASS_NAME}sPath extends BasePath {
 }
 EOF
 
-# Crear el archivo get-by-id.path.ts
-cat > "src/docs/paths/$MODULE_NAME/get-by-id.path.ts" << EOF
+# Crear el archivo obtener-por-id.path.ts
+cat > "src/docs/paths/$MODULE_NAME/obtener-por-id.path.ts" << EOF
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
 
-export class Get${CLASS_NAME}ByIdPath extends BasePath {
+export class Obtener${CLASS_NAME}PorIdPath extends BasePath {
   register(): void {
     this.registry.registerPath({
       tags: ["$MODULE_NAME"],
@@ -245,13 +245,13 @@ export class Get${CLASS_NAME}ByIdPath extends BasePath {
 }
 EOF
 
-# Crear el archivo update.path.ts
-cat > "src/docs/paths/$MODULE_NAME/update.path.ts" << EOF
+# Crear el archivo actualizar.path.ts
+cat > "src/docs/paths/$MODULE_NAME/actualizar.path.ts" << EOF
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { ${CLASS_NAME}Schema } from "../../../modules/$MODULE_NAME/schemas/$MODULE_NAME.schema";
 import { BasePath } from "../base.path";
 
-export class Update${CLASS_NAME}Path extends BasePath {
+export class Actualizar${CLASS_NAME}Path extends BasePath {
   register(): void {
     this.registry.registerPath({
       tags: ["$MODULE_NAME"],
@@ -302,12 +302,12 @@ export class Update${CLASS_NAME}Path extends BasePath {
 }
 EOF
 
-# Crear el archivo delete.path.ts
-cat > "src/docs/paths/$MODULE_NAME/delete.path.ts" << EOF
+# Crear el archivo eliminar.path.ts
+cat > "src/docs/paths/$MODULE_NAME/eliminar.path.ts" << EOF
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
 
-export class Delete${CLASS_NAME}Path extends BasePath {
+export class Eliminar${CLASS_NAME}Path extends BasePath {
   register(): void {
     this.registry.registerPath({
       tags: ["$MODULE_NAME"],
@@ -352,7 +352,7 @@ fi
 # Función para actualizar el archivo swagger.ts manteniendo el formato
 update_swagger_file() {
     local temp_file=$(mktemp)
-    
+
     # Leer el archivo actual y agregar los nuevos imports y registros
     {
         # Imports básicos
@@ -361,7 +361,7 @@ update_swagger_file() {
         echo "import { extendZodWithOpenApi, OpenAPIRegistry, OpenApiGeneratorV3 } from \"@asteasolutions/zod-to-openapi\";"
         echo "import envConfig from \"../config/env.config\";"
         echo ""
-        
+
         # Imports de schemas
         echo "// Imports de schemas"
         grep "import.*Schema.*from.*modules" "$SWAGGER_FILE" | sort
@@ -369,7 +369,7 @@ update_swagger_file() {
             echo "import { ${CLASS_NAME}Schema } from \"../modules/$MODULE_NAME/schemas/$MODULE_NAME.schema\";"
         fi
         echo ""
-        
+
         # Imports de paths
         echo "// Imports de paths"
         grep "import.*Paths.*from.*paths" "$SWAGGER_FILE" | sort
@@ -377,13 +377,13 @@ update_swagger_file() {
             echo "import { ${CLASS_NAME}Paths } from \"./paths/$MODULE_NAME/$MODULE_NAME.paths\";"
         fi
         echo ""
-        
+
         # extendZodWithOpenApi
         echo "extendZodWithOpenApi(z); // Habilita \`.openapi()\` en esquemas de Zod"
         echo ""
         echo "export const registry = new OpenAPIRegistry();"
         echo ""
-        
+
         # Registrar schemas
         echo "// Registrar schemas"
         grep "registry.register" "$SWAGGER_FILE" | sort
@@ -391,7 +391,7 @@ update_swagger_file() {
             echo "registry.register(\"$CLASS_NAME\", ${CLASS_NAME}Schema);"
         fi
         echo ""
-        
+
         # Registrar paths
         echo "// Registrar paths"
         grep "new.*Paths.*register" "$SWAGGER_FILE" | sort
@@ -399,12 +399,12 @@ update_swagger_file() {
             echo "new ${CLASS_NAME}Paths().register();"
         fi
         echo ""
-        
+
         # Resto del archivo (desde const generator hasta el final)
         sed -n '/^const generator/,$p' "$SWAGGER_FILE"
-        
+
     } > "$temp_file"
-    
+
     # Reemplazar el archivo original
     mv "$temp_file" "$SWAGGER_FILE"
 }
@@ -416,11 +416,11 @@ success "✅ Documentación de Swagger creada exitosamente para el módulo '$MOD
 echo ""
 echo "📁 Archivos creados:"
 echo "  - src/docs/paths/$MODULE_NAME/$MODULE_NAME.paths.ts"
-echo "  - src/docs/paths/$MODULE_NAME/create.path.ts"
-echo "  - src/docs/paths/$MODULE_NAME/get-all.path.ts"
-echo "  - src/docs/paths/$MODULE_NAME/get-by-id.path.ts"
-echo "  - src/docs/paths/$MODULE_NAME/update.path.ts"
-echo "  - src/docs/paths/$MODULE_NAME/delete.path.ts"
+echo "  - src/docs/paths/$MODULE_NAME/crear.path.ts"
+echo "  - src/docs/paths/$MODULE_NAME/obtener-todos.path.ts"
+echo "  - src/docs/paths/$MODULE_NAME/obtener-por-id.path.ts"
+echo "  - src/docs/paths/$MODULE_NAME/actualizar.path.ts"
+echo "  - src/docs/paths/$MODULE_NAME/eliminar.path.ts"
 echo ""
 echo "🔄 Archivo swagger.ts actualizado con:"
 echo "  - Import del schema ${CLASS_NAME}Schema"
@@ -428,4 +428,4 @@ echo "  - Import de ${CLASS_NAME}Paths"
 echo "  - Registro del schema en el registry"
 echo "  - Registro de los paths"
 echo ""
-warning "⚠️  Recuerda personalizar los archivos según las necesidades específicas de tu módulo" 
+warning "⚠️  Recuerda personalizar los archivos según las necesidades específicas de tu módulo"

@@ -1,30 +1,30 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { hashPassword } from "../../../common/utils/hash.util";
+import { hashearContrasena } from "../../../common/utils/hash.util";
 import { ConflictException } from "../../../exceptions/exceptions";
-import { RegisterDto } from "../schemas/auth.schema";
+import { RegistroDto } from "../schemas/autenticacion.schema";
 
-const logger = new LoggerService("RegisterUseCase");
+const logger = new LoggerService("RegistrarUseCase");
 
-export const register = async (data: RegisterDto): Promise<{ id: string; email: string }> => {
+export const registrar = async (datos: RegistroDto): Promise<{ id: string; correo: string }> => {
     try {
-        const existing = await prisma.user.findFirst({ where: { email: data.email } });
-        if (existing) throw new ConflictException("Email already in use");
+        const existente = await prisma.usuario.findFirst({ where: { correo: datos.correo } });
+        if (existente) throw new ConflictException("El correo ya está en uso");
 
-        const hashed_password = await hashPassword(data.password);
+        const contrasenaHasheada = await hashearContrasena(datos.contrasena);
 
-        const user = await prisma.user.create({
+        const usuario = await prisma.usuario.create({
             data: {
-                first_name: data.first_name,
-                last_name: data.last_name,
-                email: data.email,
-                password: hashed_password,
+                nombre: datos.nombre,
+                apellido: datos.apellido,
+                correo: datos.correo,
+                contrasena: contrasenaHasheada,
             },
         });
 
-        return { id: user.id, email: user.email };
+        return { id: usuario.id, correo: usuario.correo };
     } catch (error: unknown) {
-        logger.error("Error registering user", (error as Error).message);
+        logger.error("Error al registrar el usuario", (error as Error).message);
         throw error;
     }
 };

@@ -1,21 +1,21 @@
 import { BasePath } from "../base.path";
 
-export class GetAllUsersPath extends BasePath {
+export class ObtenerTodosUsuariosPath extends BasePath {
     register(): void {
         this.registry.registerPath({
-            tags: ["user"],
+            tags: ["usuarios"],
             method: "get",
-            path: "/user",
-            summary: "Obtener todos los user",
+            path: "/usuarios",
+            summary: "Obtener todos los usuarios",
             responses: {
                 200: {
-                    description: "Lista de user",
+                    description: "Lista de usuarios",
                     content: {
                         "application/json": {
                             schema: {
                                 type: "array",
                                 items: {
-                                    $ref: "#/components/schemas/User",
+                                    $ref: "#/components/schemas/Usuario",
                                 },
                             },
                         },

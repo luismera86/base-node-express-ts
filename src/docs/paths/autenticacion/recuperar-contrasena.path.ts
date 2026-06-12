@@ -1,30 +1,30 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { ForgotPasswordSchema } from "../../../modules/auth/schemas/auth.schema";
+import { RecuperarContrasenaSchema } from "../../../modules/autenticacion/schemas/autenticacion.schema";
 import { z } from "zod";
 
-export class ForgotPasswordPath extends BasePath {
+export class RecuperarContrasenaPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
         super(registry);
     }
 
     register(): void {
         this.registry.registerPath({
-            tags: ["auth"],
+            tags: ["autenticacion"],
             method: "post",
-            path: "/auth/forgot-password",
-            summary: "Solicitar reset de contraseña",
+            path: "/autenticacion/recuperar-contrasena",
+            summary: "Solicitar recuperación de contraseña",
             request: {
                 body: {
-                    content: { "application/json": { schema: ForgotPasswordSchema.body } },
+                    content: { "application/json": { schema: RecuperarContrasenaSchema.body } },
                 },
             },
             responses: {
                 200: {
-                    description: "Respuesta genérica (no revela si el email existe)",
+                    description: "Respuesta genérica (no revela si el correo existe)",
                     content: {
                         "application/json": {
-                            schema: z.object({ message: z.string() }).openapi("MessageResponse"),
+                            schema: z.object({ message: z.string() }).openapi("MensajeResponse"),
                         },
                     },
                 },

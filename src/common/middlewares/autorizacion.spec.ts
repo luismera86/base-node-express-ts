@@ -1,24 +1,24 @@
 import { describe, it, expect, vi } from "vitest";
 import type { NextFunction, Request, Response } from "express";
-import { requireRole } from "./requireRole.middleware";
-import { ownerOrAdmin, restrictPrivilegedFields } from "./ownership.middleware";
-import { Role } from "../enums/role.enum";
+import { requerirRol } from "./requerir-rol.middleware";
+import { propietarioOAdmin, restringirCamposPrivilegiados } from "./propiedad.middleware";
+import { Rol } from "../enums/rol.enum";
 import { ForbiddenException, UnauthorizedException } from "../../exceptions/exceptions";
 
 const mockReq = (over: Partial<Request> = {}): Request => ({ params: {}, body: {}, ...over }) as Request;
 const noopRes = {} as Response;
 
-describe("requireRole", () => {
+describe("requerirRol", () => {
     it("rechaza si no hay usuario (401)", () => {
         const next = vi.fn() as unknown as NextFunction;
-        requireRole(Role.ADMIN)(mockReq(), noopRes, next);
+        requerirRol(Rol.ADMINISTRADOR)(mockReq(), noopRes, next);
         expect((next as any).mock.calls[0][0]).toBeInstanceOf(UnauthorizedException);
     });
 
     it("rechaza rol no permitido (403)", () => {
         const next = vi.fn() as unknown as NextFunction;
-        requireRole(Role.ADMIN)(
-            mockReq({ user: { id: "1", email: "a@a.com", role: "user", is_active: true } }),
+        requerirRol(Rol.ADMINISTRADOR)(
+            mockReq({ usuario: { id: "1", correo: "a@a.com", rol: "user", activo: true } }),
             noopRes,
             next,
         );
@@ -27,8 +27,8 @@ describe("requireRole", () => {
 
     it("permite rol válido", () => {
         const next = vi.fn() as unknown as NextFunction;
-        requireRole(Role.ADMIN)(
-            mockReq({ user: { id: "1", email: "a@a.com", role: "admin", is_active: true } }),
+        requerirRol(Rol.ADMINISTRADOR)(
+            mockReq({ usuario: { id: "1", correo: "a@a.com", rol: "admin", activo: true } }),
             noopRes,
             next,
         );
@@ -36,11 +36,11 @@ describe("requireRole", () => {
     });
 });
 
-describe("ownerOrAdmin", () => {
+describe("propietarioOAdmin", () => {
     it("permite al dueño del recurso", () => {
         const next = vi.fn() as unknown as NextFunction;
-        ownerOrAdmin()(
-            mockReq({ user: { id: "u1", email: "a@a.com", role: "user", is_active: true }, params: { id: "u1" } }),
+        propietarioOAdmin()(
+            mockReq({ usuario: { id: "u1", correo: "a@a.com", rol: "user", activo: true }, params: { id: "u1" } }),
             noopRes,
             next,
         );
@@ -49,9 +49,9 @@ describe("ownerOrAdmin", () => {
 
     it("permite a un admin sobre cualquier recurso", () => {
         const next = vi.fn() as unknown as NextFunction;
-        ownerOrAdmin()(
+        propietarioOAdmin()(
             mockReq({
-                user: { id: "admin", email: "a@a.com", role: "admin", is_active: true },
+                usuario: { id: "admin", correo: "a@a.com", rol: "admin", activo: true },
                 params: { id: "otro" },
             }),
             noopRes,
@@ -62,8 +62,8 @@ describe("ownerOrAdmin", () => {
 
     it("rechaza a un usuario sobre recurso ajeno (403)", () => {
         const next = vi.fn() as unknown as NextFunction;
-        ownerOrAdmin()(
-            mockReq({ user: { id: "u1", email: "a@a.com", role: "user", is_active: true }, params: { id: "otro" } }),
+        propietarioOAdmin()(
+            mockReq({ usuario: { id: "u1", correo: "a@a.com", rol: "user", activo: true }, params: { id: "otro" } }),
             noopRes,
             next,
         );
@@ -71,24 +71,24 @@ describe("ownerOrAdmin", () => {
     });
 });
 
-describe("restrictPrivilegedFields", () => {
-    it("elimina role/is_active para no-admin", () => {
+describe("restringirCamposPrivilegiados", () => {
+    it("elimina rol/activo para no-admin", () => {
         const next = vi.fn() as unknown as NextFunction;
         const req = mockReq({
-            user: { id: "u1", email: "a@a.com", role: "user", is_active: true },
-            body: { first_name: "Ana", role: "admin", is_active: false },
+            usuario: { id: "u1", correo: "a@a.com", rol: "user", activo: true },
+            body: { nombre: "Ana", rol: "admin", activo: false },
         });
-        restrictPrivilegedFields(req, noopRes, next);
-        expect(req.body).toEqual({ first_name: "Ana" });
+        restringirCamposPrivilegiados(req, noopRes, next);
+        expect(req.body).toEqual({ nombre: "Ana" });
     });
 
-    it("mantiene role/is_active para admin", () => {
+    it("mantiene rol/activo para admin", () => {
         const next = vi.fn() as unknown as NextFunction;
         const req = mockReq({
-            user: { id: "admin", email: "a@a.com", role: "admin", is_active: true },
-            body: { first_name: "Ana", role: "admin" },
+            usuario: { id: "admin", correo: "a@a.com", rol: "admin", activo: true },
+            body: { nombre: "Ana", rol: "admin" },
         });
-        restrictPrivilegedFields(req, noopRes, next);
-        expect(req.body).toEqual({ first_name: "Ana", role: "admin" });
+        restringirCamposPrivilegiados(req, noopRes, next);
+        expect(req.body).toEqual({ nombre: "Ana", rol: "admin" });
     });
 });

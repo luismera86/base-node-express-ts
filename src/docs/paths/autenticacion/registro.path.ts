@@ -1,26 +1,26 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { RegisterSchema } from "../../../modules/auth/schemas/auth.schema";
+import { RegistroSchema } from "../../../modules/autenticacion/schemas/autenticacion.schema";
 
-export class RegisterPath extends BasePath {
+export class RegistroPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
         super(registry);
     }
 
     register(): void {
         this.registry.registerPath({
-            tags: ["auth"],
+            tags: ["autenticacion"],
             method: "post",
-            path: "/auth/register",
+            path: "/autenticacion/registro",
             summary: "Registrar nuevo usuario",
             request: {
                 body: {
-                    content: { "application/json": { schema: RegisterSchema.body } },
+                    content: { "application/json": { schema: RegistroSchema.body } },
                 },
             },
             responses: {
                 201: { description: "Usuario registrado exitosamente" },
-                409: { description: "El email ya está en uso" },
+                409: { description: "El correo ya está en uso" },
             },
         });
     }

@@ -1,38 +1,38 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { prisma } from "./prisma.config";
-import { hashPassword } from "../common/utils/hash.util";
+import { hashearContrasena } from "../common/utils/hash.util";
 
 // Verifica que el `omit` global nunca exponga campos sensibles. Requiere la BD levantada.
-const email = `omit-test-${Date.now()}@example.com`;
+const correo = `omit-test-${Date.now()}@example.com`;
 
-describe("prisma global omit", () => {
+describe("omit global de prisma", () => {
     afterAll(async () => {
-        await prisma.user.deleteMany({ where: { email } });
+        await prisma.usuario.deleteMany({ where: { correo } });
         await prisma.$disconnect();
     });
 
-    it("no expone password/reset_token/refresh_token al leer un usuario", async () => {
-        await prisma.user.create({
+    it("no expone contrasena/token_recuperacion/token_refresco al leer un usuario", async () => {
+        await prisma.usuario.create({
             data: {
-                first_name: "Omit",
-                last_name: "Test",
-                email,
-                password: await hashPassword("Password123!"),
+                nombre: "Omit",
+                apellido: "Test",
+                correo,
+                contrasena: await hashearContrasena("Password123!"),
             },
         });
 
-        const user = await prisma.user.findFirst({ where: { email } });
-        expect(user).not.toBeNull();
-        const serialized = JSON.parse(JSON.stringify(user));
-        expect(serialized).not.toHaveProperty("password");
-        expect(serialized).not.toHaveProperty("reset_token");
-        expect(serialized).not.toHaveProperty("reset_token_expires_at");
-        expect(serialized).not.toHaveProperty("refresh_token");
-        expect(serialized).not.toHaveProperty("refresh_token_expires_at");
+        const usuario = await prisma.usuario.findFirst({ where: { correo } });
+        expect(usuario).not.toBeNull();
+        const serializado = JSON.parse(JSON.stringify(usuario));
+        expect(serializado).not.toHaveProperty("contrasena");
+        expect(serializado).not.toHaveProperty("token_recuperacion");
+        expect(serializado).not.toHaveProperty("token_recuperacion_expira_en");
+        expect(serializado).not.toHaveProperty("token_refresco");
+        expect(serializado).not.toHaveProperty("token_refresco_expira_en");
     });
 
     it("permite reactivar el campo con omit:false cuando se necesita el hash", async () => {
-        const user = await prisma.user.findFirst({ where: { email }, omit: { password: false } });
-        expect(user?.password).toBeTypeOf("string");
+        const usuario = await prisma.usuario.findFirst({ where: { correo }, omit: { contrasena: false } });
+        expect(usuario?.contrasena).toBeTypeOf("string");
     });
 });

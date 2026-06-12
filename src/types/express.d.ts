@@ -1,12 +1,12 @@
-interface AuthenticatedUser {
+interface UsuarioAutenticado {
     id: string;
-    email: string;
-    role: string;
-    is_active: boolean;
+    correo: string;
+    rol: string;
+    activo: boolean;
 }
 
 declare namespace Express {
     interface Request {
-        user?: AuthenticatedUser;
+        usuario?: UsuarioAutenticado;
     }
 }

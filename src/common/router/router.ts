@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { userRouter } from "../../modules/user/user.router";
-import { authRouter } from "../../modules/auth/auth.router";
+import { usuarioRouter } from "../../modules/usuario/usuario.router";
+import { autenticacionRouter } from "../../modules/autenticacion/autenticacion.router";
 export const createBaseRouter = (): Router => {
     const router = Router();
 
     // Rutas públicas
-    router.use("/auth", authRouter);
+    router.use("/autenticacion", autenticacionRouter);
 
     // Rutas protegidas (la autenticación/autorización se aplica dentro de cada router)
-    router.use("/user", userRouter);
+    router.use("/usuarios", usuarioRouter);
 
     return router;
 };

@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { extendZodWithOpenApi, OpenAPIRegistry, OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
 import envConfig from "../config/env.config";
-import { UserSchema } from "../modules/user/schemas/user.schema";
-import { UserPaths } from "./paths/user/user.paths";
-import { AuthPaths } from "./paths/auth/auth.paths";
+import { UsuarioSchema } from "../modules/usuario/schemas/usuario.schema";
+import { UsuarioPaths } from "./paths/usuario/usuario.paths";
+import { AutenticacionPaths } from "./paths/autenticacion/autenticacion.paths";
 
 extendZodWithOpenApi(z);
 
 export const registry = new OpenAPIRegistry();
 
-registry.register("User", UserSchema);
+registry.register("Usuario", UsuarioSchema);
 
-new UserPaths().register();
-new AuthPaths().register();
+new UsuarioPaths().register();
+new AutenticacionPaths().register();
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
@@ -28,7 +28,7 @@ const baseDoc = generator.generateDocument({
     servers: [
         {
             url: apiUrl,
-            description: "API Server",
+            description: "Servidor de la API",
         },
     ],
     security: [
@@ -47,7 +47,7 @@ export const openApiDoc = {
                 type: "http",
                 scheme: "bearer",
                 bearerFormat: "JWT",
-                description: "Insert the JWT token in the format: Bearer <token>",
+                description: "Inserta el token JWT con el formato: Bearer <token>",
             },
         },
     },

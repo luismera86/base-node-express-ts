@@ -1,13 +1,13 @@
-import { UpdateUserSchema } from "../../../modules/user/schemas/user.schema";
+import { ActualizarUsuarioSchema } from "../../../modules/usuario/schemas/usuario.schema";
 import { BasePath } from "../base.path";
 
-export class UpdateUserPath extends BasePath {
+export class ActualizarUsuarioPath extends BasePath {
     register(): void {
         this.registry.registerPath({
-            tags: ["user"],
+            tags: ["usuarios"],
             method: "patch",
-            path: "/user/{id}",
-            summary: "Actualizar user",
+            path: "/usuarios/{id}",
+            summary: "Actualizar usuario",
             parameters: [
                 {
                     name: "id",
@@ -16,24 +16,24 @@ export class UpdateUserPath extends BasePath {
                     schema: {
                         type: "string",
                         format: "uuid",
-                        description: "ID del user",
+                        description: "ID del usuario",
                     },
                 },
             ],
             request: {
                 body: {
                     content: {
-                        "application/json": { schema: UpdateUserSchema.body },
+                        "application/json": { schema: ActualizarUsuarioSchema.body },
                     },
                 },
             },
             responses: {
                 200: {
-                    description: "User actualizado",
+                    description: "Usuario actualizado",
                     content: {
                         "application/json": {
                             schema: {
-                                $ref: "#/components/schemas/User",
+                                $ref: "#/components/schemas/Usuario",
                             },
                         },
                     },
@@ -42,7 +42,7 @@ export class UpdateUserPath extends BasePath {
                     description: "Datos inválidos",
                 },
                 404: {
-                    description: "User no encontrado",
+                    description: "Usuario no encontrado",
                 },
                 401: {
                     description: "No autorizado",

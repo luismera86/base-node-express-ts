@@ -1,31 +1,39 @@
 import { Router } from "express";
-import { validateSchema } from "../../common/middlewares/validateSchema.middleware";
-import { authUser } from "../../common/middlewares/authUser.middleware";
-import { authRateLimiter } from "../../common/middlewares/rateLimit.middleware";
+import { validarEsquema } from "../../common/middlewares/validar-esquema.middleware";
+import { autenticarUsuario } from "../../common/middlewares/autenticar-usuario.middleware";
+import { limitadorAutenticacion } from "../../common/middlewares/limite-peticiones.middleware";
 import {
-    RegisterSchema,
-    LoginSchema,
-    ForgotPasswordSchema,
-    ResetPasswordSchema,
-    RefreshTokenSchema,
-} from "./schemas/auth.schema";
+    RegistroSchema,
+    IniciarSesionSchema,
+    RecuperarContrasenaSchema,
+    RestablecerContrasenaSchema,
+    RefrescarTokenSchema,
+} from "./schemas/autenticacion.schema";
 import {
-    registerController,
-    loginController,
-    forgotPasswordController,
-    resetPasswordController,
-    refreshTokenController,
-    logoutController,
-} from "./auth.controller";
+    registrarController,
+    iniciarSesionController,
+    recuperarContrasenaController,
+    restablecerContrasenaController,
+    refrescarTokenController,
+    cerrarSesionController,
+} from "./autenticacion.controller";
 
-export const authRouter = Router();
+export const autenticacionRouter = Router();
 
 // Rate limiting en todos los endpoints de autenticación (anti fuerza bruta).
-authRouter.use(authRateLimiter);
+autenticacionRouter.use(limitadorAutenticacion);
 
-authRouter.post("/register", validateSchema(RegisterSchema), registerController);
-authRouter.post("/login", validateSchema(LoginSchema), loginController);
-authRouter.post("/forgot-password", validateSchema(ForgotPasswordSchema), forgotPasswordController);
-authRouter.post("/reset-password", validateSchema(ResetPasswordSchema), resetPasswordController);
-authRouter.post("/refresh", validateSchema(RefreshTokenSchema), refreshTokenController);
-authRouter.post("/logout", authUser, logoutController);
+autenticacionRouter.post("/registro", validarEsquema(RegistroSchema), registrarController);
+autenticacionRouter.post("/iniciar-sesion", validarEsquema(IniciarSesionSchema), iniciarSesionController);
+autenticacionRouter.post(
+    "/recuperar-contrasena",
+    validarEsquema(RecuperarContrasenaSchema),
+    recuperarContrasenaController,
+);
+autenticacionRouter.post(
+    "/restablecer-contrasena",
+    validarEsquema(RestablecerContrasenaSchema),
+    restablecerContrasenaController,
+);
+autenticacionRouter.post("/refrescar", validarEsquema(RefrescarTokenSchema), refrescarTokenController);
+autenticacionRouter.post("/cerrar-sesion", autenticarUsuario, cerrarSesionController);

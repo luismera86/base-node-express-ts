@@ -1,29 +1,29 @@
 import { NextFunction, Request, Response } from "express";
 import { ForbiddenException, UnauthorizedException } from "../../exceptions/exceptions";
-import { Role } from "../enums/role.enum";
+import { Rol } from "../enums/rol.enum";
 
 /**
- * Permite la operación si el usuario es ADMIN o si actúa sobre su propio recurso
- * (`req.user.id === req.params.id`). Evita IDOR en rutas tipo `/user/:id`.
- * Debe usarse después de `authUser`.
+ * Permite la operación si el usuario es ADMINISTRADOR o si actúa sobre su propio
+ * recurso (`req.usuario.id === req.params.id`). Evita IDOR en rutas tipo `/usuarios/:id`.
+ * Debe usarse después de `autenticarUsuario`.
  */
-export const ownerOrAdmin = (param = "id") => {
+export const propietarioOAdmin = (param = "id") => {
     return (req: Request, _res: Response, next: NextFunction) => {
-        if (!req.user) return next(new UnauthorizedException("Token no proporcionado"));
-        const isAdmin = req.user.role === Role.ADMIN;
-        if (isAdmin || req.user.id === req.params[param]) return next();
+        if (!req.usuario) return next(new UnauthorizedException("Token no proporcionado"));
+        const esAdmin = req.usuario.rol === Rol.ADMINISTRADOR;
+        if (esAdmin || req.usuario.id === req.params[param]) return next();
         next(new ForbiddenException("No tienes permisos sobre este recurso"));
     };
 };
 
 /**
- * Elimina campos privilegiados del body cuando el solicitante NO es admin,
- * evitando escalada de privilegios al auto-editarse (p. ej. `role`, `is_active`).
+ * Elimina campos privilegiados del body cuando el solicitante NO es administrador,
+ * evitando escalada de privilegios al auto-editarse (p. ej. `rol`, `activo`).
  */
-export const restrictPrivilegedFields = (req: Request, _res: Response, next: NextFunction) => {
-    if (req.user?.role !== Role.ADMIN && req.body && typeof req.body === "object") {
-        delete (req.body as Record<string, unknown>).role;
-        delete (req.body as Record<string, unknown>).is_active;
+export const restringirCamposPrivilegiados = (req: Request, _res: Response, next: NextFunction) => {
+    if (req.usuario?.rol !== Rol.ADMINISTRADOR && req.body && typeof req.body === "object") {
+        delete (req.body as Record<string, unknown>).rol;
+        delete (req.body as Record<string, unknown>).activo;
     }
     next();
 };

@@ -1,19 +1,19 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
-import { UpdateUserDto } from "../schemas/user.schema";
+import { ActualizarUsuarioDto } from "../schemas/usuario.schema";
 
-const logger = new LoggerService("UpdateUserUseCase");
+const logger = new LoggerService("ActualizarUsuarioUseCase");
 
-export const updateUser = async (id: string, data: UpdateUserDto): Promise<any> => {
+export const actualizarUsuario = async (id: string, datos: ActualizarUsuarioDto): Promise<any> => {
     try {
-        const existing = await prisma.user.findFirst({ where: { id, deleted_at: null } });
-        if (!existing) throw new NotFoundException("User not found");
+        const existente = await prisma.usuario.findFirst({ where: { id, eliminado_en: null } });
+        if (!existente) throw new NotFoundException("Usuario no encontrado");
 
-        const updated = await prisma.user.update({ where: { id }, data });
-        return updated;
+        const actualizado = await prisma.usuario.update({ where: { id }, data: datos });
+        return actualizado;
     } catch (error: unknown) {
-        logger.error("Error updating user", (error as Error).message);
+        logger.error("Error al actualizar el usuario", (error as Error).message);
         throw error;
     }
 };

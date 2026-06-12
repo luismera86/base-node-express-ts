@@ -1,18 +1,18 @@
-model user {
-  id                     String    @id @default(uuid())
-  first_name             String
-  last_name              String
-  email                  String    @unique
-  password               String
-  role                   String    @default("user")
-  is_active              Boolean   @default(true)
-  reset_token            String?
-  reset_token_expires_at DateTime?
-  refresh_token          String?
-  refresh_token_expires_at DateTime?
-  created_at             DateTime  @default(now())
-  updated_at             DateTime  @updatedAt
-  deleted_at             DateTime?
+model usuario {
+  id                           String    @id @default(uuid())
+  nombre                       String
+  apellido                     String
+  correo                       String    @unique
+  contrasena                   String
+  rol                          String    @default("user")
+  activo                       Boolean   @default(true)
+  token_recuperacion           String?
+  token_recuperacion_expira_en DateTime?
+  token_refresco               String?
+  token_refresco_expira_en     DateTime?
+  creado_en                    DateTime  @default(now())
+  actualizado_en               DateTime  @updatedAt
+  eliminado_en                 DateTime?
 
-  @@map("users")
+  @@map("usuarios")
 }

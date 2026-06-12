@@ -1,28 +1,28 @@
 import { prisma } from "../config/prisma.config";
 import { LoggerService } from "../common/utils/logger.util";
-import { seedUser } from "./user.seed";
+import { sembrarUsuario } from "./usuario.seed";
 
 const logger = new LoggerService("Seed");
 
-const runSeeds = async () => {
+const ejecutarSeeds = async () => {
     await prisma.$connect();
-    logger.info("Database connected for seeding");
+    logger.info("Base de datos conectada para el sembrado");
 
     try {
-        await seedUser(prisma);
-        logger.info("Seed de user ejecutado");
+        await sembrarUsuario(prisma);
+        logger.info("Seed de usuario ejecutado");
 
-        logger.info("All seeds executed successfully");
+        logger.info("Todos los seeds se ejecutaron correctamente");
     } catch (error) {
-        logger.error("Error during seeding", (error as Error).message);
+        logger.error("Error durante el sembrado", (error as Error).message);
         throw error;
     } finally {
         await prisma.$disconnect();
-        logger.info("Database connection closed");
+        logger.info("Conexión a la base de datos cerrada");
     }
 };
 
-runSeeds().catch((error) => {
-    logger.error("Fatal error during seeding", error.message);
+ejecutarSeeds().catch((error) => {
+    logger.error("Error fatal durante el sembrado", error.message);
     process.exit(1);
 });

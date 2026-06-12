@@ -1,22 +1,22 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { ResetPasswordSchema } from "../../../modules/auth/schemas/auth.schema";
+import { RestablecerContrasenaSchema } from "../../../modules/autenticacion/schemas/autenticacion.schema";
 import { z } from "zod";
 
-export class ResetPasswordPath extends BasePath {
+export class RestablecerContrasenaPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
         super(registry);
     }
 
     register(): void {
         this.registry.registerPath({
-            tags: ["auth"],
+            tags: ["autenticacion"],
             method: "post",
-            path: "/auth/reset-password",
-            summary: "Resetear contraseña con token",
+            path: "/autenticacion/restablecer-contrasena",
+            summary: "Restablecer contraseña con token",
             request: {
                 body: {
-                    content: { "application/json": { schema: ResetPasswordSchema.body } },
+                    content: { "application/json": { schema: RestablecerContrasenaSchema.body } },
                 },
             },
             responses: {

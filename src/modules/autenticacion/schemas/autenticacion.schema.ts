@@ -3,54 +3,54 @@ import { z } from "zod";
 
 extendZodWithOpenApi(z);
 
-export const RegisterSchema = {
+export const RegistroSchema = {
     body: z
         .object({
-            first_name: z.string().openapi({ example: "Juan" }),
-            last_name: z.string().openapi({ example: "Pérez" }),
-            email: z.string().email().openapi({ example: "juan@example.com" }),
-            password: z.string().min(8).openapi({ example: "secret1234" }),
+            nombre: z.string().openapi({ example: "Juan" }),
+            apellido: z.string().openapi({ example: "Pérez" }),
+            correo: z.string().email().openapi({ example: "juan@example.com" }),
+            contrasena: z.string().min(8).openapi({ example: "secret1234" }),
         })
-        .openapi("Register"),
+        .openapi("Registro"),
 };
 
-export const LoginSchema = {
+export const IniciarSesionSchema = {
     body: z
         .object({
-            email: z.string().email().openapi({ example: "juan@example.com" }),
-            password: z.string().openapi({ example: "secret1234" }),
+            correo: z.string().email().openapi({ example: "juan@example.com" }),
+            contrasena: z.string().openapi({ example: "secret1234" }),
         })
-        .openapi("Login"),
+        .openapi("IniciarSesion"),
 };
 
-export const ForgotPasswordSchema = {
+export const RecuperarContrasenaSchema = {
     body: z
         .object({
-            email: z.string().email().openapi({ example: "juan@example.com" }),
+            correo: z.string().email().openapi({ example: "juan@example.com" }),
         })
-        .openapi("ForgotPassword"),
+        .openapi("RecuperarContrasena"),
 };
 
-export const ResetPasswordSchema = {
+export const RestablecerContrasenaSchema = {
     body: z
         .object({
-            email: z.string().email().openapi({ example: "juan@example.com" }),
+            correo: z.string().email().openapi({ example: "juan@example.com" }),
             token: z.string().uuid().openapi({ example: "550e8400-e29b-41d4-a716-446655440000" }),
-            new_password: z.string().min(8).openapi({ example: "newSecret1234" }),
+            nueva_contrasena: z.string().min(8).openapi({ example: "newSecret1234" }),
         })
-        .openapi("ResetPassword"),
+        .openapi("RestablecerContrasena"),
 };
 
-export const RefreshTokenSchema = {
+export const RefrescarTokenSchema = {
     body: z
         .object({
-            refresh_token: z.string().min(1).openapi({ example: "550e8400-...:uuid.uuid" }),
+            token_refresco: z.string().min(1).openapi({ example: "550e8400-...:uuid.uuid" }),
         })
-        .openapi("RefreshToken"),
+        .openapi("RefrescarToken"),
 };
 
-export type RegisterDto = z.infer<typeof RegisterSchema.body>;
-export type RefreshTokenDto = z.infer<typeof RefreshTokenSchema.body>;
-export type LoginDto = z.infer<typeof LoginSchema.body>;
-export type ForgotPasswordDto = z.infer<typeof ForgotPasswordSchema.body>;
-export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema.body>;
+export type RegistroDto = z.infer<typeof RegistroSchema.body>;
+export type RefrescarTokenDto = z.infer<typeof RefrescarTokenSchema.body>;
+export type IniciarSesionDto = z.infer<typeof IniciarSesionSchema.body>;
+export type RecuperarContrasenaDto = z.infer<typeof RecuperarContrasenaSchema.body>;
+export type RestablecerContrasenaDto = z.infer<typeof RestablecerContrasenaSchema.body>;

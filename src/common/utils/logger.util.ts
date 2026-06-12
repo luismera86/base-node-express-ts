@@ -6,18 +6,18 @@ const { combine, printf, colorize } = format;
 
 const logDir = path.join(__dirname, "../../../", "logs");
 
-const customFormat = printf(({ level, message, context }) => {
+const formatoPersonalizado = printf(({ level, message, context }) => {
     const timestamp = Temporal.Now.zonedDateTimeISO("America/Argentina/Buenos_Aires")
         .toPlainDateTime()
         .toString()
         .slice(0, 19)
         .replace("T", " ");
-    return `${timestamp} [${level}] [${context || "Application"}]: ${message}`;
+    return `${timestamp} [${level}] [${context || "Aplicacion"}]: ${message}`;
 });
 
 export const logger = createLogger({
     level: "debug",
-    format: combine(colorize(), customFormat),
+    format: combine(colorize(), formatoPersonalizado),
     transports: [
         new transports.Console(),
         new transports.File({ filename: path.join(logDir, "error.log"), level: "error" }),
@@ -33,35 +33,35 @@ if (process.env.NODE_ENV === "prod") {
 export class LoggerService {
     constructor(private context = "App") {}
 
-    info(message: string, subMessage?: string) {
-        const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.info(fullMessage, { context: this.context });
+    info(mensaje: string, subMensaje?: string) {
+        const mensajeCompleto = subMensaje ? `${mensaje}\n${subMensaje}` : mensaje;
+        logger.info(mensajeCompleto, { context: this.context });
     }
 
-    error(message: string, subMessage?: string, trace?: string) {
-        const fullMessage = subMessage
-            ? `${message}\n${subMessage}${trace ? "\n" + trace : ""}`
-            : `${message}${trace ? " - " + trace : ""}`;
-        logger.error(fullMessage, { context: this.context });
+    error(mensaje: string, subMensaje?: string, traza?: string) {
+        const mensajeCompleto = subMensaje
+            ? `${mensaje}\n${subMensaje}${traza ? "\n" + traza : ""}`
+            : `${mensaje}${traza ? " - " + traza : ""}`;
+        logger.error(mensajeCompleto, { context: this.context });
     }
 
-    warn(message: string, subMessage?: string) {
-        const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.warn(fullMessage, { context: this.context });
+    warn(mensaje: string, subMensaje?: string) {
+        const mensajeCompleto = subMensaje ? `${mensaje}\n${subMensaje}` : mensaje;
+        logger.warn(mensajeCompleto, { context: this.context });
     }
 
-    debug(message: string, subMessage?: string) {
-        const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.debug(fullMessage, { context: this.context });
+    debug(mensaje: string, subMensaje?: string) {
+        const mensajeCompleto = subMensaje ? `${mensaje}\n${subMensaje}` : mensaje;
+        logger.debug(mensajeCompleto, { context: this.context });
     }
 
-    verbose(message: string, subMessage?: string) {
-        const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.verbose(fullMessage, { context: this.context });
+    verbose(mensaje: string, subMensaje?: string) {
+        const mensajeCompleto = subMensaje ? `${mensaje}\n${subMensaje}` : mensaje;
+        logger.verbose(mensajeCompleto, { context: this.context });
     }
 
-    silly(message: string, subMessage?: string) {
-        const fullMessage = subMessage ? `${message}\n${subMessage}` : message;
-        logger.silly(fullMessage, { context: this.context });
+    silly(mensaje: string, subMensaje?: string) {
+        const mensajeCompleto = subMensaje ? `${mensaje}\n${subMensaje}` : mensaje;
+        logger.silly(mensajeCompleto, { context: this.context });
     }
 }

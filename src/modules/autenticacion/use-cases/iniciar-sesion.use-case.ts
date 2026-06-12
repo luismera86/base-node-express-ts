@@ -1,34 +1,34 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { compareHash, hashPassword } from "../../../common/utils/hash.util";
+import { compararHash, hashearContrasena } from "../../../common/utils/hash.util";
 import { UnauthorizedException } from "../../../exceptions/exceptions";
-import { createAccessToken, generateRefreshToken } from "../../../common/utils/jwt.util";
-import { LoginDto } from "../schemas/auth.schema";
+import { crearTokenAcceso, generarTokenRefresco } from "../../../common/utils/jwt.util";
+import { IniciarSesionDto } from "../schemas/autenticacion.schema";
 
-const logger = new LoggerService("LoginUseCase");
+const logger = new LoggerService("IniciarSesionUseCase");
 
-export const login = async (data: LoginDto): Promise<{ token: string; refresh_token: string }> => {
+export const iniciarSesion = async (datos: IniciarSesionDto): Promise<{ token: string; token_refresco: string }> => {
     try {
-        const user = await prisma.user.findFirst({
-            where: { email: data.email, is_active: true, deleted_at: null },
-            omit: { password: false },
+        const usuario = await prisma.usuario.findFirst({
+            where: { correo: datos.correo, activo: true, eliminado_en: null },
+            omit: { contrasena: false },
         });
-        if (!user) throw new UnauthorizedException("Invalid credentials");
+        if (!usuario) throw new UnauthorizedException("Credenciales inválidas");
 
-        const valid = await compareHash(data.password, user.password);
-        if (!valid) throw new UnauthorizedException("Invalid credentials");
+        const valido = await compararHash(datos.contrasena, usuario.contrasena);
+        if (!valido) throw new UnauthorizedException("Credenciales inválidas");
 
-        const token = await createAccessToken({ id: user.id, email: user.email, role: user.role });
-        const { token: refresh_token, expiresAt } = generateRefreshToken(user.id);
+        const token = await crearTokenAcceso({ id: usuario.id, correo: usuario.correo, rol: usuario.rol });
+        const { token: token_refresco, expiraEn } = generarTokenRefresco(usuario.id);
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { refresh_token: await hashPassword(refresh_token), refresh_token_expires_at: expiresAt },
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: { token_refresco: await hashearContrasena(token_refresco), token_refresco_expira_en: expiraEn },
         });
 
-        return { token, refresh_token };
+        return { token, token_refresco };
     } catch (error: unknown) {
-        logger.error("Error logging in", (error as Error).message);
+        logger.error("Error al iniciar sesión", (error as Error).message);
         throw error;
     }
 };

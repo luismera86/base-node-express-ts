@@ -1,22 +1,22 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { hashPassword } from "../../../common/utils/hash.util";
+import { hashearContrasena } from "../../../common/utils/hash.util";
 import { ConflictException } from "../../../exceptions/exceptions";
-import { CreateUserDto } from "../schemas/user.schema";
+import { CrearUsuarioDto } from "../schemas/usuario.schema";
 
-const logger = new LoggerService("CreateUserUseCase");
+const logger = new LoggerService("CrearUsuarioUseCase");
 
-export const createUser = async (data: CreateUserDto): Promise<any> => {
+export const crearUsuario = async (datos: CrearUsuarioDto): Promise<any> => {
     try {
-        const existing = await prisma.user.findFirst({ where: { email: data.email } });
-        if (existing) throw new ConflictException("Email already in use");
+        const existente = await prisma.usuario.findFirst({ where: { correo: datos.correo } });
+        if (existente) throw new ConflictException("El correo ya está en uso");
 
-        const created = await prisma.user.create({
-            data: { ...data, password: await hashPassword(data.password) },
+        const creado = await prisma.usuario.create({
+            data: { ...datos, contrasena: await hashearContrasena(datos.contrasena) },
         });
-        return created;
+        return creado;
     } catch (error: unknown) {
-        logger.error("Error creating user", (error as Error).message);
+        logger.error("Error al crear el usuario", (error as Error).message);
         throw error;
     }
 };

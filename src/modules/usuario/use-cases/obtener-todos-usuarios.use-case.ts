@@ -1,14 +1,14 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 
-const logger = new LoggerService("GetAllUserUseCase");
+const logger = new LoggerService("ObtenerTodosUsuariosUseCase");
 
-export const getAllUsers = async (): Promise<any[]> => {
+export const obtenerTodosUsuarios = async (): Promise<any[]> => {
     try {
-        const users = await prisma.user.findMany({ where: { deleted_at: null } });
-        return users;
+        const usuarios = await prisma.usuario.findMany({ where: { eliminado_en: null } });
+        return usuarios;
     } catch (error: unknown) {
-        logger.error("Error getting all users", (error as Error).message);
+        logger.error("Error al obtener todos los usuarios", (error as Error).message);
         throw error;
     }
 };

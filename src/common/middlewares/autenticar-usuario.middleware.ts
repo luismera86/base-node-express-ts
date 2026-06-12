@@ -1,26 +1,26 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyToken } from "../utils/jwt.util";
+import { verificarToken } from "../utils/jwt.util";
 import { UnauthorizedException } from "../../exceptions/exceptions";
 import { prisma } from "../../config/prisma.config";
 
-export const authUser = async (req: Request, res: Response, next: NextFunction) => {
+export const autenticarUsuario = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith("Bearer ")) throw new UnauthorizedException("Token no proporcionado");
+        const cabeceraAuth = req.headers.authorization;
+        if (!cabeceraAuth?.startsWith("Bearer ")) throw new UnauthorizedException("Token no proporcionado");
 
-        const token = authHeader.substring(7);
-        const decoded = await verifyToken(token);
+        const token = cabeceraAuth.substring(7);
+        const decodificado = await verificarToken(token);
 
-        const user = await prisma.user.findFirst({
-            where: { id: decoded.id, is_active: true, deleted_at: null },
+        const usuario = await prisma.usuario.findFirst({
+            where: { id: decodificado.id, activo: true, eliminado_en: null },
         });
-        if (!user) throw new UnauthorizedException("Usuario no encontrado o inactivo");
+        if (!usuario) throw new UnauthorizedException("Usuario no encontrado o inactivo");
 
-        req.user = {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            is_active: user.is_active,
+        req.usuario = {
+            id: usuario.id,
+            correo: usuario.correo,
+            rol: usuario.rol,
+            activo: usuario.activo,
         };
         next();
     } catch (error) {

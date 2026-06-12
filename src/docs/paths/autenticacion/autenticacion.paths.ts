@@ -1,23 +1,23 @@
 import { BasePath } from "../base.path";
-import { RegisterPath } from "./register.path";
-import { LoginPath } from "./login.path";
-import { ForgotPasswordPath } from "./forgot-password.path";
-import { ResetPasswordPath } from "./reset-password.path";
-import { RefreshPath } from "./refresh.path";
-import { LogoutPath } from "./logout.path";
+import { RegistroPath } from "./registro.path";
+import { IniciarSesionPath } from "./iniciar-sesion.path";
+import { RecuperarContrasenaPath } from "./recuperar-contrasena.path";
+import { RestablecerContrasenaPath } from "./restablecer-contrasena.path";
+import { RefrescarPath } from "./refrescar.path";
+import { CerrarSesionPath } from "./cerrar-sesion.path";
 import { registry } from "../../swagger";
 
-export class AuthPaths extends BasePath {
+export class AutenticacionPaths extends BasePath {
     constructor() {
         super(registry);
     }
 
     register(): void {
-        new RegisterPath(this.registry).register();
-        new LoginPath(this.registry).register();
-        new ForgotPasswordPath(this.registry).register();
-        new ResetPasswordPath(this.registry).register();
-        new RefreshPath(this.registry).register();
-        new LogoutPath(this.registry).register();
+        new RegistroPath(this.registry).register();
+        new IniciarSesionPath(this.registry).register();
+        new RecuperarContrasenaPath(this.registry).register();
+        new RestablecerContrasenaPath(this.registry).register();
+        new RefrescarPath(this.registry).register();
+        new CerrarSesionPath(this.registry).register();
     }
 }

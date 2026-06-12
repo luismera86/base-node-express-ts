@@ -1,44 +1,48 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { compareHash, hashPassword } from "../../../common/utils/hash.util";
+import { compararHash, hashearContrasena } from "../../../common/utils/hash.util";
 import { UnauthorizedException } from "../../../exceptions/exceptions";
-import { createAccessToken, generateRefreshToken, parseRefreshTokenUserId } from "../../../common/utils/jwt.util";
-import { RefreshTokenDto } from "../schemas/auth.schema";
+import {
+    crearTokenAcceso,
+    generarTokenRefresco,
+    extraerIdUsuarioDeTokenRefresco,
+} from "../../../common/utils/jwt.util";
+import { RefrescarTokenDto } from "../schemas/autenticacion.schema";
 
-const logger = new LoggerService("RefreshTokenUseCase");
+const logger = new LoggerService("RefrescarTokenUseCase");
 
-export const refreshToken = async (data: RefreshTokenDto): Promise<{ token: string; refresh_token: string }> => {
+export const refrescarToken = async (datos: RefrescarTokenDto): Promise<{ token: string; token_refresco: string }> => {
     try {
-        const userId = parseRefreshTokenUserId(data.refresh_token);
-        if (!userId) throw new UnauthorizedException("Invalid refresh token");
+        const idUsuario = extraerIdUsuarioDeTokenRefresco(datos.token_refresco);
+        if (!idUsuario) throw new UnauthorizedException("Token de refresco inválido");
 
-        const user = await prisma.user.findFirst({
-            where: { id: userId, is_active: true, deleted_at: null },
-            omit: { refresh_token: false, refresh_token_expires_at: false },
+        const usuario = await prisma.usuario.findFirst({
+            where: { id: idUsuario, activo: true, eliminado_en: null },
+            omit: { token_refresco: false, token_refresco_expira_en: false },
         });
-        if (!user || !user.refresh_token || !user.refresh_token_expires_at) {
-            throw new UnauthorizedException("Invalid refresh token");
+        if (!usuario || !usuario.token_refresco || !usuario.token_refresco_expira_en) {
+            throw new UnauthorizedException("Token de refresco inválido");
         }
 
-        if (user.refresh_token_expires_at < new Date()) {
-            throw new UnauthorizedException("Refresh token has expired");
+        if (usuario.token_refresco_expira_en < new Date()) {
+            throw new UnauthorizedException("El token de refresco ha expirado");
         }
 
-        const valid = await compareHash(data.refresh_token, user.refresh_token);
-        if (!valid) throw new UnauthorizedException("Invalid refresh token");
+        const valido = await compararHash(datos.token_refresco, usuario.token_refresco);
+        if (!valido) throw new UnauthorizedException("Token de refresco inválido");
 
-        // Rotación: se emite un nuevo par y se invalida el refresh anterior.
-        const token = await createAccessToken({ id: user.id, email: user.email, role: user.role });
-        const { token: refresh_token, expiresAt } = generateRefreshToken(user.id);
+        // Rotación: se emite un nuevo par y se invalida el refresco anterior.
+        const token = await crearTokenAcceso({ id: usuario.id, correo: usuario.correo, rol: usuario.rol });
+        const { token: token_refresco, expiraEn } = generarTokenRefresco(usuario.id);
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { refresh_token: await hashPassword(refresh_token), refresh_token_expires_at: expiresAt },
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: { token_refresco: await hashearContrasena(token_refresco), token_refresco_expira_en: expiraEn },
         });
 
-        return { token, refresh_token };
+        return { token, token_refresco };
     } catch (error: unknown) {
-        logger.error("Error refreshing token", (error as Error).message);
+        logger.error("Error al refrescar el token", (error as Error).message);
         throw error;
     }
 };

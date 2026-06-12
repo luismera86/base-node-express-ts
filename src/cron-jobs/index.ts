@@ -12,8 +12,8 @@ export class CronJobManager {
 
     private initializeJobs() {
         // Registrar todos los jobs aquí.
-        // Ejemplo (importar exampleJob desde "./example.job" y descomentar):
-        // this.jobs.set("example", exampleJob);
+        // Ejemplo (importar exampleJob desde "./ejemplo.job" y descomentar):
+        // this.jobs.set("ejemplo", exampleJob);
     }
 
     public static getInstance(): CronJobManager {
@@ -24,9 +24,9 @@ export class CronJobManager {
     }
 
     public startAllJobs(): void {
-        this.logger.info("Starting all cron jobs...");
+        this.logger.info("Iniciando todos los cron jobs...");
         this.jobs.forEach((job, name) => {
-            this.logger.info(`Job ${name} in progress`);
+            this.logger.info(`Job ${name} en ejecución`);
             job();
         });
     }
@@ -48,4 +48,4 @@ export class CronJobManager {
 export const cronJobManager = CronJobManager.getInstance();
 
 // Exportar los jobs individuales por si se necesitan usar por separado.
-export * from "./example.job";
+export * from "./ejemplo.job";

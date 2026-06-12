@@ -1,33 +1,33 @@
 import { randomUUID } from "crypto";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { hashPassword } from "../../../common/utils/hash.util";
-import { ForgotPasswordDto } from "../schemas/auth.schema";
+import { hashearContrasena } from "../../../common/utils/hash.util";
+import { RecuperarContrasenaDto } from "../schemas/autenticacion.schema";
 
-const logger = new LoggerService("ForgotPasswordUseCase");
-const TOKEN_TTL_MINUTES = 30;
+const logger = new LoggerService("RecuperarContrasenaUseCase");
+const MINUTOS_VIDA_TOKEN = 30;
 
-export const forgotPassword = async (data: ForgotPasswordDto): Promise<{ message: string }> => {
+export const recuperarContrasena = async (datos: RecuperarContrasenaDto): Promise<{ message: string }> => {
     try {
-        const user = await prisma.user.findFirst({ where: { email: data.email, is_active: true } });
+        const usuario = await prisma.usuario.findFirst({ where: { correo: datos.correo, activo: true } });
 
-        // Respuesta genérica para no revelar si el email existe
-        if (!user) return { message: "If the email exists, a reset link has been sent" };
+        // Respuesta genérica para no revelar si el correo existe
+        if (!usuario) return { message: "Si el correo existe, se ha enviado un enlace de recuperación" };
 
-        const raw_token = randomUUID();
-        const hashed_token = await hashPassword(raw_token);
-        const expires_at = new Date(Date.now() + TOKEN_TTL_MINUTES * 60 * 1000);
+        const tokenPlano = randomUUID();
+        const tokenHasheado = await hashearContrasena(tokenPlano);
+        const expiraEn = new Date(Date.now() + MINUTOS_VIDA_TOKEN * 60 * 1000);
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { reset_token: hashed_token, reset_token_expires_at: expires_at },
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: { token_recuperacion: tokenHasheado, token_recuperacion_expira_en: expiraEn },
         });
 
-        // TODO: enviar raw_token por email al usuario (NUNCA loguear el token en claro).
+        // TODO: enviar tokenPlano por correo al usuario (NUNCA loguear el token en claro).
 
-        return { message: "If the email exists, a reset link has been sent" };
+        return { message: "Si el correo existe, se ha enviado un enlace de recuperación" };
     } catch (error: unknown) {
-        logger.error("Error requesting password reset", (error as Error).message);
+        logger.error("Error al solicitar la recuperación de contraseña", (error as Error).message);
         throw error;
     }
 };

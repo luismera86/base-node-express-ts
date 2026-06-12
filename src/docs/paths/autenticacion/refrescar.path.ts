@@ -1,22 +1,22 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { RefreshTokenSchema } from "../../../modules/auth/schemas/auth.schema";
+import { RefrescarTokenSchema } from "../../../modules/autenticacion/schemas/autenticacion.schema";
 import { z } from "zod";
 
-export class RefreshPath extends BasePath {
+export class RefrescarPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
         super(registry);
     }
 
     register(): void {
         this.registry.registerPath({
-            tags: ["auth"],
+            tags: ["autenticacion"],
             method: "post",
-            path: "/auth/refresh",
+            path: "/autenticacion/refrescar",
             summary: "Renovar access token con un refresh token",
             request: {
                 body: {
-                    content: { "application/json": { schema: RefreshTokenSchema.body } },
+                    content: { "application/json": { schema: RefrescarTokenSchema.body } },
                 },
             },
             responses: {
@@ -25,12 +25,12 @@ export class RefreshPath extends BasePath {
                     content: {
                         "application/json": {
                             schema: z
-                                .object({ token: z.string(), refresh_token: z.string() })
-                                .openapi("RefreshResponse"),
+                                .object({ token: z.string(), token_refresco: z.string() })
+                                .openapi("RefrescarResponse"),
                         },
                     },
                 },
-                401: { description: "Refresh token inválido o expirado" },
+                401: { description: "Token de refresco inválido o expirado" },
             },
         });
     }

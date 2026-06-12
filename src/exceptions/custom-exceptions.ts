@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import { LoggerService } from "../common/utils/logger.util";
-const logger = new LoggerService("Custom Exceptions");
+const logger = new LoggerService("Excepciones");
 
 /**
- * Middleware para manejo global de excepciones
- * Proporciona respuestas de error consistentes y registra información de depuración
+ * Middleware para manejo global de excepciones.
+ * Proporciona respuestas de error consistentes y registra información de depuración.
  */
-export const customExceptions = (err: any, req: Request, res: Response, _next: NextFunction) => {
+export const manejadorExcepciones = (err: any, req: Request, res: Response, _next: NextFunction) => {
     // Determinar código de estado HTTP y mensaje
     const statusCode = err.statusCode || 500;
-    const message = statusCode === 500 ? "Internal server error" : err.message;
+    const message = statusCode === 500 ? "Error interno del servidor" : err.message;
     // Crear objeto con información detallada del error para registro
-    const errorDetails: Record<string, any> = {
+    const detalleError: Record<string, any> = {
         statusCode,
         message: err.message,
         path: req.path,
@@ -21,9 +21,9 @@ export const customExceptions = (err: any, req: Request, res: Response, _next: N
 
     if (statusCode === 500) {
         // El detalle/stack solo se registra; NUNCA se devuelve al cliente (independiente del entorno).
-        logger.error(`Error 500: ${JSON.stringify(errorDetails, null, 2)}`);
+        logger.error(`Error 500: ${JSON.stringify(detalleError, null, 2)}`);
     } else {
-        logger.debug(`Error ${statusCode}: ${JSON.stringify(errorDetails, null, 2)}`);
+        logger.debug(`Error ${statusCode}: ${JSON.stringify(detalleError, null, 2)}`);
     }
 
     // Enviar respuesta al cliente
@@ -31,6 +31,6 @@ export const customExceptions = (err: any, req: Request, res: Response, _next: N
         status: "error",
         statusCode,
         message,
-        path: errorDetails.path,
+        path: detalleError.path,
     });
 };

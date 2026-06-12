@@ -93,17 +93,17 @@ const logger = new LoggerService("${USE_CASE_CLASS_NAME}UseCase");
 export const ${USE_CASE_CAMEL_NAME} = async (): Promise<any> => {
     try {
         // TODO: Implementar la lógica del caso de uso
-        // Ejemplo: const result = await prisma.${MODULE_CAMEL_NAME}.findMany();
-        
+        // Ejemplo: const resultado = await prisma.${MODULE_CAMEL_NAME}.findMany();
+
         // Transacción de ejemplo:
-        // const result = await prisma.\$transaction(async (tx) => {
+        // const resultado = await prisma.\$transaction(async (tx) => {
         //     const item = await tx.${MODULE_CAMEL_NAME}.create({ data: {} });
         //     return item;
         // });
-        
-        throw new Error("Use case not implemented");
+
+        throw new Error("Caso de uso no implementado");
     } catch (error: unknown) {
-        logger.error("Error in ${USE_CASE_CAMEL_NAME}", (error as Error).message);
+        logger.error("Error en ${USE_CASE_CAMEL_NAME}", (error as Error).message);
         throw error;
     }
 };

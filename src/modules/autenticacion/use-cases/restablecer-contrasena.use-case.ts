@@ -1,45 +1,45 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { compareHash, hashPassword } from "../../../common/utils/hash.util";
+import { compararHash, hashearContrasena } from "../../../common/utils/hash.util";
 import { BadRequestException, NotFoundException } from "../../../exceptions/exceptions";
-import { ResetPasswordDto } from "../schemas/auth.schema";
+import { RestablecerContrasenaDto } from "../schemas/autenticacion.schema";
 
-const logger = new LoggerService("ResetPasswordUseCase");
+const logger = new LoggerService("RestablecerContrasenaUseCase");
 
-export const resetPassword = async (data: ResetPasswordDto): Promise<{ message: string }> => {
+export const restablecerContrasena = async (datos: RestablecerContrasenaDto): Promise<{ message: string }> => {
     try {
-        const user = await prisma.user.findFirst({
-            where: { email: data.email, is_active: true, deleted_at: null },
-            omit: { reset_token: false, reset_token_expires_at: false },
+        const usuario = await prisma.usuario.findFirst({
+            where: { correo: datos.correo, activo: true, eliminado_en: null },
+            omit: { token_recuperacion: false, token_recuperacion_expira_en: false },
         });
-        if (!user || !user.reset_token || !user.reset_token_expires_at) {
-            throw new NotFoundException("Invalid or expired reset token");
+        if (!usuario || !usuario.token_recuperacion || !usuario.token_recuperacion_expira_en) {
+            throw new NotFoundException("Token de recuperación inválido o expirado");
         }
 
-        if (user.reset_token_expires_at < new Date()) {
-            throw new BadRequestException("Reset token has expired");
+        if (usuario.token_recuperacion_expira_en < new Date()) {
+            throw new BadRequestException("El token de recuperación ha expirado");
         }
 
-        const valid = await compareHash(data.token, user.reset_token);
-        if (!valid) throw new BadRequestException("Invalid reset token");
+        const valido = await compararHash(datos.token, usuario.token_recuperacion);
+        if (!valido) throw new BadRequestException("Token de recuperación inválido");
 
-        const hashed_password = await hashPassword(data.new_password);
+        const contrasenaHasheada = await hashearContrasena(datos.nueva_contrasena);
 
-        await prisma.user.update({
-            where: { id: user.id },
-            // Al resetear la contraseña se invalidan también las sesiones activas.
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            // Al restablecer la contraseña se invalidan también las sesiones activas.
             data: {
-                password: hashed_password,
-                reset_token: null,
-                reset_token_expires_at: null,
-                refresh_token: null,
-                refresh_token_expires_at: null,
+                contrasena: contrasenaHasheada,
+                token_recuperacion: null,
+                token_recuperacion_expira_en: null,
+                token_refresco: null,
+                token_refresco_expira_en: null,
             },
         });
 
-        return { message: "Password updated successfully" };
+        return { message: "Contraseña actualizada correctamente" };
     } catch (error: unknown) {
-        logger.error("Error resetting password", (error as Error).message);
+        logger.error("Error al restablecer la contraseña", (error as Error).message);
         throw error;
     }
 };

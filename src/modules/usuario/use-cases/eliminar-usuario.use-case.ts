@@ -2,25 +2,25 @@ import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
 
-const logger = new LoggerService("DeleteUserUseCase");
+const logger = new LoggerService("EliminarUsuarioUseCase");
 
-export const deleteUser = async (id: string): Promise<void> => {
+export const eliminarUsuario = async (id: string): Promise<void> => {
     try {
-        const user = await prisma.user.findFirst({ where: { id, deleted_at: null } });
-        if (!user) throw new NotFoundException("User not found");
+        const usuario = await prisma.usuario.findFirst({ where: { id, eliminado_en: null } });
+        if (!usuario) throw new NotFoundException("Usuario no encontrado");
 
         // Soft delete: se conserva el registro y se invalida la sesión.
-        await prisma.user.update({
+        await prisma.usuario.update({
             where: { id },
             data: {
-                deleted_at: new Date(),
-                is_active: false,
-                refresh_token: null,
-                refresh_token_expires_at: null,
+                eliminado_en: new Date(),
+                activo: false,
+                token_refresco: null,
+                token_refresco_expira_en: null,
             },
         });
     } catch (error: unknown) {
-        logger.error("Error deleting user", (error as Error).message);
+        logger.error("Error al eliminar el usuario", (error as Error).message);
         throw error;
     }
 };

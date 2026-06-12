@@ -2,15 +2,15 @@ import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 import { NotFoundException } from "../../../exceptions/exceptions";
 
-const logger = new LoggerService("GetOneUserUseCase");
+const logger = new LoggerService("ObtenerUsuarioUseCase");
 
-export const getOneUser = async (id: string): Promise<any> => {
+export const obtenerUsuario = async (id: string): Promise<any> => {
     try {
-        const user = await prisma.user.findFirst({ where: { id, deleted_at: null } });
-        if (!user) throw new NotFoundException("User not found");
-        return user;
+        const usuario = await prisma.usuario.findFirst({ where: { id, eliminado_en: null } });
+        if (!usuario) throw new NotFoundException("Usuario no encontrado");
+        return usuario;
     } catch (error: unknown) {
-        logger.error("Error getting user", (error as Error).message);
+        logger.error("Error al obtener el usuario", (error as Error).message);
         throw error;
     }
 };

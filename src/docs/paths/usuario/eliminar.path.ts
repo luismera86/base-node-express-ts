@@ -1,12 +1,12 @@
 import { BasePath } from "../base.path";
 
-export class DeleteUserPath extends BasePath {
+export class EliminarUsuarioPath extends BasePath {
     register(): void {
         this.registry.registerPath({
-            tags: ["user"],
+            tags: ["usuarios"],
             method: "delete",
-            path: "/user/{id}",
-            summary: "Eliminar user",
+            path: "/usuarios/{id}",
+            summary: "Eliminar usuario",
             parameters: [
                 {
                     name: "id",
@@ -15,16 +15,16 @@ export class DeleteUserPath extends BasePath {
                     schema: {
                         type: "string",
                         format: "uuid",
-                        description: "ID del user",
+                        description: "ID del usuario",
                     },
                 },
             ],
             responses: {
                 200: {
-                    description: "User eliminado",
+                    description: "Usuario eliminado",
                 },
                 404: {
-                    description: "User no encontrado",
+                    description: "Usuario no encontrado",
                 },
                 401: {
                     description: "No autorizado",

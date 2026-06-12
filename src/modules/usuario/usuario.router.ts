@@ -1,31 +1,41 @@
 import { Router } from "express";
-import { authUser } from "../../common/middlewares/authUser.middleware";
-import { requireRole } from "../../common/middlewares/requireRole.middleware";
-import { ownerOrAdmin, restrictPrivilegedFields } from "../../common/middlewares/ownership.middleware";
-import { validateSchema } from "../../common/middlewares/validateSchema.middleware";
-import { Role } from "../../common/enums/role.enum";
-import { CreateUserSchema, UpdateUserSchema, GetOneUserSchema, DeleteUserSchema } from "./schemas/user.schema";
+import { autenticarUsuario } from "../../common/middlewares/autenticar-usuario.middleware";
+import { requerirRol } from "../../common/middlewares/requerir-rol.middleware";
+import { propietarioOAdmin, restringirCamposPrivilegiados } from "../../common/middlewares/propiedad.middleware";
+import { validarEsquema } from "../../common/middlewares/validar-esquema.middleware";
+import { Rol } from "../../common/enums/rol.enum";
 import {
-    getAllUsersController,
-    getOneUserController,
-    createUserController,
-    updateUserController,
-    deleteUserController,
-} from "./user.controller";
+    CrearUsuarioSchema,
+    ActualizarUsuarioSchema,
+    ObtenerUsuarioSchema,
+    EliminarUsuarioSchema,
+} from "./schemas/usuario.schema";
+import {
+    obtenerTodosUsuariosController,
+    obtenerUsuarioController,
+    crearUsuarioController,
+    actualizarUsuarioController,
+    eliminarUsuarioController,
+} from "./usuario.controller";
 
-export const userRouter = Router();
+export const usuarioRouter = Router();
 
-// Todas las rutas de /user requieren autenticación.
-userRouter.use(authUser);
+// Todas las rutas de /usuarios requieren autenticación.
+usuarioRouter.use(autenticarUsuario);
 
-userRouter.get("/", requireRole(Role.ADMIN), getAllUsersController);
-userRouter.get("/:id", validateSchema(GetOneUserSchema), ownerOrAdmin(), getOneUserController);
-userRouter.post("/", requireRole(Role.ADMIN), validateSchema(CreateUserSchema), createUserController);
-userRouter.patch(
+usuarioRouter.get("/", requerirRol(Rol.ADMINISTRADOR), obtenerTodosUsuariosController);
+usuarioRouter.get("/:id", validarEsquema(ObtenerUsuarioSchema), propietarioOAdmin(), obtenerUsuarioController);
+usuarioRouter.post("/", requerirRol(Rol.ADMINISTRADOR), validarEsquema(CrearUsuarioSchema), crearUsuarioController);
+usuarioRouter.patch(
     "/:id",
-    validateSchema(UpdateUserSchema),
-    ownerOrAdmin(),
-    restrictPrivilegedFields,
-    updateUserController,
+    validarEsquema(ActualizarUsuarioSchema),
+    propietarioOAdmin(),
+    restringirCamposPrivilegiados,
+    actualizarUsuarioController,
 );
-userRouter.delete("/:id", requireRole(Role.ADMIN), validateSchema(DeleteUserSchema), deleteUserController);
+usuarioRouter.delete(
+    "/:id",
+    requerirRol(Rol.ADMINISTRADOR),
+    validarEsquema(EliminarUsuarioSchema),
+    eliminarUsuarioController,
+);

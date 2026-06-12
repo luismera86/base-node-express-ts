@@ -1,27 +1,27 @@
-import { CreateUserSchema } from "../../../modules/user/schemas/user.schema";
+import { CrearUsuarioSchema } from "../../../modules/usuario/schemas/usuario.schema";
 import { BasePath } from "../base.path";
 
-export class CreateUserPath extends BasePath {
+export class CrearUsuarioPath extends BasePath {
     register(): void {
         this.registry.registerPath({
-            tags: ["user"],
+            tags: ["usuarios"],
             method: "post",
-            path: "/user",
-            summary: "Crear user",
+            path: "/usuarios",
+            summary: "Crear usuario",
             request: {
                 body: {
                     content: {
-                        "application/json": { schema: CreateUserSchema.body },
+                        "application/json": { schema: CrearUsuarioSchema.body },
                     },
                 },
             },
             responses: {
                 201: {
-                    description: "User creado",
+                    description: "Usuario creado",
                     content: {
                         "application/json": {
                             schema: {
-                                $ref: "#/components/schemas/User",
+                                $ref: "#/components/schemas/Usuario",
                             },
                         },
                     },
