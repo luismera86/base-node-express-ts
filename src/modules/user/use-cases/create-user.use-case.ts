@@ -9,7 +9,7 @@ const logger = new LoggerService("CreateUserUseCase");
 export const createUser = async (data: CreateUserDto): Promise<any> => {
     try {
         const existing = await prisma.user.findFirst({ where: { email: data.email } });
-        if (existing) throw new ConflictException("Email already in use");
+        if (existing) throw new ConflictException("errors.EMAIL_IN_USE");
 
         const created = await prisma.user.create({
             data: { ...data, password: await hashPassword(data.password) },

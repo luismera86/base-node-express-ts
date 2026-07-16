@@ -84,6 +84,7 @@ pnpm run create:swagger-docs <modulo>       # Genera docs OpenAPI del módulo
 - Cada módulo debe tener tests (`.spec.ts` o `.test.ts`).
 - Ejecutar `pnpm test` tras cualquier cambio funcional.
 - Actualizar tests existentes si los cambios los afectan.
+- **e2e**: `pnpm run test:e2e` corre `test/**/*.e2e.test.ts` contra la DB dedicada de `.env.test` (HTTP + DB reales vía `createApp()` de `server.config.ts`, mail mockeado). Tras cambios en auth, middlewares o el error handler, correr también los e2e.
 
 ## Excepciones disponibles
 

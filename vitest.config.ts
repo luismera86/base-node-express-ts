@@ -14,6 +14,8 @@ export default defineConfig({
             CORS_ORIGINS: "*",
         },
         include: ["src/**/*.{test,spec}.ts", "test/**/*.{test,spec}.ts"],
+        // Los e2e (HTTP + DB reales) corren aparte con `pnpm run test:e2e`.
+        exclude: ["**/node_modules/**", "test/**/*.e2e.test.ts"],
         passWithNoTests: true,
         coverage: {
             provider: "v8",

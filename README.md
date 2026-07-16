@@ -222,6 +222,21 @@ Cada petición lleva un `x-request-id` (respetado si viene de un gateway) que ap
 
 ---
 
+## Tests
+
+```bash
+pnpm test        # unit/integración: jwt (secretos separados), middlewares de
+                 # autorización, omit global de Prisma
+pnpm test:e2e    # e2e con HTTP y DB reales: verificación de email, cookies
+                 # httpOnly, rotación + detección de reuso, anti-enumeración,
+                 # recuperación de contraseña, RBAC, anti-IDOR, paginación,
+                 # formato de errores + i18n, health
+```
+
+Los e2e usan su **propia base** (`base_node_express_test`, config en [.env.test](.env.test)): `pnpm test:e2e` la crea y migra solo si hace falta ([setup-e2e-db.ts](test/setup-e2e-db.ts)) y trunca las tablas al inicio de cada corrida — la DB de desarrollo nunca se toca (hay cinturón de seguridad: si el nombre de la DB no contiene `test`, el suite aborta). El único efecto externo mockeado es el envío de correos, del que los tests capturan los tokens de los enlaces.
+
+---
+
 ## Docker (producción)
 
 Imagen multi-stage: compila, poda a dependencias de producción y corre como usuario no-root.

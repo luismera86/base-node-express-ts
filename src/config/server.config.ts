@@ -110,9 +110,15 @@ const listen = () => {
     });
 };
 
-export const startServer = async () => {
-    await connectDatabase();
+/** Arma la app completa sin escuchar el puerto (usado por los tests e2e con supertest). */
+export const createApp = () => {
     applyMiddlewares();
     applyRoutes();
+    return app;
+};
+
+export const startServer = async () => {
+    await connectDatabase();
+    createApp();
     listen();
 };

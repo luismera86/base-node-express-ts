@@ -9,5 +9,7 @@ export const authRateLimiter = rateLimit({
     limit: 10, // máx. 10 peticiones por IP en la ventana
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    // Los tests (unit y e2e) hacen ráfagas de peticiones de auth legítimas.
+    skip: () => Boolean(process.env.VITEST),
     message: { statusCode: 429, error: "Too Many Requests", message: "Too many requests, please try again later" },
 });
