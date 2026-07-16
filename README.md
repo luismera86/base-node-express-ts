@@ -199,9 +199,20 @@ Cómo funciona:
 
 ## Correos
 
-El envío usa **nodemailer** ([mailer.util.ts](src/common/mail/mailer.util.ts)). Sin `MAIL_HOST` configurado, el correo se escribe en los logs en vez de enviarse — la app arranca sin SMTP en desarrollo.
+El correo vive en su propio módulo ([src/modules/mail/](src/modules/mail)). El envío usa **nodemailer** ([mailer.util.ts](src/modules/mail/utils/mailer.util.ts)). Sin `MAIL_HOST` configurado, el correo se escribe en los logs en vez de enviarse — la app arranca sin SMTP en desarrollo.
 
-Los correos se arman con **templates multi-idioma** en [templates/](src/common/mail/templates): cada template es una función que recibe el idioma y sus parámetros y devuelve `{ subject, html, text }`. El idioma sale del request (`Accept-Language`), igual que el resto de la API. Para un correo nuevo: crear su `*.template.ts` reutilizando `layout()` y las claves `mail.*` de los locales.
+Los correos se arman con **templates multi-idioma** en [templates/](src/modules/mail/templates): cada template es una función que recibe el idioma y sus parámetros y devuelve `{ subject, html, text }`. El idioma sale del request (`Accept-Language`), igual que el resto de la API. Para un correo nuevo: crear su `*.template.ts` reutilizando `layout()` y las claves `mail.*` de los locales, sumarlo al enum [MailTemplate](src/common/enums/mail-template.enum.ts) y registrar su preview con datos fake en [template-previews.ts](src/modules/mail/templates/template-previews.ts).
+
+### Endpoints de prueba (solo ADMIN)
+
+Para validar el formato real de los templates en una casilla de correo:
+
+| Endpoint | Qué hace |
+|---|---|
+| `POST /mail/test` | Envía el template elegido (`template`) con datos fake a la casilla `to` |
+| `POST /mail/test/all` | Envía **todos** los templates con datos fake a la casilla `to` |
+
+El idioma del contenido se resuelve por `Accept-Language`. Sin `MAIL_HOST`, los correos se loguean (modo log-only).
 
 ---
 
@@ -275,7 +286,6 @@ src/
 ├── common/
 │   ├── enums/          # Enums globales (no usar enum en Prisma, solo String)
 │   ├── i18n/           # Diccionarios es/en + resolución de Accept-Language
-│   ├── mail/           # Envío de correos + templates multi-idioma
 │   ├── middlewares/    # authUser, requireRole, ownership, validateSchema,
 │   │                   # rateLimit, requestLogger (x-request-id), language
 │   ├── schemas/        # Schemas compartidos (paginación, strong password, ids)
@@ -284,7 +294,7 @@ src/
 ├── docs/
 │   └── paths/          # Definiciones OpenAPI por módulo
 ├── exceptions/         # Clases de excepción HTTP + handler global
-├── modules/            # Módulos de la aplicación (auth, user, ...)
+├── modules/            # Módulos de la aplicación (auth, user, mail, ...)
 ├── seeds/              # Scripts de datos mock
 └── app.ts              # Punto de entrada
 ```

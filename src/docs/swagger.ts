@@ -4,6 +4,7 @@ import envConfig from "../config/env.config";
 import { UserSchema } from "../modules/user/schemas/user.schema";
 import { UserPaths } from "./paths/user/user.paths";
 import { AuthPaths } from "./paths/auth/auth.paths";
+import { MailPaths } from "./paths/mail/mail.paths";
 
 extendZodWithOpenApi(z);
 
@@ -13,6 +14,7 @@ registry.register("User", UserSchema);
 
 new UserPaths().register();
 new AuthPaths().register();
+new MailPaths().register();
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 

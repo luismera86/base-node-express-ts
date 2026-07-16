@@ -3,12 +3,12 @@ import request from "supertest";
 
 // Único efecto externo mockeado: el envío de correos. Capturamos las llamadas
 // para extraer los tokens de verificación / reset de los enlaces.
-vi.mock("../src/common/mail/mailer.util", () => ({
+vi.mock("../src/modules/mail/utils/mailer.util", () => ({
     sendMail: vi.fn(async () => {}),
 }));
 
 import { createApp } from "../src/config/server.config";
-import { sendMail } from "../src/common/mail/mailer.util";
+import { sendMail } from "../src/modules/mail/utils/mailer.util";
 
 const app = createApp();
 

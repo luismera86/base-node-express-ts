@@ -1,8 +1,8 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 import { generateSecureToken, sha256 } from "../../../common/utils/hash.util";
-import { sendMail } from "../../../common/mail/mailer.util";
-import { resetPasswordTemplate } from "../../../common/mail/templates/reset-password.template";
+import { sendMail } from "../../mail/utils/mailer.util";
+import { resetPasswordTemplate } from "../../mail/templates/reset-password.template";
 import { Lang } from "../../../common/i18n/i18n.util";
 import envConfig from "../../../config/env.config";
 import { ForgotPasswordDto } from "../schemas/auth.schema";

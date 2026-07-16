@@ -50,7 +50,7 @@ No hay clases Repository — los use cases usan `prisma` directamente.
 
 - **Programación funcional**: sin clases en use cases ni controllers (solo funciones arrow/regulares).
 - **Un use case por archivo** con nombre en kebab-case + sufijo `.use-case.ts`. La función exportada en camelCase.
-- Los enums van en `src/common/enums/<nombre>.enum.ts`. **No usar enum en modelos Prisma** — usar `String` en el schema y el enum solo a nivel código.
+- Los enums van en `src/common/enums/<nombre>.enum.ts`.
 - Funcionalidades transversales → `src/common/utils/`.
 - Cada módulo debe tener su propio cron job en un archivo `.job.ts`.
 - **Errores i18n**: las excepciones se lanzan con claves de traducción — `throw new NotFoundException("errors.NOT_FOUND")`. Las claves viven en `src/common/i18n/locales/es.locale.ts` y `en.locale.ts` (agregar en AMBOS). El handler global traduce según `Accept-Language`.

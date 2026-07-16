@@ -1,5 +1,5 @@
-import { Lang, t } from "../../i18n/i18n.util";
-import { MailContent } from "../mailer.util";
+import { Lang, t } from "../../../common/i18n/i18n.util";
+import { MailContent } from "../utils/mailer.util";
 import { ctaButton, layout } from "./layout";
 
 export const resetPasswordTemplate = (lang: Lang, params: { name: string; link: string; ttl: number }): MailContent => {

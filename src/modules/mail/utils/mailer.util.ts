@@ -1,6 +1,6 @@
 import nodemailer, { Transporter } from "nodemailer";
-import envConfig from "../../config/env.config";
-import { LoggerService } from "../utils/logger.util";
+import envConfig from "../../../config/env.config";
+import { LoggerService } from "../../../common/utils/logger.util";
 
 const logger = new LoggerService("Mailer");
 
