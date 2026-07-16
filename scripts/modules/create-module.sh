@@ -59,7 +59,7 @@ warning() {
 # Verificar si se proporcionó un nombre de módulo
 if [ -z "$1" ]; then
     error "Por favor, proporciona un nombre para el módulo"
-    echo "Uso: npm run create:module nombre-modulo"
+    echo "Uso: pnpm run create:module nombre-modulo"
     exit 1
 fi
 

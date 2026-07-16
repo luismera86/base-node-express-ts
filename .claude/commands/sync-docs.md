@@ -175,7 +175,7 @@ new XxxPaths().register();
 ### 5. Verificar que compila
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Si falla, mostrar el error y corregirlo antes de terminar. No reportar éxito hasta que compile limpio.
@@ -187,4 +187,4 @@ Mostrar por cada módulo modificado:
 - Archivos modificados y qué se cambió
 - Campos agregados al schema Zod si aplica
 
-Recordar que para ver los cambios en Swagger hay que reiniciar el servidor (`npm run dev`).
+Recordar que para ver los cambios en Swagger hay que reiniciar el servidor (`pnpm run dev`).

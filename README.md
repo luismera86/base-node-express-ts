@@ -18,7 +18,7 @@ Base de proyecto Node.js + TypeScript + Express con Prisma, autenticación JWT y
 
 - Node.js v20 o superior
 - Docker y Docker Compose
-- npm
+- pnpm
 
 ---
 
@@ -34,7 +34,7 @@ cd base-node-express-ts
 ### 2. Instalar dependencias
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Variables de entorno
@@ -68,16 +68,16 @@ Servicios disponibles:
 ### 5. Ejecutar migraciones
 
 ```bash
-npx prisma migrate dev
+pnpm prisma migrate dev
 ```
 
 ### 6. Poblar la base de datos (opcional)
 
 ```bash
-npx ts-node src/seeds/seed.ts
+pnpm exec tsx src/seeds/seed.ts
 ```
 
-> `npm run seed` hace DROP + migrate + seed. Usar solo en entornos locales limpios.
+> `pnpm run seed` hace DROP + migrate + seed. Usar solo en entornos locales limpios.
 
 ---
 
@@ -85,18 +85,18 @@ npx ts-node src/seeds/seed.ts
 
 | Script | Descripción |
 |--------|-------------|
-| `npm run dev` | Servidor en modo desarrollo con hot-reload |
-| `npm run start` | Compila y ejecuta en producción |
-| `npm run build` | Compila TypeScript |
-| `npm run lint` | Ejecuta ESLint |
-| `npm run lint:fix` | Corrige errores de lint automáticamente |
-| `npm run format` | Formatea el código con Prettier |
-| `npm run test` | Ejecuta los tests |
-| `npm run test:coverage` | Tests con reporte de cobertura |
-| `npm run studio` | Abre Prisma Studio en el navegador |
-| `npm run create:module <nombre>` | Genera la estructura completa de un módulo |
-| `npm run create:use-case <modulo> <nombre>` | Agrega un caso de uso a un módulo |
-| `npm run create:swagger-docs <modulo>` | Genera documentación OpenAPI para un módulo |
+| `pnpm run dev` | Servidor en modo desarrollo con hot-reload |
+| `pnpm run start` | Compila y ejecuta en producción |
+| `pnpm run build` | Compila TypeScript |
+| `pnpm run lint` | Ejecuta ESLint |
+| `pnpm run lint:fix` | Corrige errores de lint automáticamente |
+| `pnpm run format` | Formatea el código con Prettier |
+| `pnpm run test` | Ejecuta los tests |
+| `pnpm run test:coverage` | Tests con reporte de cobertura |
+| `pnpm run studio` | Abre Prisma Studio en el navegador |
+| `pnpm run create:module <nombre>` | Genera la estructura completa de un módulo |
+| `pnpm run create:use-case <modulo> <nombre>` | Agrega un caso de uso a un módulo |
+| `pnpm run create:swagger-docs <modulo>` | Genera documentación OpenAPI para un módulo |
 
 ---
 
@@ -163,13 +163,13 @@ model user {
 
 ```bash
 # Crear migración sin aplicar (para revisarla antes)
-npx prisma migrate dev --name <nombre-descriptivo> --create-only
+pnpm prisma migrate dev --name <nombre-descriptivo> --create-only
 
 # Aplicar migraciones pendientes
-npx prisma migrate dev
+pnpm prisma migrate dev
 
 # Ver el schema en el navegador
-npm run studio
+pnpm run studio
 ```
 
 > Nunca editar una migración ya comiteada. Crear una nueva en su lugar.
@@ -211,7 +211,7 @@ Los logs del servidor muestran las URLs al arrancar:
 
 ```bash
 # Ejecutar solo los seeds (requiere BD con migraciones aplicadas)
-npx ts-node src/seeds/seed.ts
+pnpm exec tsx src/seeds/seed.ts
 
 # Crear seed para un módulo nuevo
 # (vía Claude Code skill /new-seed <modulo>)

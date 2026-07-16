@@ -28,8 +28,8 @@ Informar al usuario qué tipo detectaste y el motivo **antes de continuar**. Ped
 ### 3. Ejecutar lint y build
 
 ```bash
-npm run lint
-npm run build
+pnpm run lint
+pnpm run build
 ```
 
 - Si alguno falla, mostrar el error, detener y **no continuar** con el release.
@@ -44,7 +44,7 @@ find . -name "*.spec.ts" -o -name "*.test.ts" -o -name "*.spec.js" -o -name "*.t
 
 - Si **no se encuentran archivos de test**, omitir este paso por completo y continuar.
 - Si **sí existen tests**, preguntar al usuario: _"Se encontraron tests en el proyecto. ¿Deseas ejecutarlos antes del release? (s/n)"_
-    - Si responde **sí**: ejecutar `npm test`. Si fallan, mostrar el error, detener y **no continuar** con el release.
+    - Si responde **sí**: ejecutar `pnpm test`. Si fallan, mostrar el error, detener y **no continuar** con el release.
     - Si responde **no**: omitir y continuar.
 
 ### 5. Hacer commit de los cambios pendientes
@@ -65,14 +65,14 @@ Redactar un mensaje de commit que resuma los cambios. Usar el formato:
 
 Donde `<tipo>` es: `feat`, `fix`, `refactor`, `chore`, `docs`, según el cambio.
 
-### 6. Versionar con npm version
+### 6. Versionar con pnpm version
 
 Según el tipo determinado en el paso 2:
 
 ```bash
-npm version patch   # fixes / refactors
-npm version minor   # nuevas features
-npm version major   # breaking changes
+pnpm version patch   # fixes / refactors
+pnpm version minor   # nuevas features
+pnpm version major   # breaking changes
 ```
 
 Esto actualiza `package.json`, crea el commit de versión y el tag automáticamente.

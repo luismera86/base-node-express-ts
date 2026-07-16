@@ -55,15 +55,15 @@ No hay clases Repository — los use cases usan `prisma` directamente.
 ## Scripts de generación (usar siempre en lugar de crear archivos a mano)
 
 ```bash
-npm run create:module <nombre-modulo>      # Crea estructura completa del módulo
-npm run create:use-case <modulo> <nombre>  # Agrega un use case a un módulo existente
-npm run create:swagger-docs <modulo>       # Genera docs OpenAPI del módulo
+pnpm run create:module <nombre-modulo>      # Crea estructura completa del módulo
+pnpm run create:use-case <modulo> <nombre>  # Agrega un use case a un módulo existente
+pnpm run create:swagger-docs <modulo>       # Genera docs OpenAPI del módulo
 ```
 
 ## Prisma / Migraciones
 
 - **Multi-file schema**: cada modelo tiene su propio archivo en `prisma/schema/<modelo>.prisma`. La configuración base (generator + datasource) está en `prisma/schema/base.prisma`.
-- Crear migración **sin aplicar**: `npx prisma migrate dev --name <nombre> --create-only`
+- Crear migración **sin aplicar**: `pnpm prisma migrate dev --name <nombre> --create-only`
 - Las migraciones se verifican en local antes de cualquier deploy.
 - Nunca editar una migración ya comiteada — crear una nueva.
 
@@ -75,7 +75,7 @@ npm run create:swagger-docs <modulo>       # Genera docs OpenAPI del módulo
 ## Testing
 
 - Cada módulo debe tener tests (`.spec.ts` o `.test.ts`).
-- Ejecutar `npm test` tras cualquier cambio funcional.
+- Ejecutar `pnpm test` tras cualquier cambio funcional.
 - Actualizar tests existentes si los cambios los afectan.
 
 ## Excepciones disponibles

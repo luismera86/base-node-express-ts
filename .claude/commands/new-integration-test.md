@@ -123,7 +123,7 @@ describe("$ARGUMENTS endpoints", () => {
 ### 4. Verificar que los tests corren
 
 ```bash
-npx vitest run test/$ARGUMENTS.test.ts
+pnpm exec vitest run test/$ARGUMENTS.test.ts
 ```
 
 Si fallan, corregir antes de terminar.

@@ -7,7 +7,7 @@ Agrega un caso de uso a un módulo existente. Recibe `<modulo> <nombre-caso>` co
 1. **Ejecutar el script de generación**:
 
     ```bash
-    npm run create:use-case $ARGUMENTS
+    pnpm run create:use-case $ARGUMENTS
     ```
 
 2. **Verificar** que el archivo generado en `src/modules/<modulo>/use-cases/<nombre-caso>.use-case.ts` sigue las convenciones:
@@ -27,5 +27,5 @@ Agrega un caso de uso a un módulo existente. Recibe `<modulo> <nombre-caso>` co
 
 6. **Ejecutar los tests** para verificar que todo funciona:
     ```bash
-    npm test
+    pnpm test
     ```

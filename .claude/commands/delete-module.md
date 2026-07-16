@@ -22,7 +22,7 @@ Elimina un módulo completo y todos sus artefactos asociados. Recibe el nombre d
 
     - Si existía el schema, crear una migración para eliminar la tabla:
         ```bash
-        npx prisma migrate dev --name remove-$ARGUMENTS-model --create-only
+        pnpm prisma migrate dev --name remove-$ARGUMENTS-model --create-only
         ```
     - Recordar al usuario que revise la migración antes de aplicarla.
 
@@ -43,5 +43,5 @@ Elimina un módulo completo y todos sus artefactos asociados. Recibe el nombre d
 
 7. **Confirmar al usuario** qué archivos fueron eliminados y recordarle:
     - Revisar la migración generada antes de aplicarla (si aplica).
-    - Ejecutar `npm test` para verificar que no quedan referencias rotas.
-    - Ejecutar `npx prisma generate` si se modificó algún schema.
+    - Ejecutar `pnpm test` para verificar que no quedan referencias rotas.
+    - Ejecutar `pnpm prisma generate` si se modificó algún schema.

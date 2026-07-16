@@ -13,7 +13,7 @@ cat package.json | grep faker
 Si no está instalado, instalarlo como dependencia de desarrollo:
 
 ```bash
-npm install --save-dev @faker-js/faker
+pnpm add -D @faker-js/faker
 ```
 
 ### 2. Leer el modelo Prisma del módulo
@@ -86,7 +86,7 @@ logger.info("Seed de $ARGUMENTS ejecutado");
 ### 6. Verificar que compila
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### 7. Confirmar al usuario
@@ -94,5 +94,5 @@ npm run build
 Mostrar:
 - Archivo creado: `src/seeds/$ARGUMENTS.seed.ts`
 - Cantidad de registros que se van a insertar
-- Recordar que puede ejecutar el seed con: `npx ts-node src/seeds/seed.ts`
-- Advertir que `npm run seed` hace DROP + migrate antes de seedear — solo usarlo en entornos locales limpios
+- Recordar que puede ejecutar el seed con: `pnpm exec tsx src/seeds/seed.ts`
+- Advertir que `pnpm run seed` hace DROP + migrate antes de seedear — solo usarlo en entornos locales limpios

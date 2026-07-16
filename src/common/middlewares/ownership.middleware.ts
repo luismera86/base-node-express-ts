@@ -9,10 +9,10 @@ import { Role } from "../enums/role.enum";
  */
 export const ownerOrAdmin = (param = "id") => {
     return (req: Request, _res: Response, next: NextFunction) => {
-        if (!req.user) return next(new UnauthorizedException("Token no proporcionado"));
+        if (!req.user) return next(new UnauthorizedException("errors.TOKEN_NOT_PROVIDED"));
         const isAdmin = req.user.role === Role.ADMIN;
         if (isAdmin || req.user.id === req.params[param]) return next();
-        next(new ForbiddenException("No tienes permisos sobre este recurso"));
+        next(new ForbiddenException("errors.FORBIDDEN"));
     };
 };
 

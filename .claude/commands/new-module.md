@@ -7,7 +7,7 @@ Crea un módulo completo siguiendo las convenciones del proyecto. Recibe el nomb
 1. **Ejecutar el script de generación**:
 
     ```bash
-    npm run create:module $ARGUMENTS
+    pnpm run create:module $ARGUMENTS
     ```
 
 2. **Crear el archivo de schema Prisma** `prisma/schema/<nombre-en-kebab-case>.prisma` con la estructura base:
@@ -30,13 +30,13 @@ Crea un módulo completo siguiendo las convenciones del proyecto. Recibe el nomb
 3. **Crear la migración** (sin aplicarla):
 
     ```bash
-    npx prisma migrate dev --name add-$ARGUMENTS-model --create-only
+    pnpm prisma migrate dev --name add-$ARGUMENTS-model --create-only
     ```
 
 4. **Crear los docs OpenAPI**:
 
     ```bash
-    npm run create:swagger-docs $ARGUMENTS
+    pnpm run create:swagger-docs $ARGUMENTS
     ```
 
     Luego abrir `src/docs/swagger.ts` y **descomentar** (o agregar si no existen) las líneas del módulo:

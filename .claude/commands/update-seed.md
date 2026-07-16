@@ -58,7 +58,7 @@ Para cada seed que tenga diferencias, aplicar los cambios manteniendo:
 ### 5. Verificar que compila
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Si falla, mostrar el error y corregir antes de terminar.
@@ -70,4 +70,4 @@ Mostrar por cada seed modificado:
 - Campos eliminados
 - Campos modificados
 
-Y recordar ejecutar `npx ts-node src/seeds/seed.ts` para verificar que los datos se insertan correctamente.
+Y recordar ejecutar `pnpm exec tsx src/seeds/seed.ts` para verificar que los datos se insertan correctamente.

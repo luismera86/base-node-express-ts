@@ -77,7 +77,7 @@ describe("<useCaseFn>", () => {
 ### 3. Verificar que los tests corren
 
 ```bash
-npx vitest run src/modules/<modulo>/<modulo>.spec.ts
+pnpm exec vitest run src/modules/<modulo>/<modulo>.spec.ts
 ```
 
 Si fallan, corregir antes de terminar.

@@ -3,43 +3,54 @@ import { SignJWT, jwtVerify } from "jose";
 import envConfig from "../../config/env.config";
 import { UnauthorizedException } from "../../exceptions/exceptions";
 
-const secret = new TextEncoder().encode(envConfig.JWT_SECRET);
+// Secretos separados: un access token robado no sirve para forjar refresh tokens (y viceversa).
+const accessSecret = new TextEncoder().encode(envConfig.JWT_ACCESS_SECRET);
+const refreshSecret = new TextEncoder().encode(envConfig.JWT_REFRESH_SECRET);
 
 /**
- * Access token JWT de vida corta (por defecto 15m). Se usa en la cabecera Authorization.
+ * Access token JWT de vida corta (por defecto 15m). Viaja en cookie httpOnly
+ * `access_token` o, como fallback para clientes API, en la cabecera Authorization.
  */
 export const createAccessToken = async (payload: Record<string, unknown>): Promise<string> => {
     return new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime(envConfig.JWT_ACCESS_EXPIRES)
-        .sign(secret);
+        .sign(accessSecret);
 };
 
-export const verifyToken = async (token: string): Promise<{ id: string; email: string; role: string }> => {
+export const verifyAccessToken = async (token: string): Promise<{ id: string; email: string; role: string }> => {
     try {
-        const { payload } = await jwtVerify(token, secret);
+        const { payload } = await jwtVerify(token, accessSecret);
         return payload as { id: string; email: string; role: string };
     } catch {
-        throw new UnauthorizedException("Token inválido o expirado");
+        throw new UnauthorizedException("errors.INVALID_OR_EXPIRED_TOKEN");
     }
 };
 
 /**
- * Refresh token opaco (no JWT): aleatorio y revocable. Lleva el id de usuario como
- * prefijo (`<userId>:<random>`) para poder localizar al dueño sin exponer el secreto.
- * Se devuelve en claro al cliente y se persiste hasheado en la BD para poder
- * invalidarlo (logout / reset / rotación).
+ * Refresh token JWT de vida larga firmado con su propio secreto. Se entrega en
+ * la cookie httpOnly `refresh_token` (path restringido al endpoint de refresh)
+ * y en la BD solo se persiste su hash SHA-256 — nunca el token en claro — para
+ * poder rotarlo, revocarlo y detectar reuso.
  */
-export const generateRefreshToken = (userId: string): { token: string; expiresAt: Date } => {
-    const token = `${userId}:${randomUUID()}.${randomUUID()}`;
-    const days = Number(envConfig.JWT_REFRESH_EXPIRES_DAYS);
-    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+export const createRefreshToken = async (userId: string): Promise<{ token: string; expiresAt: Date }> => {
+    const expiresAt = new Date(Date.now() + envConfig.JWT_REFRESH_EXPIRES_DAYS * 24 * 60 * 60 * 1000);
+    const token = await new SignJWT({ sub: userId, jti: randomUUID() })
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime(expiresAt)
+        .sign(refreshSecret);
     return { token, expiresAt };
 };
 
-/** Extrae el id de usuario del prefijo de un refresh token. */
-export const parseRefreshTokenUserId = (token: string): string | null => {
-    const idx = token.indexOf(":");
-    return idx > 0 ? token.slice(0, idx) : null;
+/** Verifica firma y expiración del refresh token y devuelve el id de usuario. */
+export const verifyRefreshToken = async (token: string): Promise<{ userId: string }> => {
+    try {
+        const { payload } = await jwtVerify(token, refreshSecret);
+        if (!payload.sub) throw new Error("missing sub");
+        return { userId: payload.sub };
+    } catch {
+        throw new UnauthorizedException("errors.INVALID_OR_EXPIRED_TOKEN");
+    }
 };

@@ -59,7 +59,7 @@ warning() {
 # Verificar si se proporcionaron los argumentos necesarios
 if [ -z "$1" ] || [ -z "$2" ]; then
     error "Por favor, proporciona el nombre del módulo y el nombre del caso de uso"
-    echo "Uso: npm run create:use-case nombre-modulo nombre-caso-uso"
+    echo "Uso: pnpm run create:use-case nombre-modulo nombre-caso-uso"
     exit 1
 fi
 

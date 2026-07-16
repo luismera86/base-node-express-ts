@@ -1,42 +1,52 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { compareHash, hashPassword } from "../../../common/utils/hash.util";
+import { sha256 } from "../../../common/utils/hash.util";
 import { UnauthorizedException } from "../../../exceptions/exceptions";
-import { createAccessToken, generateRefreshToken, parseRefreshTokenUserId } from "../../../common/utils/jwt.util";
-import { RefreshTokenDto } from "../schemas/auth.schema";
+import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../../../common/utils/jwt.util";
+import { AuthTokens } from "./login.use-case";
 
 const logger = new LoggerService("RefreshTokenUseCase");
 
-export const refreshToken = async (data: RefreshTokenDto): Promise<{ token: string; refresh_token: string }> => {
+/**
+ * Rotación con detección de reuso: cada refresh invalida el token anterior.
+ * Si se presenta un refresh ya rotado (firma válida pero hash distinto al
+ * guardado), se asume robo y se revoca la sesión completa — el refresh
+ * vigente también deja de servir.
+ */
+export const refreshToken = async (rawToken: string): Promise<AuthTokens> => {
     try {
-        const userId = parseRefreshTokenUserId(data.refresh_token);
-        if (!userId) throw new UnauthorizedException("Invalid refresh token");
+        const { userId } = await verifyRefreshToken(rawToken);
 
         const user = await prisma.user.findFirst({
             where: { id: userId, is_active: true, deleted_at: null },
-            omit: { refresh_token: false, refresh_token_expires_at: false },
+            omit: { refresh_token_hash: false },
         });
-        if (!user || !user.refresh_token || !user.refresh_token_expires_at) {
-            throw new UnauthorizedException("Invalid refresh token");
+        if (!user || !user.refresh_token_hash) {
+            throw new UnauthorizedException("errors.INVALID_OR_EXPIRED_TOKEN");
         }
 
-        if (user.refresh_token_expires_at < new Date()) {
-            throw new UnauthorizedException("Refresh token has expired");
+        if (sha256(rawToken) !== user.refresh_token_hash) {
+            // Firma válida pero hash distinto al guardado → token ya rotado en
+            // manos de alguien: se revoca la sesión completa.
+            await prisma.user.update({ where: { id: user.id }, data: { refresh_token_hash: null } });
+            logger.warn(`Reuso de refresh token detectado para el usuario ${user.id}: sesión revocada`);
+            throw new UnauthorizedException("errors.INVALID_OR_EXPIRED_TOKEN");
         }
-
-        const valid = await compareHash(data.refresh_token, user.refresh_token);
-        if (!valid) throw new UnauthorizedException("Invalid refresh token");
 
         // Rotación: se emite un nuevo par y se invalida el refresh anterior.
-        const token = await createAccessToken({ id: user.id, email: user.email, role: user.role });
-        const { token: refresh_token, expiresAt } = generateRefreshToken(user.id);
+        const accessToken = await createAccessToken({ id: user.id, email: user.email, role: user.role });
+        const { token: newRefreshToken } = await createRefreshToken(user.id);
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { refresh_token: await hashPassword(refresh_token), refresh_token_expires_at: expiresAt },
+            data: { refresh_token_hash: sha256(newRefreshToken) },
         });
 
-        return { token, refresh_token };
+        return {
+            accessToken,
+            refreshToken: newRefreshToken,
+            user: { id: user.id, email: user.email, role: user.role },
+        };
     } catch (error: unknown) {
         logger.error("Error refreshing token", (error as Error).message);
         throw error;

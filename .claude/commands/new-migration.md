@@ -9,7 +9,7 @@ Crea una migración, muestra el SQL generado y opcionalmente la ejecuta. Recibe 
 Ejecutar:
 
 ```bash
-npx prisma validate
+pnpm prisma validate
 ```
 
 Si falla, mostrar el error y detener — el schema tiene errores que corregir primero.
@@ -17,7 +17,7 @@ Si falla, mostrar el error y detener — el schema tiene errores que corregir pr
 ### 2. Crear la migración sin aplicarla
 
 ```bash
-npx prisma migrate dev --name $ARGUMENTS --create-only
+pnpm prisma migrate dev --name $ARGUMENTS --create-only
 ```
 
 ### 3. Mostrar el SQL generado
@@ -36,13 +36,13 @@ Si hay operaciones destructivas, advertirlo explícitamente al usuario antes de 
 
 > **¿Deseas aplicar esta migración en local ahora? (s/n)**
 
-- Si responde **no**: recordar que puede aplicarla después con `npx prisma migrate dev` y terminar.
+- Si responde **no**: recordar que puede aplicarla después con `pnpm prisma migrate dev` y terminar.
 - Si responde **sí**: continuar al paso 5.
 
 ### 5. Aplicar la migración
 
 ```bash
-npx prisma migrate dev
+pnpm prisma migrate dev
 ```
 
 Si falla, mostrar el error completo. No intentar rollback automático — explicar al usuario qué salió mal.
@@ -50,7 +50,7 @@ Si falla, mostrar el error completo. No intentar rollback automático — explic
 ### 6. Regenerar el Prisma Client
 
 ```bash
-npx prisma generate
+pnpm prisma generate
 ```
 
 ### 7. Confirmar al usuario

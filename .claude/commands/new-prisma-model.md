@@ -47,18 +47,18 @@ model user_profile {
 2. **Validar** que el schema conjunto es correcto:
 
     ```bash
-    npx prisma validate
+    pnpm prisma validate
     ```
 
 3. **Crear la migración** (sin aplicarla):
 
     ```bash
-    npx prisma migrate dev --name add-<nombre-en-kebab-case> --create-only
+    pnpm prisma migrate dev --name add-<nombre-en-kebab-case> --create-only
     ```
 
 4. Mostrar el SQL generado en `prisma/migrations/` para que el usuario lo revise.
 
 5. Recordar al usuario:
     - Revisar el SQL antes de aplicar la migración
-    - Crear el módulo correspondiente con `npm run create:module <nombre>`
+    - Crear el módulo correspondiente con `pnpm run create:module <nombre>`
     - Si hay enums, crearlos en `src/common/enums/`

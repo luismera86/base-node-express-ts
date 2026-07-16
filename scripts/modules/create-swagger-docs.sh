@@ -59,7 +59,7 @@ warning() {
 # Verificar si se proporcionó un nombre de módulo
 if [ -z "$1" ]; then
     error "Por favor, proporciona un nombre para el módulo"
-    echo "Uso: npm run create:swagger-docs nombre-modulo"
+    echo "Uso: pnpm run create:swagger-docs nombre-modulo"
     exit 1
 fi
 
@@ -78,7 +78,7 @@ echo "Camel Name: $CAMEL_NAME"
 
 # Verificar si el módulo existe
 if [ ! -d "src/modules/$MODULE_NAME" ]; then
-    error "El módulo '$MODULE_NAME' no existe. Primero crea el módulo con: npm run create:module $MODULE_NAME"
+    error "El módulo '$MODULE_NAME' no existe. Primero crea el módulo con: pnpm run create:module $MODULE_NAME"
 fi
 
 # Verificar si la documentación ya existe

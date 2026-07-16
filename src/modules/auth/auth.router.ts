@@ -4,6 +4,8 @@ import { authUser } from "../../common/middlewares/authUser.middleware";
 import { authRateLimiter } from "../../common/middlewares/rateLimit.middleware";
 import {
     RegisterSchema,
+    VerifyEmailSchema,
+    ResendVerificationSchema,
     LoginSchema,
     ForgotPasswordSchema,
     ResetPasswordSchema,
@@ -11,6 +13,8 @@ import {
 } from "./schemas/auth.schema";
 import {
     registerController,
+    verifyEmailController,
+    resendVerificationController,
     loginController,
     forgotPasswordController,
     resetPasswordController,
@@ -24,6 +28,8 @@ export const authRouter = Router();
 authRouter.use(authRateLimiter);
 
 authRouter.post("/register", validateSchema(RegisterSchema), registerController);
+authRouter.post("/verify-email", validateSchema(VerifyEmailSchema), verifyEmailController);
+authRouter.post("/resend-verification", validateSchema(ResendVerificationSchema), resendVerificationController);
 authRouter.post("/login", validateSchema(LoginSchema), loginController);
 authRouter.post("/forgot-password", validateSchema(ForgotPasswordSchema), forgotPasswordController);
 authRouter.post("/reset-password", validateSchema(ResetPasswordSchema), resetPasswordController);

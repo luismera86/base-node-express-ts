@@ -1,31 +1,43 @@
-import { randomUUID } from "crypto";
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
-import { hashPassword } from "../../../common/utils/hash.util";
+import { generateSecureToken, sha256 } from "../../../common/utils/hash.util";
+import { sendMail } from "../../../common/mail/mailer.util";
+import { resetPasswordTemplate } from "../../../common/mail/templates/reset-password.template";
+import { Lang } from "../../../common/i18n/i18n.util";
+import envConfig from "../../../config/env.config";
 import { ForgotPasswordDto } from "../schemas/auth.schema";
 
 const logger = new LoggerService("ForgotPasswordUseCase");
-const TOKEN_TTL_MINUTES = 30;
 
-export const forgotPassword = async (data: ForgotPasswordDto): Promise<{ message: string }> => {
+/**
+ * El controller responde 204 SIEMPRE — exista o no el email — para no permitir
+ * enumeración de usuarios. Si existe, se genera un token aleatorio de 256 bits,
+ * se guarda solo su hash SHA-256 con vencimiento y se envía el enlace por correo.
+ */
+export const forgotPassword = async (data: ForgotPasswordDto, lang: Lang): Promise<void> => {
     try {
-        const user = await prisma.user.findFirst({ where: { email: data.email, is_active: true } });
+        const user = await prisma.user.findFirst({
+            where: { email: data.email, is_active: true, deleted_at: null },
+        });
+        if (!user) return;
 
-        // Respuesta genérica para no revelar si el email existe
-        if (!user) return { message: "If the email exists, a reset link has been sent" };
-
-        const raw_token = randomUUID();
-        const hashed_token = await hashPassword(raw_token);
-        const expires_at = new Date(Date.now() + TOKEN_TTL_MINUTES * 60 * 1000);
+        const raw_token = generateSecureToken();
+        const expires_at = new Date(Date.now() + envConfig.PASSWORD_RESET_TTL_MINUTES * 60 * 1000);
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { reset_token: hashed_token, reset_token_expires_at: expires_at },
+            data: { reset_token_hash: sha256(raw_token), reset_token_expires_at: expires_at },
         });
 
-        // TODO: enviar raw_token por email al usuario (NUNCA loguear el token en claro).
-
-        return { message: "If the email exists, a reset link has been sent" };
+        const link = `${envConfig.FRONTEND_URL}/reset-password?token=${raw_token}`;
+        await sendMail(
+            user.email,
+            resetPasswordTemplate(lang, {
+                name: user.first_name,
+                link,
+                ttl: envConfig.PASSWORD_RESET_TTL_MINUTES,
+            }),
+        );
     } catch (error: unknown) {
         logger.error("Error requesting password reset", (error as Error).message);
         throw error;

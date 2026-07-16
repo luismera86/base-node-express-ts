@@ -8,9 +8,9 @@ import { Role } from "../enums/role.enum";
  */
 export const requireRole = (...roles: Role[]) => {
     return (req: Request, _res: Response, next: NextFunction) => {
-        if (!req.user) return next(new UnauthorizedException("Token no proporcionado"));
+        if (!req.user) return next(new UnauthorizedException("errors.TOKEN_NOT_PROVIDED"));
         if (!roles.includes(req.user.role as Role)) {
-            return next(new ForbiddenException("No tienes permisos para realizar esta acción"));
+            return next(new ForbiddenException("errors.FORBIDDEN"));
         }
         next();
     };
