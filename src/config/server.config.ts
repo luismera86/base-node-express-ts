@@ -12,6 +12,7 @@ import { LoggerService } from "../common/utils/logger.util";
 import { requestLogger } from "../common/middlewares/requestLogger.middleware";
 import { languageResolver } from "../common/middlewares/language.middleware";
 import { openApiDoc } from "../docs/swagger";
+import { initEventsGateway } from "../modules/events/events.gateway";
 import { prisma } from "./prisma.config";
 import envConfig from "./env.config";
 
@@ -101,13 +102,17 @@ const applyRoutes = () => {
 };
 
 const listen = () => {
-    app.listen(envConfig.PORT, () => {
+    const server = app.listen(envConfig.PORT, () => {
         const base = envConfig.API_URL.replace(/\/api$/, "");
         logger.info(`Server running at ${base}`);
         logger.info(`API       → ${base}/api/v1`);
         if (envConfig.SWAGGER_ENABLED) logger.info(`Docs      → ${base}/docs`);
+        if (envConfig.WS_ENABLED) logger.info(`WS        → ${base}/events (socket.io)`);
         logger.info(`Health    → ${base}/health`);
     });
+
+    // WebSockets opt-in: sin WS_ENABLED=true no se monta socket.io.
+    if (envConfig.WS_ENABLED) initEventsGateway(server);
 };
 
 /** Arma la app completa sin escuchar el puerto (usado por los tests e2e con supertest). */

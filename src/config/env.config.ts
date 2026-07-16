@@ -54,6 +54,12 @@ const envSchema = z
             .transform((v) => v === "true")
             .optional(),
 
+        // Habilita el módulo de eventos por WebSocket (socket.io). Opt-in: default false.
+        WS_ENABLED: z
+            .enum(["true", "false"])
+            .transform((v) => v === "true")
+            .default(false),
+
         LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
     })
     .superRefine((env, ctx) => {

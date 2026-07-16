@@ -1,6 +1,6 @@
 # base-node-express-ts
 
-Plantilla base para APIs REST con Node.js + TypeScript + Express, pensada para arrancar proyectos con las piezas que toda API necesita ya resueltas y con la seguridad activada por defecto: autenticación JWT en cookies `httpOnly` con rotación de refresh tokens y detección de reuso, verificación de email, roles (RBAC), recuperación de contraseña por correo, PostgreSQL con migraciones (Prisma), paginación estándar, i18n (es/en), configuración validada al arranque, logging estructurado con `x-request-id`, rate limiting y arquitectura por use cases.
+Plantilla base para APIs REST con Node.js + TypeScript + Express, pensada para arrancar proyectos con las piezas que toda API necesita ya resueltas y con la seguridad activada por defecto: autenticación JWT en cookies `httpOnly` con rotación de refresh tokens y detección de reuso, verificación de email, roles (RBAC), recuperación de contraseña por correo, PostgreSQL con migraciones (Prisma), paginación estándar, i18n (es/en), configuración validada al arranque, logging estructurado con `x-request-id`, rate limiting, eventos en tiempo real por WebSocket (socket.io, opt-in) y arquitectura por use cases.
 
 ## Stack
 
@@ -86,6 +86,7 @@ Validadas con **Zod** al arranque ([env.config.ts](src/config/env.config.ts)): s
 | `PASSWORD_RESET_TTL_MINUTES` | Vigencia del token de recuperación (minutos) | `60` |
 | `EMAIL_VERIFICATION_TTL_MINUTES` | Vigencia del token de verificación (minutos) | `1440` |
 | `SWAGGER_ENABLED` | Habilita `/docs` | `true` salvo en prod |
+| `WS_ENABLED` | Habilita el módulo de eventos por WebSocket (socket.io, namespace `/events`) | `false` |
 | `LOG_LEVEL` | Nivel de log de pino | `info` |
 
 ---
@@ -216,6 +217,27 @@ El idioma del contenido se resuelve por `Accept-Language`. Sin `MAIL_HOST`, los 
 
 ---
 
+## WebSockets (opt-in)
+
+Módulo de eventos en tiempo real con **socket.io** ([src/modules/events/](src/modules/events)), deshabilitado por defecto: solo se monta con `WS_ENABLED=true` — sin el flag no se crea el servidor de sockets y las emisiones desde otros módulos son no-op.
+
+- **Namespace**: `/events`, colgado del mismo servidor HTTP y con el mismo criterio de CORS que la API (`CORS_ORIGINS` + credentials).
+- **Auth en el handshake** ([ws-auth.util.ts](src/modules/events/utils/ws-auth.util.ts)): misma extracción cookie-first que `authUser` — la cookie httpOnly `access_token` viaja sola con `withCredentials`; los clientes no-browser pueden mandar el token en `io(url, { auth: { token } })` o en `Authorization: Bearer`. Una conexión sin token válido recibe `connect_error` con la clave i18n como mensaje y nunca conecta.
+- **Room por usuario** (`user:<id>`): todas las conexiones de un usuario (pestañas, dispositivos) la comparten.
+- **Emitir desde cualquier módulo** ([events.service.ts](src/modules/events/events.service.ts)): `emitToUser(userId, evento, data)` / `emitToAll(evento, data)` — no hace falta chequear el flag; sin sockets habilitados son no-op.
+
+```ts
+// Cliente navegador (la cookie de access viaja sola):
+const socket = io("http://localhost:3000/events", { withCredentials: true });
+socket.emit("ping"); // → recibe "pong" con { time }
+
+// Backend, desde un use case:
+import { emitToUser } from "../../events/events.service";
+emitToUser(user.id, "notification", { message: "..." });
+```
+
+---
+
 ## Logs
 
 Configurados en [logger.util.ts](src/common/utils/logger.util.ts) con `pino.multistream` (varios destinos a la vez):
@@ -294,7 +316,7 @@ src/
 ├── docs/
 │   └── paths/          # Definiciones OpenAPI por módulo
 ├── exceptions/         # Clases de excepción HTTP + handler global
-├── modules/            # Módulos de la aplicación (auth, user, mail, ...)
+├── modules/            # Módulos de la aplicación (auth, user, mail, events, ...)
 ├── seeds/              # Scripts de datos mock
 └── app.ts              # Punto de entrada
 ```
