@@ -1,7 +1,8 @@
 import { LoggerService } from "../../../common/utils/logger.util";
 import { prisma } from "../../../config/prisma.config";
 import { generateSecureToken, hashPassword, sha256 } from "../../../common/utils/hash.util";
-import { ConflictException } from "../../../exceptions/exceptions";
+import { ConflictException, InternalServerErrorException } from "../../../exceptions/exceptions";
+import { Role } from "../../../common/enums/role.enum";
 import { sendMail } from "../../mail/utils/mailer.util";
 import { verifyEmailTemplate } from "../../mail/templates/verify-email.template";
 import { Lang } from "../../../common/i18n/i18n.util";
@@ -21,6 +22,11 @@ export const register = async (data: RegisterDto, lang: Lang): Promise<{ id: str
 
         const hashed_password = await hashPassword(data.password);
 
+        // Todo registro nace con el rol base "user"; si falta es un problema
+        // de configuración (seeds/migración), no del request.
+        const defaultRole = await prisma.role.findFirst({ where: { name: Role.USER, deleted_at: null } });
+        if (!defaultRole) throw new InternalServerErrorException("errors.DEFAULT_ROLE_MISSING");
+
         // Del token de verificación solo se persiste su hash SHA-256; el token
         // en claro viaja únicamente en el enlace del correo.
         const raw_token = generateSecureToken();
@@ -32,6 +38,7 @@ export const register = async (data: RegisterDto, lang: Lang): Promise<{ id: str
                 last_name: data.last_name,
                 email: data.email,
                 password: hashed_password,
+                role_id: defaultRole.id,
                 verification_token_hash: sha256(raw_token),
                 verification_token_expires_at: expires_at,
             },

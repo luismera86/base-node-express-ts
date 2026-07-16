@@ -23,6 +23,7 @@ export const ownerOrAdmin = (param = "id") => {
 export const restrictPrivilegedFields = (req: Request, _res: Response, next: NextFunction) => {
     if (req.user?.role !== Role.ADMIN && req.body && typeof req.body === "object") {
         delete (req.body as Record<string, unknown>).role;
+        delete (req.body as Record<string, unknown>).role_id;
         delete (req.body as Record<string, unknown>).is_active;
     }
     next();

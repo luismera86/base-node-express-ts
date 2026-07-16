@@ -131,9 +131,13 @@ Definida en [strong-password.schema.ts](src/common/schemas/strong-password.schem
 
 ### Roles (RBAC)
 
-- `user.role` (`admin` | `user`, default `user`) — enum en [role.enum.ts](src/common/enums/role.enum.ts) (en Prisma se usa `String`).
-- El rol viaja **dentro del JWT**: sin consulta extra por request. Un cambio de rol aplica al renovar el token o al re-loguear.
-- Middlewares: `requireRole(Role.ADMIN)`, `ownerOrAdmin()` (anti-IDOR) y `restrictPrivilegedFields` (anti mass-assignment).
+Los roles viven en la **tabla `roles`** (módulo [src/modules/role/](src/modules/role)) y cada usuario referencia el suyo por FK (`user.role_id`, un rol por usuario).
+
+- **Roles base** `admin` y `user`: los inserta la migración `roles-table` (y el seed los garantiza tras un reset). Sus nombres viven en el enum [role.enum.ts](src/common/enums/role.enum.ts) porque la autorización compara por nombre — por eso **no pueden renombrarse ni eliminarse por API** (400 `ROLE_PROTECTED`).
+- **CRUD de roles** en `/api/v1/role` (solo admin): crear, listar (paginado, con `_count.users`), editar y eliminar (soft delete). Un rol con usuarios asignados no se elimina (409 `ROLE_IN_USE`); un nombre duplicado responde 409.
+- En la API de usuarios el rol viaja **por nombre** (`role: "editor"` en create/update) y se resuelve a `role_id` internamente (404 si no existe). Las respuestas incluyen el rol como objeto.
+- El **nombre del rol** viaja dentro del JWT: sin consulta extra por request. Un cambio de rol aplica al renovar el token o al re-loguear.
+- Middlewares: `requireRole(Role.ADMIN)`, `ownerOrAdmin()` (anti-IDOR) y `restrictPrivilegedFields` (anti mass-assignment: descarta `role`, `role_id` e `is_active` si el solicitante no es admin).
 - El seed crea un admin listo para usar: `admin@example.com` / `Password123!`.
 
 ---
@@ -316,7 +320,7 @@ src/
 ├── docs/
 │   └── paths/          # Definiciones OpenAPI por módulo
 ├── exceptions/         # Clases de excepción HTTP + handler global
-├── modules/            # Módulos de la aplicación (auth, user, mail, events, ...)
+├── modules/            # Módulos de la aplicación (auth, user, role, mail, events, ...)
 ├── seeds/              # Scripts de datos mock
 └── app.ts              # Punto de entrada
 ```

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import request from "supertest";
 
-vi.mock("../src/common/mail/mailer.util", () => ({
+vi.mock("../src/modules/mail/utils/mailer.util", () => ({
     sendMail: vi.fn(async () => {}),
 }));
 
@@ -25,7 +25,11 @@ const loginCookie = async (email: string): Promise<string> => {
 describe("user e2e (RBAC + paginación)", () => {
     beforeAll(async () => {
         // Los usuarios de prueba se crean directo en la DB (verificados).
+        // Los roles base ya existen (los inserta la migración roles-table).
         const password = await hashPassword(PASSWORD);
+        const roles = await prisma.role.findMany({ where: { name: { in: ["admin", "user"] } } });
+        const roleId = Object.fromEntries(roles.map((r) => [r.name, r.id]));
+
         await prisma.user.createMany({
             data: [
                 {
@@ -33,7 +37,7 @@ describe("user e2e (RBAC + paginación)", () => {
                     last_name: "E2E",
                     email: ADMIN_EMAIL,
                     password,
-                    role: "admin",
+                    role_id: roleId.admin,
                     email_verified: true,
                 },
                 ...Array.from({ length: 7 }, (_, i) => ({
@@ -41,7 +45,7 @@ describe("user e2e (RBAC + paginación)", () => {
                     last_name: "E2E",
                     email: i === 0 ? USER_EMAIL : `e2e-user-${i}@test.com`,
                     password,
-                    role: "user",
+                    role_id: roleId.user,
                     email_verified: true,
                 })),
             ],
@@ -107,8 +111,8 @@ describe("user e2e (RBAC + paginación)", () => {
             .send({ first_name: "Cambiado", role: "admin" });
         expect(res.status).toBe(200);
 
-        const after = await prisma.user.findFirst({ where: { id: me!.id } });
+        const after = await prisma.user.findFirst({ where: { id: me!.id }, include: { role: true } });
         expect(after!.first_name).toBe("Cambiado");
-        expect(after!.role).toBe("user");
+        expect(after!.role.name).toBe("user");
     });
 });

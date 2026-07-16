@@ -20,6 +20,7 @@ export const refreshToken = async (rawToken: string): Promise<AuthTokens> => {
         const user = await prisma.user.findFirst({
             where: { id: userId, is_active: true, deleted_at: null },
             omit: { refresh_token_hash: false },
+            include: { role: true },
         });
         if (!user || !user.refresh_token_hash) {
             throw new UnauthorizedException("errors.INVALID_OR_EXPIRED_TOKEN");
@@ -34,7 +35,7 @@ export const refreshToken = async (rawToken: string): Promise<AuthTokens> => {
         }
 
         // Rotación: se emite un nuevo par y se invalida el refresh anterior.
-        const accessToken = await createAccessToken({ id: user.id, email: user.email, role: user.role });
+        const accessToken = await createAccessToken({ id: user.id, email: user.email, role: user.role.name });
         const { token: newRefreshToken } = await createRefreshToken(user.id);
 
         await prisma.user.update({
@@ -45,7 +46,7 @@ export const refreshToken = async (rawToken: string): Promise<AuthTokens> => {
         return {
             accessToken,
             refreshToken: newRefreshToken,
-            user: { id: user.id, email: user.email, role: user.role },
+            user: { id: user.id, email: user.email, role: user.role.name },
         };
     } catch (error: unknown) {
         logger.error("Error refreshing token", (error as Error).message);

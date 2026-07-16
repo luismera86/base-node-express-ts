@@ -28,13 +28,15 @@ export const authUser = async (req: Request, res: Response, next: NextFunction) 
 
         const user = await prisma.user.findFirst({
             where: { id: decoded.id, is_active: true, deleted_at: null },
+            include: { role: true },
         });
         if (!user) throw new UnauthorizedException("errors.USER_INACTIVE");
 
         req.user = {
             id: user.id,
             email: user.email,
-            role: user.role,
+            // La autorización (requireRole, ownership) compara por nombre de rol.
+            role: user.role.name,
             is_active: user.is_active,
         };
         next();

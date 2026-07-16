@@ -19,7 +19,12 @@ export const CreateUserSchema = {
                 example: "Secret1234!",
                 description: "Contraseña (8-128 caracteres, con minúscula, mayúscula, número y especial)",
             }),
-            role: z.string().optional().openapi({ example: "user", description: "Rol del usuario" }),
+            role: z
+                .string()
+                .trim()
+                .toLowerCase()
+                .optional()
+                .openapi({ example: "user", description: "Nombre del rol (de la tabla roles); default: user" }),
         })
         .openapi("User"),
 };
@@ -43,8 +48,15 @@ export const UpdateUserSelfSchema = {
 
 // Schema de salida: NO incluye campos sensibles (password, reset_token,
 // reset_token_expires_at, refresh_token) — coherente con el `omit` global de Prisma.
-export const UserSchema = CreateUserSchema.body.omit({ password: true }).extend({
+// El rol sale como objeto (relación con la tabla roles).
+export const UserSchema = CreateUserSchema.body.omit({ password: true, role: true }).extend({
     id: z.string().uuid(),
+    role_id: z.string().uuid(),
+    role: z.object({
+        id: z.string().uuid(),
+        name: z.string().openapi({ example: "user" }),
+        description: z.string().nullable(),
+    }),
     is_active: z.boolean(),
     created_at: z.date(),
     updated_at: z.date(),

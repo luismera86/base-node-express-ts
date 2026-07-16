@@ -1,4 +1,10 @@
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+
+// Con zod-to-openapi v8 + zod 4, `.openapi()` solo existe en schemas creados
+// DESPUÉS de extendZodWithOpenApi: cada módulo que crea schemas debe extender
+// antes, sin depender del orden de imports de quien lo consume.
+extendZodWithOpenApi(z);
 
 /**
  * Política de contraseñas reutilizable (registro y reset): entre 8 y 128

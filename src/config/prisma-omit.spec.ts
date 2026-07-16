@@ -18,6 +18,8 @@ describe("prisma global omit", () => {
                 last_name: "Test",
                 email,
                 password: await hashPassword("Password123!"),
+                // Rol base sembrado por la migración roles-table.
+                role: { connect: { name: "user" } },
             },
         });
 

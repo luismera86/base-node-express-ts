@@ -23,6 +23,7 @@ export const login = async (data: LoginDto): Promise<AuthTokens> => {
         const user = await prisma.user.findFirst({
             where: { email: data.email, is_active: true, deleted_at: null },
             omit: { password: false },
+            include: { role: true },
         });
         if (!user) throw new UnauthorizedException("errors.INVALID_CREDENTIALS");
 
@@ -31,7 +32,7 @@ export const login = async (data: LoginDto): Promise<AuthTokens> => {
 
         if (!user.email_verified) throw new ForbiddenException("errors.EMAIL_NOT_VERIFIED");
 
-        const accessToken = await createAccessToken({ id: user.id, email: user.email, role: user.role });
+        const accessToken = await createAccessToken({ id: user.id, email: user.email, role: user.role.name });
         const { token: refreshToken } = await createRefreshToken(user.id);
 
         // Solo se persiste el hash SHA-256 del refresh, nunca el token en claro.
@@ -40,7 +41,7 @@ export const login = async (data: LoginDto): Promise<AuthTokens> => {
             data: { refresh_token_hash: sha256(refreshToken) },
         });
 
-        return { accessToken, refreshToken, user: { id: user.id, email: user.email, role: user.role } };
+        return { accessToken, refreshToken, user: { id: user.id, email: user.email, role: user.role.name } };
     } catch (error: unknown) {
         logger.error("Error logging in", (error as Error).message);
         throw error;

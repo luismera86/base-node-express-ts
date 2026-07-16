@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.config";
 import { LoggerService } from "../common/utils/logger.util";
+import { seedRole } from "./role.seed";
 import { seedUser } from "./user.seed";
 
 const logger = new LoggerService("Seed");
@@ -9,6 +10,10 @@ const runSeeds = async () => {
     logger.info("Database connected for seeding");
 
     try {
+        // Los roles van primero: user.seed asigna role_id por nombre.
+        await seedRole(prisma);
+        logger.info("Seed de role ejecutado");
+
         await seedUser(prisma);
         logger.info("Seed de user ejecutado");
 
