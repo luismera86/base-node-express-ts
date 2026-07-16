@@ -38,7 +38,7 @@ const envSchema = z
         MAIL_SECURE: z
             .enum(["true", "false"])
             .transform((v) => v === "true")
-            .default("false"),
+            .default(false),
         MAIL_USER: z.string().optional(),
         MAIL_PASSWORD: z.string().optional(),
         MAIL_FROM: z.string().default("no-reply@example.com"),

@@ -24,11 +24,13 @@ Antes de crear archivos manualmente o ejecutar cualquier comando, **revisar si e
 
 ## Stack
 
-- **Runtime**: Node.js v20+, TypeScript, Express
-- **ORM**: Prisma (PostgreSQL) — instancia centralizada en `src/config/prisma.config.ts`
+- **Runtime**: Node.js v20+, TypeScript, Express, pnpm
+- **ORM**: Prisma (PostgreSQL) — instancia centralizada en `src/config/prisma.config.ts` (con `omit` global de campos sensibles)
 - **Validación**: Zod + `@asteasolutions/zod-to-openapi` (approach code-first)
+- **Auth**: JWT (jose) en cookies httpOnly con rotación de refresh + detección de reuso; passwords con argon2id, tokens de un solo uso con SHA-256
 - **Testing**: Vitest
-- **Logger**: `LoggerService` importado de `common/utils/logger.util`
+- **Logger**: `LoggerService` importado de `common/utils/logger.util` (pino por debajo: JSON + x-request-id + rotación de archivos)
+- **Mail**: `sendMail` de `common/mail/mailer.util` + templates en `common/mail/templates/` (log-only sin `MAIL_HOST`)
 
 ## Estructura de un módulo
 
@@ -51,6 +53,11 @@ No hay clases Repository — los use cases usan `prisma` directamente.
 - Los enums van en `src/common/enums/<nombre>.enum.ts`. **No usar enum en modelos Prisma** — usar `String` en el schema y el enum solo a nivel código.
 - Funcionalidades transversales → `src/common/utils/`.
 - Cada módulo debe tener su propio cron job en un archivo `.job.ts`.
+- **Errores i18n**: las excepciones se lanzan con claves de traducción — `throw new NotFoundException("errors.NOT_FOUND")`. Las claves viven en `src/common/i18n/locales/es.locale.ts` y `en.locale.ts` (agregar en AMBOS). El handler global traduce según `Accept-Language`.
+- **Listados**: siempre paginados con `PaginationQuerySchema` / `paginate()` de `src/common/schemas/pagination.schema.ts` — respuesta `{ items, total, page, limit, pages }`.
+- **Passwords en schemas**: usar `strongPasswordSchema` de `src/common/schemas/strong-password.schema.ts` (registro/creación/reset; nunca en login).
+- **Variables de entorno**: agregar SIEMPRE al schema de `src/config/env.config.ts` (validación fail-fast) y documentar en `.env.example` y README.
+- **Tokens de un solo uso** (verificación, reset): guardar solo `sha256(token)` (de `common/utils/hash.util`), nunca el token en claro; lookup por hash.
 
 ## Scripts de generación (usar siempre en lugar de crear archivos a mano)
 

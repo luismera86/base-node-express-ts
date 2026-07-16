@@ -1,5 +1,7 @@
 import { BasePath } from "../base.path";
 import { RegisterPath } from "./register.path";
+import { VerifyEmailPath } from "./verify-email.path";
+import { ResendVerificationPath } from "./resend-verification.path";
 import { LoginPath } from "./login.path";
 import { ForgotPasswordPath } from "./forgot-password.path";
 import { ResetPasswordPath } from "./reset-password.path";
@@ -14,6 +16,8 @@ export class AuthPaths extends BasePath {
 
     register(): void {
         new RegisterPath(this.registry).register();
+        new VerifyEmailPath(this.registry).register();
+        new ResendVerificationPath(this.registry).register();
         new LoginPath(this.registry).register();
         new ForgotPasswordPath(this.registry).register();
         new ResetPasswordPath(this.registry).register();

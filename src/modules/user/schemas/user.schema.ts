@@ -1,7 +1,13 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { PaginationQuerySchema } from "../../../common/schemas/pagination.schema";
+import { strongPasswordSchema } from "../../../common/schemas/strong-password.schema";
 
 extendZodWithOpenApi(z);
+
+export const GetAllUsersSchema = {
+    query: PaginationQuerySchema,
+};
 
 export const CreateUserSchema = {
     body: z
@@ -9,10 +15,10 @@ export const CreateUserSchema = {
             first_name: z.string().openapi({ example: "Juan", description: "Nombre del usuario" }),
             last_name: z.string().openapi({ example: "Pérez", description: "Apellido del usuario" }),
             email: z.string().email().openapi({ example: "juan@example.com", description: "Email del usuario" }),
-            password: z
-                .string()
-                .min(8)
-                .openapi({ example: "secret1234", description: "Contraseña (mín. 8 caracteres)" }),
+            password: strongPasswordSchema.openapi({
+                example: "Secret1234!",
+                description: "Contraseña (8-128 caracteres, con minúscula, mayúscula, número y especial)",
+            }),
             role: z.string().optional().openapi({ example: "user", description: "Rol del usuario" }),
         })
         .openapi("User"),

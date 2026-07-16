@@ -13,7 +13,10 @@ export class LoginPath extends BasePath {
             tags: ["auth"],
             method: "post",
             path: "/auth/login",
-            summary: "Iniciar sesión",
+            summary: "Iniciar sesión (tokens en cookies httpOnly)",
+            description:
+                "Setea las cookies httpOnly `access_token` y `refresh_token` (Set-Cookie); los tokens nunca viajan en el body. " +
+                "Mismo 401 exista o no el email (anti-enumeración). 403 si el correo no está verificado.",
             request: {
                 body: {
                     content: { "application/json": { schema: LoginSchema.body } },
@@ -21,14 +24,23 @@ export class LoginPath extends BasePath {
             },
             responses: {
                 200: {
-                    description: "Login exitoso",
+                    description: "Login exitoso: cookies seteadas, datos básicos del usuario en el body",
                     content: {
                         "application/json": {
-                            schema: z.object({ token: z.string(), refresh_token: z.string() }).openapi("LoginResponse"),
+                            schema: z
+                                .object({
+                                    user: z.object({
+                                        id: z.string().uuid(),
+                                        email: z.string().email(),
+                                        role: z.string(),
+                                    }),
+                                })
+                                .openapi("LoginResponse"),
                         },
                     },
                 },
                 401: { description: "Credenciales inválidas" },
+                403: { description: "Correo no verificado" },
             },
         });
     }

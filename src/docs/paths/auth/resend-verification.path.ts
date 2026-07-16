@@ -1,8 +1,8 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { ForgotPasswordSchema } from "../../../modules/auth/schemas/auth.schema";
+import { ResendVerificationSchema } from "../../../modules/auth/schemas/auth.schema";
 
-export class ForgotPasswordPath extends BasePath {
+export class ResendVerificationPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
         super(registry);
     }
@@ -11,14 +11,14 @@ export class ForgotPasswordPath extends BasePath {
         this.registry.registerPath({
             tags: ["auth"],
             method: "post",
-            path: "/auth/forgot-password",
-            summary: "Solicitar recuperación de contraseña",
+            path: "/auth/resend-verification",
+            summary: "Reenviar el correo de verificación",
             description:
-                "Responde 204 SIEMPRE — exista o no el email (anti-enumeración). Si existe, envía por correo " +
-                "un enlace con token de un solo uso y vencimiento configurable.",
+                "Genera un token nuevo (el enlace anterior queda invalidado) y reenvía el correo. " +
+                "Responde 204 SIEMPRE — exista o no el email, esté o no verificado (anti-enumeración).",
             request: {
                 body: {
-                    content: { "application/json": { schema: ForgotPasswordSchema.body } },
+                    content: { "application/json": { schema: ResendVerificationSchema.body } },
                 },
             },
             responses: {

@@ -24,9 +24,7 @@ const isSupported = (lang: string): lang is Lang => lang in dictionaries;
 export const resolveLang = (acceptLanguage?: string): Lang => {
     if (!acceptLanguage) return DEFAULT_LANG;
 
-    const candidates = acceptLanguage
-        .split(",")
-        .map((part) => part.split(";")[0].trim().toLowerCase().split("-")[0]);
+    const candidates = acceptLanguage.split(",").map((part) => part.split(";")[0].trim().toLowerCase().split("-")[0]);
 
     for (const candidate of candidates) {
         if (isSupported(candidate)) return candidate;
@@ -53,7 +51,5 @@ export const t = (key: string, lang: Lang = DEFAULT_LANG, params?: Record<string
     if (typeof value !== "string") return key;
 
     if (!params) return value;
-    return value.replace(/\{(\w+)\}/g, (match, name: string) =>
-        name in params ? String(params[name]) : match,
-    );
+    return value.replace(/\{(\w+)\}/g, (match, name: string) => (name in params ? String(params[name]) : match));
 };

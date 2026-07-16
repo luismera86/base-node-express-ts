@@ -1,7 +1,6 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
 import { ResetPasswordSchema } from "../../../modules/auth/schemas/auth.schema";
-import { z } from "zod";
 
 export class ResetPasswordPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
@@ -13,23 +12,18 @@ export class ResetPasswordPath extends BasePath {
             tags: ["auth"],
             method: "post",
             path: "/auth/reset-password",
-            summary: "Resetear contraseña con token",
+            summary: "Restablecer la contraseña con el token recibido",
+            description:
+                "Valida el token (un solo uso, con vencimiento), aplica la política de contraseñas y " +
+                "revoca todas las sesiones activas del usuario.",
             request: {
                 body: {
                     content: { "application/json": { schema: ResetPasswordSchema.body } },
                 },
             },
             responses: {
-                200: {
-                    description: "Contraseña actualizada exitosamente",
-                    content: {
-                        "application/json": {
-                            schema: z.object({ message: z.string() }),
-                        },
-                    },
-                },
-                400: { description: "Token inválido o expirado" },
-                404: { description: "Usuario no encontrado" },
+                204: { description: "Contraseña actualizada" },
+                400: { description: "Token inválido o expirado, o contraseña débil" },
             },
         });
     }

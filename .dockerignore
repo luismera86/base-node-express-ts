@@ -1,0 +1,12 @@
+node_modules
+dist
+logs
+.git
+.env
+.env.*
+!.env.example
+*.md
+.vscode
+.claude
+coverage
+tsconfig.tsbuildinfo

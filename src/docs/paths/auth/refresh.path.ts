@@ -13,7 +13,10 @@ export class RefreshPath extends BasePath {
             tags: ["auth"],
             method: "post",
             path: "/auth/refresh",
-            summary: "Renovar access token con un refresh token",
+            summary: "Rotar el par de tokens usando el refresh token",
+            description:
+                "Lee el refresh de su cookie httpOnly (fallback: `refresh_token` en el body para clientes API), " +
+                "rota el par y setea las nuevas cookies. Presentar un refresh ya rotado revoca la sesión completa (detección de reuso).",
             request: {
                 body: {
                     content: { "application/json": { schema: RefreshTokenSchema.body } },
@@ -21,16 +24,22 @@ export class RefreshPath extends BasePath {
             },
             responses: {
                 200: {
-                    description: "Tokens renovados (rotación de refresh token)",
+                    description: "Tokens rotados: nuevas cookies seteadas",
                     content: {
                         "application/json": {
                             schema: z
-                                .object({ token: z.string(), refresh_token: z.string() })
+                                .object({
+                                    user: z.object({
+                                        id: z.string().uuid(),
+                                        email: z.string().email(),
+                                        role: z.string(),
+                                    }),
+                                })
                                 .openapi("RefreshResponse"),
                         },
                     },
                 },
-                401: { description: "Refresh token inválido o expirado" },
+                401: { description: "Refresh token inválido, expirado o reusado" },
             },
         });
     }

@@ -11,7 +11,7 @@ describe("prisma global omit", () => {
         await prisma.$disconnect();
     });
 
-    it("no expone password/reset_token/refresh_token al leer un usuario", async () => {
+    it("no expone password ni hashes de tokens al leer un usuario", async () => {
         await prisma.user.create({
             data: {
                 first_name: "Omit",
@@ -25,10 +25,11 @@ describe("prisma global omit", () => {
         expect(user).not.toBeNull();
         const serialized = JSON.parse(JSON.stringify(user));
         expect(serialized).not.toHaveProperty("password");
-        expect(serialized).not.toHaveProperty("reset_token");
+        expect(serialized).not.toHaveProperty("reset_token_hash");
         expect(serialized).not.toHaveProperty("reset_token_expires_at");
-        expect(serialized).not.toHaveProperty("refresh_token");
-        expect(serialized).not.toHaveProperty("refresh_token_expires_at");
+        expect(serialized).not.toHaveProperty("refresh_token_hash");
+        expect(serialized).not.toHaveProperty("verification_token_hash");
+        expect(serialized).not.toHaveProperty("verification_token_expires_at");
     });
 
     it("permite reactivar el campo con omit:false cuando se necesita el hash", async () => {

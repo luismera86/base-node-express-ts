@@ -1,6 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { BasePath } from "../base.path";
-import { z } from "zod";
 
 export class LogoutPath extends BasePath {
     constructor(registry: OpenAPIRegistry) {
@@ -12,17 +11,10 @@ export class LogoutPath extends BasePath {
             tags: ["auth"],
             method: "post",
             path: "/auth/logout",
-            summary: "Cerrar sesión (revoca el refresh token)",
+            summary: "Cerrar sesión (revoca el refresh token y limpia las cookies)",
             security: [{ bearerAuth: [] }],
             responses: {
-                200: {
-                    description: "Sesión cerrada",
-                    content: {
-                        "application/json": {
-                            schema: z.object({ message: z.string() }).openapi("LogoutResponse"),
-                        },
-                    },
-                },
+                204: { description: "Sesión cerrada" },
                 401: { description: "No autorizado" },
             },
         });

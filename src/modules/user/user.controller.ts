@@ -5,10 +5,12 @@ import { createUser } from "./use-cases/create-user.use-case";
 import { updateUser } from "./use-cases/update-user.use-case";
 import { deleteUser } from "./use-cases/delete-user.use-case";
 import { UpdateUserDto } from "./schemas/user.schema";
+import { PaginationQueryDto } from "../../common/schemas/pagination.schema";
 
 export const getAllUsersController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await getAllUsers();
+        // req.query ya viene validado y con defaults por validateSchema(GetAllUsersSchema).
+        const users = await getAllUsers(req.query as unknown as PaginationQueryDto);
         res.json(users);
     } catch (error) {
         next(error);

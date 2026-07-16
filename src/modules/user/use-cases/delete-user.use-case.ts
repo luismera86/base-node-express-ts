@@ -7,7 +7,7 @@ const logger = new LoggerService("DeleteUserUseCase");
 export const deleteUser = async (id: string): Promise<void> => {
     try {
         const user = await prisma.user.findFirst({ where: { id, deleted_at: null } });
-        if (!user) throw new NotFoundException("User not found");
+        if (!user) throw new NotFoundException("errors.USER_NOT_FOUND");
 
         // Soft delete: se conserva el registro y se invalida la sesión.
         await prisma.user.update({
@@ -15,8 +15,7 @@ export const deleteUser = async (id: string): Promise<void> => {
             data: {
                 deleted_at: new Date(),
                 is_active: false,
-                refresh_token: null,
-                refresh_token_expires_at: null,
+                refresh_token_hash: null,
             },
         });
     } catch (error: unknown) {
